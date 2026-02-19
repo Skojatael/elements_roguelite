@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://tkbbpsd88xkg"]
+
+[ext_resource type="Script" uid="uid://xkvyvcj7w4d2" path="res://scenes/combat/enemies/Enemy.gd" id="1_sa5m8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_sb7jt"]
+radius = 20.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gmmp3"]
+radius = 200.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dpqka"]
+radius = 22.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=47882193]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_sa5m8")
+enemy_type_id = "skeleton"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1774991746]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(1, 0.07058824, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=290873747]
+shape = SubResource("CircleShape2D_sb7jt")
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=146598564]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=524491285]
+shape = SubResource("CircleShape2D_gmmp3")
+
+[node name="ContactArea" type="Area2D" parent="." unique_id=517911854]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactArea" unique_id=42802704]
+shape = SubResource("CircleShape2D_dpqka")

@@ -1,1 +1,22 @@
-{}
+{
+	"enemies": [
+		{
+			"id": "slime",
+			"display_name": "Slime",
+			"max_health": 3.0,
+			"damage": 1.0,
+			"move_speed": 60.0,
+			"detection_range": 200.0,
+			"damage_cooldown": 0.5
+		},
+		{
+			"id": "skeleton",
+			"display_name": "Skeleton",
+			"max_health": 6.0,
+			"damage": 2.0,
+			"move_speed": 80.0,
+			"detection_range": 250.0,
+			"damage_cooldown": 1.0
+		}
+	]
+}
