@@ -1,3 +1,19 @@
 [gd_scene format=3 uid="uid://id1otrhsveyr"]
 
-[node name="Player" type="Node2D" unique_id=1059078168]
+[ext_resource type="Script" uid="uid://bbdf1e7rpl2ql" path="res://scenes/player/components/MovementComponent.gd" id="1_wr5hl"]
+
+[node name="Player" type="CharacterBody2D" unique_id=1724136209]
+
+[node name="MovementComponent" type="Node" parent="." unique_id=210607446]
+script = ExtResource("1_wr5hl")
+metadata/_custom_type_script = "uid://bbdf1e7rpl2ql"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=417735801]
+custom_minimum_size = Vector2(60, 60)
+offset_left = 180.0
+offset_top = 180.0
+offset_right = 240.0
+offset_bottom = 240.0
+color = Color(0.9400933, 0.75405973, 0.2268714, 1)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1376489589]

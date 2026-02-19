@@ -1,33 +1,33 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (unfilled template) → 1.0.0
-Bump type: MINOR — initial ratification; all content is net-new.
+Version change: 1.0.0 → 1.1.0
+Bump type: MINOR — Principle I renamed and materially expanded to make
+Single Responsibility Principle explicit; SRP-related rules consolidated
+from Principle V into Principle I; Principle V trimmed to pure YAGNI rules.
 
-Modified principles: N/A (no prior version)
+Modified principles:
+  - "I. Scene-Component Architecture" → "I. Single Responsibility"
+    (renamed; scope broadened from player-only to all scripts/scenes/autoloads)
+  - "V. Simplicity & YAGNI"
+    (script co-location rule and autoload duplication rule migrated to Principle I;
+     remaining content unchanged)
 
-Added sections:
-  - Core Principles (I–V)
-  - Technology Stack
-  - Development Workflow
-  - Governance
+Added sections: NONE
 
-Removed sections: N/A
+Removed sections: NONE
 
 Templates reviewed:
   ✅ .specify/templates/plan-template.md
-       — "Constitution Check" section already uses a generic gate placeholder
-         "[Gates determined based on constitution file]"; no structural change
-         needed. Implementors MUST verify the five principles below at that gate.
+       — "Constitution Check" gate is generic; no structural change needed.
+         Implementors MUST now verify SRP at every layer (scripts, scenes,
+         autoloads), not just player components.
   ✅ .specify/templates/spec-template.md
-       — No mandatory sections added or removed by this constitution.
-         Mobile-first and data-driven constraints are captured in FR requirements
-         by convention; no template edits required.
+       — No mandatory sections added or removed; no edits required.
   ✅ .specify/templates/tasks-template.md
-       — Task categories (Setup, Foundational, User Story phases) align with
-         the workflow defined here. No structural changes needed.
+       — Task categories unchanged; no edits required.
   ✅ .specify/templates/agent-file-template.md
-       — Generic placeholder template; no project-specific references required.
+       — Generic; no edits required.
 
 Deferred items: NONE
 Follow-up TODOs: NONE
@@ -37,24 +37,33 @@ Follow-up TODOs: NONE
 
 ## Core Principles
 
-### I. Scene-Component Architecture (NON-NEGOTIABLE)
+### I. Single Responsibility (NON-NEGOTIABLE)
 
-All gameplay behavior MUST be implemented as Godot scenes with co-located scripts
-or dedicated component scripts under the established folder conventions in CLAUDE.md.
+Every script, scene, component, and autoload MUST have exactly one reason to
+change — a single, well-defined responsibility.
 
-- Player behavior MUST be composed from the discrete child components defined in
-  `scenes/player/components/` (MovementComponent, DodgeComponent, CombatComponent,
-  SkillComponent, StatsComponent). Monolithic player scripts that combine multiple
-  responsibilities are prohibited.
-- Every scene MUST be independently preloadable and self-contained; implicit
-  cross-scene node path dependencies via `get_node()` reaching outside a scene's
-  own subtree are prohibited — use autoloads or signals instead.
-- New behavior categories (e.g., a new player capability) MUST each become a
-  separate component script rather than extending an existing component.
+- **Scripts**: A script MUST handle one concern. Mixing data-parsing, game
+  logic, and UI presentation in a single script is prohibited. Scripts MUST be
+  co-located with their scene when they serve only that scene; scripts placed
+  in `res://scripts/` MUST be shared by at least two distinct scenes or serve
+  as a manager/autoload.
+- **Player components**: Player behavior MUST be composed from the discrete
+  child components in `scenes/player/components/` (MovementComponent,
+  DodgeComponent, CombatComponent, SkillComponent, StatsComponent). Monolithic
+  player scripts are prohibited. New player capabilities MUST each become a
+  separate component rather than extending an existing one.
+- **Scenes**: Every scene MUST be independently preloadable and self-contained.
+  Cross-scene `get_node()` paths reaching outside a scene's own subtree are
+  prohibited — communicate via autoloads or signals instead.
+- **Autoloads**: Each autoload MUST own exactly one domain (e.g.,
+  `ResourceManager` handles only resource loading; it MUST NOT absorb save or
+  meta logic). New autoloads MUST NOT duplicate responsibility with an existing
+  autoload, and MUST be explicitly justified in the feature plan.
 
-**Rationale**: Component composition is the primary mechanism for controlling
-complexity in a Godot project. Enforcing it at the constitution level prevents
-the codebase from collapsing into a single over-sized player script over time.
+**Rationale**: A single reason to change makes every unit independently
+testable, replaceable, and understandable. In a Godot roguelite that grows a
+large feature surface quickly, SRP at every layer is the primary defence
+against tangled code.
 
 ### II. Data-Driven Content
 
@@ -113,14 +122,8 @@ consistent and reviewable.
 Complexity MUST be justified by a concrete, present requirement — not a
 speculative future one.
 
-- Scripts MUST be co-located with their scene (same folder) when they serve
-  only that scene. Scripts placed in `res://scripts/` MUST be shared by at
-  least two distinct scenes or be a manager/autoload.
 - An abstraction (base class, utility, shared resource) MUST NOT be introduced
   until at least two concrete call sites require it.
-- Autoloads (singletons) are a limited resource: new autoloads require explicit
-  justification in the feature plan and MUST NOT duplicate responsibility with
-  an existing autoload.
 - Features outside the current run's scope MUST be deferred; placeholder nodes
   or stub scripts acting as "future hooks" are prohibited.
 
@@ -146,14 +149,15 @@ and speculative infrastructure are the primary sources of technical debt here.
 2. **Constitution gate** — Every plan MUST pass the Constitution Check (verify
    Principles I–V) before Phase 0 research begins.
 3. **Scene-first** — Create the scene hierarchy in the Godot Editor first;
-   attach component scripts second; wire signals third.
+   attach single-responsibility component scripts second; wire signals third.
 4. **Data-first for content** — Define or extend the relevant JSON schema in
    `res://data/` before writing any GDScript that consumes it.
 5. **Incremental commits** — Commit after each logical unit (scene created,
    component wired, data model implemented). Use the godot-git-plugin or CLI;
    never amend published commits on `main`.
-6. **Review gate** — All PRs MUST confirm: scene structure follows component
-   architecture, no hard-coded balance values, shader is Mobile-compatible.
+6. **Review gate** — All PRs MUST confirm: SRP is respected at every layer
+   (scripts, scenes, autoloads), no hard-coded balance values, shader is
+   Mobile-compatible.
 
 ## Governance
 
@@ -184,4 +188,4 @@ consistent with this constitution; if they conflict, this constitution governs.
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-19
+**Version**: 1.1.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-19

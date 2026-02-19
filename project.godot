@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="first"
+run/main_scene="uid://b04euk47ajcmk"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GlobalSignals="*uid://cwp77iy48wbka"
 
 [display]
 
@@ -30,11 +35,17 @@ version_control/autoload_on_startup=true
 [file_customization]
 
 folder_colors={
+"res://assets/": "yellow",
 "res://autoload/": "purple",
 "res://data/": "orange",
 "res://scenes/": "green",
 "res://scripts/": "teal"
 }
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=false
 
 [physics]
 
