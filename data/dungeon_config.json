@@ -9,6 +9,7 @@
 		"CombatRoom02": {
 			"spawn_points": [
 				{ "enemy_id": "skeleton", "position": { "x": 0, "y": 0 }, "radius": 0 }
+				
 			]
 		},
 		"EliteRoom01": {

@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://b04euk47ajcmk"]
 
-[ext_resource type="Script" uid="uid://cs5sn75bsfahn" path="res://scenes/core/Main.gd" id="1_fun78"]
+[ext_resource type="Script" path="res://scenes/core/Main.gd" id="1_fun78"]
 [ext_resource type="PackedScene" uid="uid://id1otrhsveyr" path="res://scenes/player/Player.tscn" id="2_5pwbx"]
 [ext_resource type="PackedScene" uid="uid://cwwbw4g2rnxcw" path="res://scenes/ui/hud/ExplorationHUD.tscn" id="3_kitw3"]
-[ext_resource type="PackedScene" uid="uid://tkbbpsd88xkg" path="res://scenes/combat/enemies/Enemy.tscn" id="4_5pwbx"]
+[ext_resource type="PackedScene" uid="uid://csq2bj2vn3vnq" path="res://scenes/dungeon/rooms/CombatRoom01.tscn" id="4_kitw3"]
+[ext_resource type="PackedScene" uid="uid://d2rs08vchckut" path="res://scenes/dungeon/rooms/CombatRoom02.tscn" id="5_a4rsn"]
 
 [node name="Main" type="Node2D" unique_id=1649108647]
 script = ExtResource("1_fun78")
@@ -13,16 +14,19 @@ custom_minimum_size = Vector2(2000, 2000)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -56.0
+offset_right = 1944.0
+offset_bottom = 2000.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.56245923, 0.4304627, 0.7646147, 1)
 
 [node name="ExplorationHUD" parent="." unique_id=724251855 instance=ExtResource("3_kitw3")]
 
+[node name="CombatRoom01" parent="." unique_id=1312423034 instance=ExtResource("4_kitw3")]
+position = Vector2(-552, 1024)
+
+[node name="CombatRoom02" parent="." unique_id=1075236605 instance=ExtResource("5_a4rsn")]
+position = Vector2(2488, 976)
+
 [node name="Player" parent="." unique_id=1059078168 instance=ExtResource("2_5pwbx")]
-
-[node name="Enemy" parent="." unique_id=653365798 instance=ExtResource("4_5pwbx")]
-position = Vector2(180, 240)
-
-[node name="Enemy2" parent="." unique_id=594124385 instance=ExtResource("4_5pwbx")]
-position = Vector2(250, 150)

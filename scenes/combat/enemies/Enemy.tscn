@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://tkbbpsd88xkg"]
 
 [ext_resource type="Script" uid="uid://xkvyvcj7w4d2" path="res://scenes/combat/enemies/Enemy.gd" id="1_sa5m8"]
+[ext_resource type="Script" uid="uid://b6ssgkxgc63dq" path="res://scenes/player/components/StatsComponent.gd" id="2_sb7jt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_sb7jt"]
 radius = 20.0
@@ -38,3 +39,7 @@ collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactArea" unique_id=42802704]
 shape = SubResource("CircleShape2D_dpqka")
+
+[node name="StatsComponent" type="Node" parent="." unique_id=39479410]
+script = ExtResource("2_sb7jt")
+metadata/_custom_type_script = "uid://b6ssgkxgc63dq"

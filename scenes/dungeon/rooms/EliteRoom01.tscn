@@ -1,3 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cw3m4lhbvkan2"]
 
-[node name="EliteRoom01" type="Node2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_est6q"]
+size = Vector2(1080, 1920)
+
+[node name="CombatRoom02" type="Node2D" unique_id=1075236605]
+
+[node name="EntryArea" type="Area2D" parent="." unique_id=660059957]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntryArea" unique_id=278741701]
+shape = SubResource("RectangleShape2D_est6q")

@@ -1,3 +1,27 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d2rs08vchckut"]
 
-[node name="CombatRoom02" type="Node2D"]
+[ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scenes/dungeon/RoomSpawner.gd" id="1_xjmpl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xjmpl"]
+size = Vector2(1080, 1920)
+
+[node name="CombatRoom02" type="Node2D" unique_id=1075236605]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=14366781]
+custom_minimum_size = Vector2(1080, 1920)
+offset_left = -540.0
+offset_top = -960.0
+offset_right = 540.0
+offset_bottom = 960.0
+
+[node name="EntryArea" type="Area2D" parent="." unique_id=660059957]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntryArea" unique_id=278741701]
+shape = SubResource("RectangleShape2D_xjmpl")
+debug_color = Color(0, 0.6, 0.7019608, 0.41960785)
+
+[node name="RoomSpawner" type="Node" parent="." unique_id=1532259797]
+script = ExtResource("1_xjmpl")
+room_id = "CombatRoom02"
+metadata/_custom_type_script = "uid://by6yd440wvr86"
