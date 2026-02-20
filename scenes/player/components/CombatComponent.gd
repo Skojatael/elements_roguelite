@@ -23,7 +23,6 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	print("AttackArea body_entered: ", body.name, " is Enemy=", body is Enemy)
 	if body is Enemy:
 		_overlapping_enemies.append(body)
 

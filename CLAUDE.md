@@ -48,7 +48,15 @@ Implementation counterparts live in `scripts/managers/`.
 ### Data layer
 
 JSON configs in `data/` (`upgrades.json`, `skills.json`, `enemies.json`, `dungeon_config.json`).
-GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `EnemyData`).
+GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `EnemyData`, `SpawnPointData`, `RoomSpawnConfig`).
+
+`dungeon_config.json` contains a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius).
+
+### Enemy spawning (003-enemy-spawning)
+
+- `scenes/dungeon/RoomSpawner.gd` — attached to each room scene; reads spawn config, instantiates enemies, tracks living count, signals `room_cleared`.
+- Each room scene (`CombatRoom01.tscn` etc.) has an `EntryArea` (Area2D) child that triggers spawning on player entry.
+- `RunManager` holds `cleared_rooms: Dictionary` for the current run; `RoomSpawner` calls `mark_room_cleared(room_id)` and checks `is_room_cleared(room_id)`.
 
 ## Folder Conventions
 

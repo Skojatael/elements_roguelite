@@ -1,1 +1,21 @@
-{}
+{
+	"spawn_configs": {
+		"CombatRoom01": {
+			"spawn_points": [
+				{ "enemy_id": "slime", "position": { "x": -100, "y": 0 }, "radius": 30 },
+				{ "enemy_id": "slime", "position": { "x": 100, "y": 0 }, "radius": 30 }
+			]
+		},
+		"CombatRoom02": {
+			"spawn_points": [
+				{ "enemy_id": "skeleton", "position": { "x": 0, "y": 0 }, "radius": 0 }
+			]
+		},
+		"EliteRoom01": {
+			"spawn_points": [
+				{ "enemy_id": "slime", "position": { "x": -80, "y": 0 }, "radius": 20 },
+				{ "enemy_id": "skeleton", "position": { "x": 80, "y": 0 }, "radius": 20 }
+			]
+		}
+	}
+}

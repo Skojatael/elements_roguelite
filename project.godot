@@ -18,6 +18,10 @@ config/icon="res://icon.svg"
 [autoload]
 
 GlobalSignals="*uid://cwp77iy48wbka"
+MetaManager="*uid://b0mittfjn36ff"
+ResourceManager="*uid://byvxo0pntg80x"
+RunManager="*uid://dnicgfek16n66"
+SaveManager="*uid://brhov5unyg4w5"
 
 [display]
 

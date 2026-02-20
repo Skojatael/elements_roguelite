@@ -20,9 +20,19 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: Run `.specify/scripts/powershell/setup-plan.ps1 -Json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **Find feature directory**:
+   - If `$ARGUMENTS` contains a directory name (e.g. `002-enemy-combat`), use `specs/<that-name>/` as FEATURE_DIR.
+   - Otherwise scan `specs/` for all directories matching `[0-9]+-*`:
+     - If exactly one found → use it.
+     - If multiple found → pick the one whose `spec.md` was most recently modified.
+   - Set paths:
+     - `FEATURE_DIR = specs/<matched-directory>/`
+     - `FEATURE_SPEC = FEATURE_DIR/spec.md`
+     - `IMPL_PLAN = FEATURE_DIR/plan.md`
+   - ERROR if `FEATURE_SPEC` does not exist.
+   - Read `.specify/templates/plan-template.md` to understand the required plan structure.
 
-2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`. Load IMPL_PLAN template (already copied).
+2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`.
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
@@ -33,7 +43,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 1: Update agent context by running the agent script
    - Re-evaluate Constitution Check post-design
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
+4. **Stop and report**: Command ends after Phase 2 planning. Report FEATURE_DIR, IMPL_PLAN path, and generated artifacts.
 
 ## Phases
 
@@ -74,14 +84,11 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Use standard REST/GraphQL patterns
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
-3. **Agent context update**:
-   - Run `.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude`
-   - These scripts detect which AI agent is in use
-   - Update the appropriate agent-specific context file
-   - Add only new technology from current plan
-   - Preserve manual additions between markers
+3. **Agent context check**:
+   - Review `CLAUDE.md` to confirm it reflects any new technology introduced by this feature's plan.
+   - If new tools, libraries, or architectural patterns were added, append a brief note under the relevant section of `CLAUDE.md`. Preserve all existing content.
 
-**Output**: data-model.md, /contracts/*, quickstart.md, agent-specific file
+**Output**: data-model.md, /contracts/*, quickstart.md
 
 ## Key rules
 

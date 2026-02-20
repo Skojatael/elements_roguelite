@@ -12,7 +12,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **Find feature directory**:
+   - If `$ARGUMENTS` contains a directory name (e.g. `002-enemy-combat`), use `specs/<that-name>/` as FEATURE_DIR.
+   - Otherwise scan `specs/` for all directories matching `[0-9]+-*`:
+     - If exactly one found → use it.
+     - If multiple found → prefer the one that contains `tasks.md`; if still ambiguous, pick the most recently modified.
+   - ERROR if `FEATURE_DIR/tasks.md` does not exist — suggest running `/speckit.tasks` first.
+   - Build AVAILABLE_DOCS by checking which of these exist in FEATURE_DIR: `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`, `tasks.md`.
 
 2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
    - Scan all checklist files in the checklists/ directory
