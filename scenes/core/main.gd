@@ -9,7 +9,9 @@ func _ready() -> void:
 	_movement.set_joystick(_joystick)
 	_stats.died.connect(_on_player_died)
 	GlobalSignals.gameplay_started.emit()
+	RunManager.start_run("endless")
 
 
 func _on_player_died() -> void:
 	GlobalSignals.gameplay_ended.emit()
+	RunManager.end_run("dead")

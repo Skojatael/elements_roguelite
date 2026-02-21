@@ -3,7 +3,7 @@
 		{
 			"id": "slime",
 			"display_name": "Slime",
-			"max_health": 3.0,
+			"max_health": 10.0,
 			"damage": 1.0,
 			"move_speed": 60.0,
 			"detection_range": 200.0,

@@ -10,6 +10,9 @@ const MAX_ENEMIES := 10
 ## Emitted once, the same frame the last living enemy is defeated.
 signal room_cleared
 
+## Emitted when the player enters this room (after all guards pass).
+signal room_entered(room_id: String)
+
 @onready var _entry_area: Area2D = $"../EntryArea"
 
 var _config: RoomSpawnConfig
@@ -20,6 +23,7 @@ var _spawned: bool = false
 func _ready() -> void:
 	_config = _load_config()
 	_entry_area.body_entered.connect(_on_player_entered)
+	RunManager.register_room(self)
 	print("[RoomSpawner] ready — room_id='%s' spawn_points=%d" % [room_id, _config.spawn_points.size()])
 
 
@@ -64,7 +68,8 @@ func _on_player_entered(body: Node2D) -> void:
 		print("[RoomSpawner] ignored — already spawned")
 		return
 	print("[RoomSpawner] player entered room '%s'" % room_id)
-	_spawn_enemies()
+	room_entered.emit(room_id)
+	_spawn_enemies.call_deferred()
 
 
 func _spawn_enemies() -> void:

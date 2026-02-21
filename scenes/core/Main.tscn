@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b04euk47ajcmk"]
 
-[ext_resource type="Script" path="res://scenes/core/Main.gd" id="1_fun78"]
+[ext_resource type="Script" uid="uid://cs5sn75bsfahn" path="res://scenes/core/Main.gd" id="1_fun78"]
 [ext_resource type="PackedScene" uid="uid://id1otrhsveyr" path="res://scenes/player/Player.tscn" id="2_5pwbx"]
 [ext_resource type="PackedScene" uid="uid://cwwbw4g2rnxcw" path="res://scenes/ui/hud/ExplorationHUD.tscn" id="3_kitw3"]
 [ext_resource type="PackedScene" uid="uid://csq2bj2vn3vnq" path="res://scenes/dungeon/rooms/CombatRoom01.tscn" id="4_kitw3"]

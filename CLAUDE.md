@@ -54,9 +54,37 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 ### Enemy spawning (003-enemy-spawning)
 
-- `scenes/dungeon/RoomSpawner.gd` — attached to each room scene; reads spawn config, instantiates enemies, tracks living count, signals `room_cleared`.
-- Each room scene (`CombatRoom01.tscn` etc.) has an `EntryArea` (Area2D) child that triggers spawning on player entry.
-- `RunManager` holds `cleared_rooms: Dictionary` for the current run; `RoomSpawner` calls `mark_room_cleared(room_id)` and checks `is_room_cleared(room_id)`.
+- `scenes/dungeon/RoomSpawner.gd` — attached to each room scene; reads spawn config, instantiates enemies, tracks living count, signals `room_cleared` and `room_entered`.
+- Each room scene (`CombatRoom01.tscn` etc.) has an `EntryArea` (Area2D) sibling that triggers spawning on player entry.
+- `RoomSpawner._ready()` calls `RunManager.register_room(self)` so RunManager auto-connects to `room_entered` and `room_cleared` signals.
+- `RunManager` holds `cleared_rooms: Dictionary` for the current run; `RoomSpawner` checks `is_room_cleared(room_id)` on entry.
+
+### Run session (004-run-manager)
+
+`autoload/RunManager.gd` manages the full run session lifecycle.
+
+**Session state** (reset on each `start_run()`):
+
+| Field | Type | Description |
+|---|---|---|
+| `run_id` | `String` | Temporary unique ID for this run (`str(Time.get_ticks_msec())`) |
+| `is_run_active` | `bool` | True between `start_run()` and `end_run()` |
+| `run_mode` | `String` | `"endless"` or `"boss"` |
+| `current_tier` | `int` | Difficulty tier (starts at 1; set externally by meta-progression) |
+| `run_start_time` | `float` | Engine time at run start (seconds) |
+| `run_currency` | `float` | Gold accumulated this run (floor 0) |
+| `current_room` | `Node` | Reference to active `RoomSpawner`; null between rooms |
+| `current_room_index` | `int` | How many rooms entered this run (starts at 0) |
+| `cleared_rooms` | `Dictionary` | Map of `room_id → true` for cleared rooms |
+
+**Key methods**: `start_run(mode)`, `end_run()`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
+
+**Signals**: `run_ended` (on `end_run()`), `room_cleared(room_id)` (re-emitted from RoomSpawner).
+
+**Services** (stubs — real logic in a future feature):
+- `RunManager.difficulty_service.get_multiplier() -> float` — returns `1.0`
+- `RunManager.rewards_service.get_room_reward(room_id) -> Dictionary` — returns `{}`
+- Service scripts: `scripts/services/DifficultyService.gd`, `scripts/services/RewardsService.gd`
 
 ## Folder Conventions
 
