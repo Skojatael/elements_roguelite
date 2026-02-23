@@ -1,17 +1,11 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.0 → 1.1.0
-Bump type: MINOR — Principle I renamed and materially expanded to make
-Single Responsibility Principle explicit; SRP-related rules consolidated
-from Principle V into Principle I; Principle V trimmed to pure YAGNI rules.
+Version change: 1.1.0 → 1.1.1
+Bump type: PATCH — Added string formatting style rule to the Scripting bullet
+in the Technology Stack section. No principle added, removed, or redefined.
 
-Modified principles:
-  - "I. Scene-Component Architecture" → "I. Single Responsibility"
-    (renamed; scope broadened from player-only to all scripts/scenes/autoloads)
-  - "V. Simplicity & YAGNI"
-    (script co-location rule and autoload duplication rule migrated to Principle I;
-     remaining content unchanged)
+Modified principles: NONE
 
 Added sections: NONE
 
@@ -19,15 +13,11 @@ Removed sections: NONE
 
 Templates reviewed:
   ✅ .specify/templates/plan-template.md
-       — "Constitution Check" gate is generic; no structural change needed.
-         Implementors MUST now verify SRP at every layer (scripts, scenes,
-         autoloads), not just player components.
+       — No string formatting references; no changes required.
   ✅ .specify/templates/spec-template.md
-       — No mandatory sections added or removed; no edits required.
+       — No string formatting references; no changes required.
   ✅ .specify/templates/tasks-template.md
-       — Task categories unchanged; no edits required.
-  ✅ .specify/templates/agent-file-template.md
-       — Generic; no edits required.
+       — No string formatting references; no changes required.
 
 Deferred items: NONE
 Follow-up TODOs: NONE
@@ -138,7 +128,10 @@ and speculative infrastructure are the primary sources of technical debt here.
 - **Target Platform**: Android mobile (portrait 1080×1920); Windows used for
   development only
 - **Scripting**: GDScript exclusively; static typing (`var x: int`) MUST be used
-  for all script variables, parameters, and return types
+  for all script variables, parameters, and return types; string interpolation
+  MUST use `String.format()` with named keys (e.g.,
+  `"id={id} mode={mode}".format({"id": run_id, "mode": run_mode})`) — `%`
+  specifiers are prohibited
 - **Version Control**: Git via godot-git-plugin + CLI; branch per feature
 
 ## Development Workflow
@@ -188,4 +181,4 @@ consistent with this constitution; if they conflict, this constitution governs.
 
 ---
 
-**Version**: 1.1.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-19
+**Version**: 1.1.1 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-23

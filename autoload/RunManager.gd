@@ -1,7 +1,9 @@
 extends Node
 
+enum EndReason { DIED, CASH_OUT }
+
 ## Emitted when end_run() is called on an active run.
-signal run_ended
+signal run_ended(reason: EndReason)
 
 ## Emitted when a registered room's room_cleared signal fires.
 signal room_cleared(room_id: String)
@@ -36,7 +38,7 @@ func _ready() -> void:
 ## Starts a new run. Safe to call while a run is already active — fully resets state.
 func start_run(mode: String) -> void:
 	if mode not in ["endless", "boss"]:
-		push_warning("RunManager: invalid run_mode '%s' — expected 'endless' or 'boss'" % mode)
+		push_warning("RunManager: invalid run_mode '{mode}' — expected 'endless' or 'boss'".format({"mode": mode}))
 	run_id = str(Time.get_ticks_msec())
 	is_run_active = true
 	run_mode = mode
@@ -46,18 +48,23 @@ func start_run(mode: String) -> void:
 	current_room = null
 	current_room_index = 0
 	cleared_rooms = {}
-	print("[RunManager] run started — id=%s mode=%s" % [run_id, run_mode])
+	print("[RunManager] run started — id={id} mode={mode}".format({"id": run_id, "mode": run_mode}))
 
 
 ## Ends the active run. No-op if no run is active.
 ## Session state remains readable until the next start_run() call.
-func end_run(reason: String) -> void:
+func end_run(reason: EndReason) -> void:
 	if not is_run_active:
 		print("[RunManager] end_run called — no active run, ignoring")
 		return
 	is_run_active = false
-	run_ended.emit()
-	print("[RunManager] run ended — id=%s rooms=%d currency=%s" % [run_id, current_room_index, run_currency])
+	run_ended.emit(reason)
+	print("[RunManager] run ended — id={id} reason={reason} rooms={rooms} currency={currency}".format({
+		"id": run_id,
+		"reason": EndReason.keys()[reason],
+		"rooms": current_room_index,
+		"currency": run_currency,
+	}))
 
 
 # --- Room Registration ---
@@ -66,7 +73,7 @@ func end_run(reason: String) -> void:
 func register_room(spawner: Node) -> void:
 	spawner.room_entered.connect(_on_room_entered.bind(spawner))
 	spawner.room_cleared.connect(_on_room_cleared)
-	print("[RunManager] registered room '%s'" % spawner.room_id)
+	print("[RunManager] registered room '{id}'".format({"id": spawner.room_id}))
 
 
 func _on_room_entered(room_id: String, spawner: Node) -> void:
@@ -74,7 +81,7 @@ func _on_room_entered(room_id: String, spawner: Node) -> void:
 		return
 	current_room = spawner
 	current_room_index += 1
-	print("[RunManager] room entered '%s' — index=%d" % [room_id, current_room_index])
+	print("[RunManager] room entered '{id}' — index={index}".format({"id": room_id, "index": current_room_index}))
 
 
 func _on_room_cleared(room_id: String) -> void:
@@ -82,7 +89,7 @@ func _on_room_cleared(room_id: String) -> void:
 		return
 	mark_room_cleared(room_id)
 	room_cleared.emit(room_id)
-	print("[RunManager] room cleared '%s'" % room_id)
+	print("[RunManager] room cleared '{id}'".format({"id": room_id}))
 
 
 # --- Currency ---
@@ -93,7 +100,7 @@ func add_currency(amount: float) -> void:
 		push_warning("RunManager: add_currency called with no active run")
 		return
 	run_currency = maxf(run_currency + amount, 0.0)
-	print("[RunManager] currency +%s — total=%s" % [amount, run_currency])
+	print("[RunManager] currency +{amount} — total={total}".format({"amount": amount, "total": run_currency}))
 
 
 # --- Room State (preserved from 003-enemy-spawning) ---

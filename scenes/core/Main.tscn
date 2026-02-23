@@ -27,6 +27,6 @@ color = Color(0.56245923, 0.4304627, 0.7646147, 1)
 position = Vector2(-552, 1024)
 
 [node name="CombatRoom02" parent="." unique_id=1075236605 instance=ExtResource("5_a4rsn")]
-position = Vector2(2488, 976)
+position = Vector2(1152, 1032)
 
 [node name="Player" parent="." unique_id=1059078168 instance=ExtResource("2_5pwbx")]

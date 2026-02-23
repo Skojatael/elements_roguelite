@@ -1,16 +1,11 @@
 [gd_scene format=3 uid="uid://cwwbw4g2rnxcw"]
 
-[ext_resource type="Script" uid="uid://bsibqyqgiawg7" path="res://scenes/ui/hud/ExplorationHUD.gd" id="1_xrock"]
-[ext_resource type="PackedScene" path="res://scenes/ui/hud/Joystick.tscn" id="2_4b0pi"]
+[ext_resource type="Script" path="res://scenes/ui/hud/ExplorationHUD.gd" id="1_xrock"]
+[ext_resource type="PackedScene" uid="uid://xq5xl8vwj6r1" path="res://scenes/ui/hud/Joystick.tscn" id="2_4b0pi"]
 
 [node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444]
 script = ExtResource("1_xrock")
 
 [node name="Joystick" parent="." unique_id=1344280826 instance=ExtResource("2_4b0pi")]
-layout_mode = 3
-anchor_top = 1.0
-anchor_bottom = 1.0
+anchors_preset = 2
 offset_left = 20.0
-offset_top = -180.0
-offset_right = 180.0
-offset_bottom = -20.0
