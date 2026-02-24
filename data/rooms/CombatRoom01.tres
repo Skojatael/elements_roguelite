@@ -1,27 +1,9 @@
 [gd_resource type="Resource" script_class="RoomData" format=3 uid="uid://c3w5a0ok67wtr"]
 
-[ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scenes/dungeon/RoomSpawner.gd" id="1_qf7y4"]
+[ext_resource type="PackedScene" uid="uid://bbuobjckurbbe" path="res://scenes/dungeon/rooms/CombatRoom01.tscn" id="1_qf7y4"]
 [ext_resource type="Script" uid="uid://con4huobvudxc" path="res://scripts/data_models/RoomData.gd" id="2_utpal"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_fgitb"]
-size = Vector2(1080, 1920)
-
-[sub_resource type="PackedScene" id="PackedScene_rmofa"]
-_bundled = {
-"conn_count": 0,
-"conns": PackedInt32Array(),
-"editable_instances": [],
-"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
-"names": PackedStringArray("CombatRoom01", "Node2D", "ColorRect", "ColorRect", "custom_minimum_size", "offset_left", "offset_top", "offset_right", "offset_bottom", "RoomSpawner", "Node", "script", "room_id", "EntryArea", "Area2D", "collision_layer", "CollisionShape2D", "CollisionShape2D", "shape"),
-"node_count": 5,
-"node_ids": PackedInt32Array(1312423034, 940193861, 851974852, 361857363, 1426817620),
-"node_paths": [NodePath("."), NodePath("."), NodePath("."), NodePath("./EntryArea")],
-"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 0, 0, 1073741824, 0, 3, 2, -1, 5, 4, 0, 5, 1, 6, 2, 7, 3, 8, 4, 0, 1073741825, 0, 10, 9, -1, 2, 11, 5, 12, 6, 0, 1073741826, 0, 14, 13, -1, 1, 15, 7, 0, 1073741827, 0, 17, 16, -1, 1, 18, 8, 0),
-"variants": [Vector2(1080, 1920), -540.0, -960.0, 540.0, 960.0, ExtResource("1_qf7y4"), "CombatRoom01", 0, SubResource("RectangleShape2D_fgitb")],
-"version": 3
-}
 
 [resource]
 script = ExtResource("2_utpal")
 room_type_id = "CombatRoom01"
-scene = SubResource("PackedScene_rmofa")
+scene = ExtResource("1_qf7y4")

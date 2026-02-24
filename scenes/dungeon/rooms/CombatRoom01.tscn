@@ -1,5 +1,5 @@
-[gd_scene format=3 uid="uid://et04ct83t40o"]
+[gd_scene format=3 uid="uid://bbuobjckurbbe"]
 
-[ext_resource type="PackedScene" uid="uid://b24rujptqd0af" path="res://scenes/dungeon/RoomBase.tscn" id="1_eqik4"]
+[ext_resource type="PackedScene" uid="uid://b24rujptqd0af" path="res://scenes/dungeon/RoomBase.tscn" id="1_k33q6"]
 
-[node name="CombatRoom01" unique_id=1312423034 instance=ExtResource("1_eqik4")]
+[node name="CombatRoom01" unique_id=1312423034 instance=ExtResource("1_k33q6")]

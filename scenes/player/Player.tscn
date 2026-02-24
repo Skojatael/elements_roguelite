@@ -46,7 +46,7 @@ script = ExtResource("3_c3xxp")
 
 [node name="StatsComponent" type="Node" parent="." unique_id=1521250955]
 script = ExtResource("4_npwbq")
-max_health = 2.0
+max_health = 50.0
 metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
 
 [node name="DodgeComponent" type="Node" parent="." unique_id=2089021027]

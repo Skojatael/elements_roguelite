@@ -3,20 +3,19 @@
 [ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scenes/dungeon/RoomSpawner.gd" id="1_60trx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fgitb"]
-size = Vector2(1080, 1920)
+size = Vector2(1920, 1080)
 
 [node name="RoomBase" type="Node2D" unique_id=1312423034]
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=940193861]
-custom_minimum_size = Vector2(1080, 1920)
-offset_left = -540.0
-offset_top = -960.0
-offset_right = 540.0
-offset_bottom = 960.0
+custom_minimum_size = Vector2(1920, 1080)
+offset_left = -960.0
+offset_top = -540.0
+offset_right = 960.0
+offset_bottom = 540.0
 
 [node name="RoomSpawner" type="Node" parent="." unique_id=851974852]
 script = ExtResource("1_60trx")
-room_id = "CombatRoom01"
 
 [node name="EntryArea" type="Area2D" parent="." unique_id=361857363]
 collision_layer = 0

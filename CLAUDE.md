@@ -86,11 +86,29 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 - `RunManager.rewards_service.get_room_reward(room_id) -> Dictionary` — returns `{}`
 - Service scripts: `scripts/services/DifficultyService.gd`, `scripts/services/RewardsService.gd`
 
-### Dungeon generation (007-dungeon-generator)
+### Dungeon generation (008-dungeon-grid-layout)
 
-`scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn (added via Editor). Connects to `RunManager.run_started` in `_ready()`. On signal: reads `dungeon_config.json → room_sequence` (array of `room_type_id` strings), loads each `res://data/rooms/{id}.tres` at runtime, calls `RunManager.spawn_room()` with positions spaced 1200 px apart on X, then places the player at the first room's origin via `get_tree().get_first_node_in_group("player")`.
+`scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn. Connects to `RunManager.run_started` in `_ready()`. On signal: runs a frontier-expansion algorithm on a 5×5 virtual grid and **produces data only — no scenes are instantiated**.
 
-`dungeon_config.json` has a `"room_sequence"` key (array of room type IDs) alongside `"spawn_configs"`.
+**Output properties** (public, populated after every `run_started`):
+
+| Property | Type | Description |
+|---|---|---|
+| `rooms_by_id` | `Dictionary` | `room_id → { room_type_id, grid_pos: Vector2i, world_pos: Vector2 }` |
+| `neighbours_by_id` | `Dictionary` | `room_id → Array[String]` of adjacent room_ids in the layout |
+| `start_room_id` | `String` | Always `"room_2_2"` (center cell) |
+
+**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id`. Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Finally places the player at `rooms_by_id[start_room_id].world_pos` (always (0,0)).
+
+**Room IDs**: `"room_{col}_{row}"` (e.g. `"room_2_2"` for center).
+
+**World positions**: `Vector2((col − 2) × SPACING_X, (row − 2) × SPACING_Y)` where `SPACING_X = 2000`, `SPACING_Y = 1200`. Center (2,2) → (0, 0).
+
+**Re-run**: `rooms_by_id`, `neighbours_by_id`, and `start_room_id` are cleared and rebuilt each generation. No scene cleanup required.
+
+**Scene loading** is a separate concern (room-at-a-time principle) handled by a different system that reads `rooms_by_id`. That system is out of scope for this feature.
+
+`dungeon_config.json` has a `"combat_room_pool"` key (array of CombatRoom* type IDs) alongside `"spawn_configs"`. `"room_sequence"` is removed.
 
 ### Room Factory (006-room-factory)
 
