@@ -2,6 +2,9 @@ extends Node
 
 enum EndReason { DIED, CASH_OUT }
 
+## Emitted at the end of start_run(), after all state is reset.
+signal run_started(mode: String)
+
 ## Emitted when end_run() is called on an active run.
 signal run_ended(reason: EndReason)
 
@@ -17,7 +20,7 @@ var current_tier: int = 1
 var run_start_time: float = 0.0
 var run_currency: float = 0.0
 var current_room: Node = null
-var current_room_index: int = 0
+var rooms_entered: int = 0
 
 ## Tracks which rooms have been cleared during the current run.
 var cleared_rooms: Dictionary = {}
@@ -26,11 +29,13 @@ var cleared_rooms: Dictionary = {}
 
 var difficulty_service: DifficultyService
 var rewards_service: RewardsService
+var room_factory: RoomFactory
 
 
 func _ready() -> void:
 	difficulty_service = DifficultyService.new()
 	rewards_service = RewardsService.new()
+	room_factory = RoomFactory.new()
 
 
 # --- Lifecycle ---
@@ -46,9 +51,10 @@ func start_run(mode: String) -> void:
 	run_start_time = Time.get_ticks_msec() / 1000.0
 	run_currency = 0.0
 	current_room = null
-	current_room_index = 0
+	rooms_entered = 0
 	cleared_rooms = {}
 	print("[RunManager] run started — id={id} mode={mode}".format({"id": run_id, "mode": run_mode}))
+	run_started.emit(mode)
 
 
 ## Ends the active run. No-op if no run is active.
@@ -59,29 +65,43 @@ func end_run(reason: EndReason) -> void:
 		return
 	is_run_active = false
 	run_ended.emit(reason)
-	print("[RunManager] run ended — id={id} reason={reason} rooms={rooms} currency={currency}".format({
+	print("[RunManager] run ended — id={id} reason={reason} rooms_entered={rooms_entered} currency={currency}".format({
 		"id": run_id,
 		"reason": EndReason.keys()[reason],
-		"rooms": current_room_index,
+		"rooms_entered": rooms_entered,
 		"currency": run_currency,
 	}))
 
 
 # --- Room Registration ---
 
-## Called by RoomSpawner in _ready(). Connects RunManager to the room's signals.
+## Spawns a room via RoomFactory, connects its signals, and returns the RoomSpawner.
+## room_id MUST be supplied by the caller — RunManager does not generate IDs.
+func spawn_room(room_data: RoomData, room_id: String, context: SpawnContext) -> RoomSpawner:
+	var spawner: RoomSpawner = room_factory.spawn_room(room_data, room_id, context)
+	if spawner == null:
+		push_warning("RunManager: spawn_room failed for room_id='{id}' room_type='{type}'".format({"id": room_id, "type": room_data.room_type_id}))
+		return null
+	spawner.room_entered.connect(_on_room_entered.bind(spawner))
+	spawner.room_cleared.connect(_on_room_cleared)
+	current_room = spawner
+	return spawner
+
+
+## Called by RoomSpawner in _ready() when auto_register=true. Connects RunManager to the room's signals.
 func register_room(spawner: Node) -> void:
 	spawner.room_entered.connect(_on_room_entered.bind(spawner))
 	spawner.room_cleared.connect(_on_room_cleared)
-	print("[RunManager] registered room '{id}'".format({"id": spawner.room_id}))
+	current_room = spawner
+	print("[RunManager] registered room_id='{id}' room_type='{type}'".format({"id": spawner.room_id, "type": spawner.room_type_id}))
 
 
 func _on_room_entered(room_id: String, spawner: Node) -> void:
 	if not is_run_active:
 		return
 	current_room = spawner
-	current_room_index += 1
-	print("[RunManager] room entered '{id}' — index={index}".format({"id": room_id, "index": current_room_index}))
+	rooms_entered += 1
+	print("[RunManager] room entered room_id='{id}' — rooms_entered={rooms_entered}".format({"id": room_id, "rooms_entered": rooms_entered}))
 
 
 func _on_room_cleared(room_id: String) -> void:
@@ -89,7 +109,7 @@ func _on_room_cleared(room_id: String) -> void:
 		return
 	mark_room_cleared(room_id)
 	room_cleared.emit(room_id)
-	print("[RunManager] room cleared '{id}'".format({"id": room_id}))
+	print("[RunManager] room cleared room_id='{id}'".format({"id": room_id}))
 
 
 # --- Currency ---

@@ -1,3 +1,5 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dumnskw8ukrxf"]
 
-[node name="BossRoom01" type="Node2D"]
+[ext_resource type="PackedScene" uid="uid://b24rujptqd0af" path="res://scenes/dungeon/RoomBase.tscn" id="1_ip5qw"]
+
+[node name="BossRoom01" unique_id=1312423034 instance=ExtResource("1_ip5qw")]

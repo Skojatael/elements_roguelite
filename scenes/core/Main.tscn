@@ -3,8 +3,7 @@
 [ext_resource type="Script" uid="uid://cs5sn75bsfahn" path="res://scenes/core/Main.gd" id="1_fun78"]
 [ext_resource type="PackedScene" uid="uid://id1otrhsveyr" path="res://scenes/player/Player.tscn" id="2_5pwbx"]
 [ext_resource type="PackedScene" uid="uid://cwwbw4g2rnxcw" path="res://scenes/ui/hud/ExplorationHUD.tscn" id="3_kitw3"]
-[ext_resource type="PackedScene" uid="uid://csq2bj2vn3vnq" path="res://scenes/dungeon/rooms/CombatRoom01.tscn" id="4_kitw3"]
-[ext_resource type="PackedScene" uid="uid://d2rs08vchckut" path="res://scenes/dungeon/rooms/CombatRoom02.tscn" id="5_a4rsn"]
+[ext_resource type="Script" uid="uid://c12iwmi4ic7a0" path="res://scenes/dungeon/DungeonGenerator.gd" id="4_5pwbx"]
 
 [node name="Main" type="Node2D" unique_id=1649108647]
 script = ExtResource("1_fun78")
@@ -23,10 +22,9 @@ color = Color(0.56245923, 0.4304627, 0.7646147, 1)
 
 [node name="ExplorationHUD" parent="." unique_id=724251855 instance=ExtResource("3_kitw3")]
 
-[node name="CombatRoom01" parent="." unique_id=1312423034 instance=ExtResource("4_kitw3")]
-position = Vector2(-552, 1024)
-
-[node name="CombatRoom02" parent="." unique_id=1075236605 instance=ExtResource("5_a4rsn")]
-position = Vector2(1152, 1032)
+[node name="DungeonGenerator" type="Node" parent="." unique_id=973713744]
+script = ExtResource("4_5pwbx")
+metadata/_custom_type_script = "uid://c12iwmi4ic7a0"
 
 [node name="Player" parent="." unique_id=1059078168 instance=ExtResource("2_5pwbx")]
+z_index = 1

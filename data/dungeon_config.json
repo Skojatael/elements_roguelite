@@ -1,4 +1,5 @@
 {
+	"room_sequence": ["CombatRoom01", "CombatRoom02", "EliteRoom01"],
 	"spawn_configs": {
 		"CombatRoom01": {
 			"spawn_points": [

@@ -4,11 +4,17 @@ extends Node
 const ENEMY_SCENE := preload("res://scenes/combat/enemies/Enemy.tscn")
 const MAX_ENEMIES := 10
 
-## Must match a key in dungeon_config.json → spawn_configs. Set in the Inspector.
+## Unique instance identifier. Used for tracking (cleared_rooms, signals). Set by RoomFactory or Inspector.
 @export var room_id: String = ""
 
+## Matches a key in dungeon_config.json → spawn_configs. Used for enemy spawn config lookup.
+@export var room_type_id: String = ""
+
+## When false, skips RunManager.register_room() in _ready(). Set by RoomFactory for dynamic rooms.
+@export var auto_register: bool = true
+
 ## Emitted once, the same frame the last living enemy is defeated.
-signal room_cleared
+signal room_cleared(room_id: String)
 
 ## Emitted when the player enters this room (after all guards pass).
 signal room_entered(room_id: String)
@@ -23,9 +29,11 @@ var _spawned: bool = false
 func _ready() -> void:
 	_config = _load_config()
 	_entry_area.body_entered.connect(_on_player_entered)
-	RunManager.register_room(self)
-	print("[RoomSpawner] ready — room_id='{id}' spawn_points={count}".format({
+	if auto_register:
+		RunManager.register_room(self)
+	print("[RoomSpawner] ready — room_id='{id}' room_type_id='{type}' spawn_points={count}".format({
 		"id": room_id,
+		"type": room_type_id,
 		"count": _config.spawn_points.size(),
 	}))
 
@@ -33,17 +41,17 @@ func _ready() -> void:
 func _load_config() -> RoomSpawnConfig:
 	var raw: Dictionary = ResourceManager.get_dungeon_config()
 	var configs: Dictionary = raw.get("spawn_configs", {})
-	if not configs.has(room_id):
-		print("[RoomSpawner] no config found for room_id='{id}' — empty room".format({"id": room_id}))
+	if not configs.has(room_type_id):
+		print("[RoomSpawner] no config found for room_type_id='{type}' — empty room".format({"type": room_type_id}))
 		return RoomSpawnConfig.new()  # empty config — no spawns, no error (FR-002)
 
-	var cfg := RoomSpawnConfig.from_dict(room_id, configs[room_id])
+	var cfg := RoomSpawnConfig.from_dict(room_type_id, configs[room_type_id])
 
 	# FR-009: maximum 10 enemies per room.
 	if cfg.spawn_points.size() > MAX_ENEMIES:
-		push_error("RoomSpawner: spawn_points count exceeds maximum of {max} in room '{id}'".format({
+		push_error("RoomSpawner: spawn_points count exceeds maximum of {max} in room_type='{type}'".format({
 			"max": MAX_ENEMIES,
-			"id": room_id,
+			"type": room_type_id,
 		}))
 		return RoomSpawnConfig.new()
 
@@ -53,9 +61,9 @@ func _load_config() -> RoomSpawnConfig:
 		var exists := ResourceManager.enemy_id_exists(sp.enemy_id)
 		print("[RoomSpawner] enemy_id='{id}' exists={exists}".format({"id": sp.enemy_id, "exists": exists}))
 		if not exists:
-			var msg := "RoomSpawner: unknown enemy_id '{enemy}' in room '{room}'".format({
+			var msg := "RoomSpawner: unknown enemy_id '{enemy}' in room_type='{type}'".format({
 				"enemy": sp.enemy_id,
-				"room": room_id,
+				"type": room_type_id,
 			})
 			push_error(msg)
 			print("[RoomSpawner] ERROR: ", msg)
@@ -78,7 +86,7 @@ func _on_player_entered(body: Node2D) -> void:
 	if _spawned:
 		print("[RoomSpawner] ignored — already spawned")
 		return
-	print("[RoomSpawner] player entered room '{id}'".format({"id": room_id}))
+	print("[RoomSpawner] player entered room_id='{id}' room_type='{type}'".format({"id": room_id, "type": room_type_id}))
 	room_entered.emit(room_id)
 	_spawn_enemies.call_deferred()
 
@@ -87,9 +95,9 @@ func _spawn_enemies() -> void:
 	_spawned = true
 	_living_count = _config.spawn_points.size()
 	if _living_count == 0:
-		print("[RoomSpawner] no spawn points configured for '{id}'".format({"id": room_id}))
+		print("[RoomSpawner] no spawn points configured for room_type='{type}'".format({"type": room_type_id}))
 		return
-	print("[RoomSpawner] spawning {count} enemies in '{id}'".format({"count": _living_count, "id": room_id}))
+	print("[RoomSpawner] spawning {count} enemies in room_type='{type}'".format({"count": _living_count, "type": room_type_id}))
 	for sp: SpawnPointData in _config.spawn_points:
 		var enemy: Enemy = ENEMY_SCENE.instantiate()
 		enemy.enemy_type_id = sp.enemy_id  # must be set before add_child
@@ -108,5 +116,5 @@ func _on_enemy_defeated() -> void:
 	print("[RoomSpawner] enemy defeated — remaining: {count}".format({"count": _living_count}))
 	if _living_count == 0:
 		RunManager.mark_room_cleared(room_id)
-		room_cleared.emit()
-		print("[RoomSpawner] room '{id}' cleared".format({"id": room_id}))
+		room_cleared.emit(room_id)
+		print("[RoomSpawner] cleared room_id='{id}' room_type='{type}'".format({"id": room_id, "type": room_type_id}))

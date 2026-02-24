@@ -50,7 +50,7 @@ Implementation counterparts live in `scripts/managers/`.
 JSON configs in `data/` (`upgrades.json`, `skills.json`, `enemies.json`, `dungeon_config.json`).
 GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `EnemyData`, `SpawnPointData`, `RoomSpawnConfig`).
 
-`dungeon_config.json` contains a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius).
+`dungeon_config.json` contains a `room_sequence` array (ordered room type IDs for the dungeon generator) and a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius).
 
 ### Enemy spawning (003-enemy-spawning)
 
@@ -74,17 +74,37 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 | `run_start_time` | `float` | Engine time at run start (seconds) |
 | `run_currency` | `float` | Gold accumulated this run (floor 0) |
 | `current_room` | `Node` | Reference to active `RoomSpawner`; null between rooms |
-| `current_room_index` | `int` | How many rooms entered this run (starts at 0) |
+| `rooms_entered` | `int` | How many rooms entered this run (starts at 0) |
 | `cleared_rooms` | `Dictionary` | Map of `room_id → true` for cleared rooms |
 
 **Key methods**: `start_run(mode)`, `end_run()`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
 
-**Signals**: `run_ended` (on `end_run()`), `room_cleared(room_id)` (re-emitted from RoomSpawner).
+**Signals**: `run_started(mode)` (emitted at end of `start_run()`), `run_ended(reason)` (on `end_run()`), `room_cleared(room_id)` (re-emitted from RoomSpawner).
 
 **Services** (stubs — real logic in a future feature):
 - `RunManager.difficulty_service.get_multiplier() -> float` — returns `1.0`
 - `RunManager.rewards_service.get_room_reward(room_id) -> Dictionary` — returns `{}`
 - Service scripts: `scripts/services/DifficultyService.gd`, `scripts/services/RewardsService.gd`
+
+### Dungeon generation (007-dungeon-generator)
+
+`scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn (added via Editor). Connects to `RunManager.run_started` in `_ready()`. On signal: reads `dungeon_config.json → room_sequence` (array of `room_type_id` strings), loads each `res://data/rooms/{id}.tres` at runtime, calls `RunManager.spawn_room()` with positions spaced 1200 px apart on X, then places the player at the first room's origin via `get_tree().get_first_node_in_group("player")`.
+
+`dungeon_config.json` has a `"room_sequence"` key (array of room type IDs) alongside `"spawn_configs"`.
+
+### Room Factory (006-room-factory)
+
+`scenes/dungeon/RoomFactory.gd` — stateless `RefCounted` service owned by RunManager. Receives a `RoomData` resource, reads `room_data.scene` directly (no internal registry), sets `room_id` and `auto_register=false` on the spawner before `add_child`, positions the room, and returns the `RoomSpawner` directly.
+
+`scripts/data_models/RoomData.gd` — `Resource` with `@export room_type_id: String` and `@export scene: PackedScene`. Instances saved as `.tres` files in `res://data/rooms/` (one per room type). Authored in the Godot Inspector.
+
+`scripts/data_models/SpawnContext.gd` — data bundle: `parent: Node` and `position: Vector2`. Constructed via `SpawnContext.create(parent, position)`. Passed to `RoomFactory.spawn_room()` and `RunManager.spawn_room()`.
+
+**Room assets** (`res://data/rooms/`): `CombatRoom01.tres`, `CombatRoom02.tres`, `EliteRoom01.tres`, `BossRoom01.tres`.
+
+**RoomSpawner fields**:
+- `room_type_id` — matches a key in `dungeon_config.json → spawn_configs` (e.g. `"CombatRoom01"`); used for spawn config lookup, tracking (`cleared_rooms`), and signals. Set via Inspector (pre-placed) or by RoomFactory (dynamic).
+- `auto_register` — factory sets `false` before `add_child`; pre-placed Editor rooms use default `true`.
 
 ## Folder Conventions
 
