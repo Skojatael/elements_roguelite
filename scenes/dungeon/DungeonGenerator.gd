@@ -8,8 +8,10 @@ const TARGET_ROOM_COUNT: int = 8
 const SPACING_X: int = 2000   # 1920 room width + 80 gap
 const SPACING_Y: int = 1200   # 1080 room height + 120 gap
 const CENTER: Vector2i = Vector2i(2, 2)
+const ELITE_START: int = 2
+const ELITE_STEP: int = 2
 
-## Maps room_id → { "room_type_id": String, "grid_pos": Vector2i, "world_pos": Vector2 }
+## Maps room_id → { "room_type_id": String, "grid_pos": Vector2i, "world_pos": Vector2, "depth": int, "difficulty_mult": float }
 var rooms_by_id: Dictionary = {}
 
 ## Maps room_id → Array of adjacent room_ids present in this layout
@@ -44,7 +46,7 @@ func _generate() -> void:
 	var occupied: Dictionary = {}
 	var frontier: Array = []
 
-	_record_room(CENTER, pool.pick_random(), occupied, frontier)
+	_record_room(CENTER, "StartRoom01", occupied, frontier)
 	start_room_id = "room_{x}_{y}".format({"x": CENTER.x, "y": CENTER.y})
 
 	while occupied.size() < TARGET_ROOM_COUNT and not frontier.is_empty():
@@ -57,6 +59,7 @@ func _generate() -> void:
 		push_warning("DungeonGenerator: frontier exhausted at {count}/{target} rooms".format({"count": occupied.size(), "target": TARGET_ROOM_COUNT}))
 
 	_build_neighbours(occupied)
+	_promote_elite_rooms()
 
 	print("[DungeonGenerator] layout rooms={count} start={start} cells={keys}".format({"count": rooms_by_id.size(), "start": start_room_id, "keys": rooms_by_id.keys()}))
 
@@ -65,15 +68,33 @@ func _generate() -> void:
 
 func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array) -> void:
 	var room_id: String = "room_{x}_{y}".format({"x": cell.x, "y": cell.y})
+	var depth: int = abs(cell.x - CENTER.x) + abs(cell.y - CENTER.y)
+	var difficulty_mult: float = 1.0 + 0.12 * float(depth)
 	rooms_by_id[room_id] = {
 		"room_type_id": type_id,
 		"grid_pos": cell,
-		"world_pos": _get_world_pos(cell)
+		"world_pos": _get_world_pos(cell),
+		"depth": depth,
+		"difficulty_mult": difficulty_mult,
 	}
 	occupied[cell] = room_id
 	for neighbour: Vector2i in _get_valid_neighbours(cell, occupied):
 		if not frontier.has(neighbour):
 			frontier.append(neighbour)
+
+
+func _promote_elite_rooms() -> void:
+	var d: int = ELITE_START
+	while d <= GRID_SIZE * 2:
+		var candidates: Array[String] = []
+		for room_id: String in rooms_by_id:
+			if rooms_by_id[room_id]["depth"] == d:
+				candidates.append(room_id)
+		if not candidates.is_empty():
+			var chosen: String = candidates.pick_random()
+			rooms_by_id[chosen]["room_type_id"] = "EliteRoom01"
+			print("[DungeonGenerator] elite promoted room_id={id} at depth={d}".format({"id": chosen, "d": d}))
+		d += ELITE_STEP
 
 
 func _build_neighbours(occupied: Dictionary) -> void:

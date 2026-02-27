@@ -25,6 +25,12 @@ var rooms_entered: int = 0
 ## Tracks which rooms have been cleared during the current run.
 var cleared_rooms: Dictionary = {}
 
+## Snapshot of current run state. Populated by start_run(); readable at all times.
+var run_state: RunState = RunState.new()
+
+## Player state snapshot. Updated via health_changed signal; reset in end_run().
+var player_state: PlayerState = PlayerState.new()
+
 # --- Services ---
 
 var difficulty_service: DifficultyService
@@ -53,8 +59,21 @@ func start_run(mode: String) -> void:
 	current_room = null
 	rooms_entered = 0
 	cleared_rooms = {}
+	run_state = RunState.new()
+	run_state.run_mode = mode
+	run_state.cleared_rooms = cleared_rooms
 	print("[RunManager] run started — id={id} mode={mode}".format({"id": run_id, "mode": run_mode}))
 	run_started.emit(mode)
+	player_state = PlayerState.new()
+	run_state.player_state = player_state
+	var players: Array = get_tree().get_nodes_in_group("player")
+	for player: Node in players:
+		var stats: StatsComponent = player.get_node_or_null("StatsComponent")
+		if stats != null:
+			if not stats.health_changed.is_connected(_on_player_health_changed):
+				stats.health_changed.connect(_on_player_health_changed)
+			player_state.current_hp = stats.current_health
+			stats.reset()
 
 
 ## Ends the active run. No-op if no run is active.
@@ -64,6 +83,14 @@ func end_run(reason: EndReason) -> void:
 		print("[RunManager] end_run called — no active run, ignoring")
 		return
 	is_run_active = false
+	var players: Array = get_tree().get_nodes_in_group("player")
+	for player: Node in players:
+		var stats: StatsComponent = player.get_node_or_null("StatsComponent")
+		if stats != null:
+			player_state = PlayerState.new()
+			player_state.current_hp = stats.max_health
+			run_state.player_state = player_state
+			break
 	run_ended.emit(reason)
 	print("[RunManager] run ended — id={id} reason={reason} rooms_entered={rooms_entered} currency={currency}".format({
 		"id": run_id,
@@ -101,6 +128,7 @@ func _on_room_entered(room_id: String, spawner: Node) -> void:
 		return
 	current_room = spawner
 	rooms_entered += 1
+	run_state.current_room_id = room_id
 	print("[RunManager] room entered room_id='{id}' — rooms_entered={rooms_entered}".format({"id": room_id, "rooms_entered": rooms_entered}))
 
 
@@ -120,6 +148,7 @@ func add_currency(amount: float) -> void:
 		push_warning("RunManager: add_currency called with no active run")
 		return
 	run_currency = maxf(run_currency + amount, 0.0)
+	run_state.run_currency = run_currency
 	print("[RunManager] currency +{amount} — total={total}".format({"amount": amount, "total": run_currency}))
 
 
@@ -133,6 +162,10 @@ func mark_room_cleared(room_id: String) -> void:
 ## Returns true if the room was already cleared during this run.
 func is_room_cleared(room_id: String) -> bool:
 	return cleared_rooms.has(room_id)
+
+
+func _on_player_health_changed(new_health: float, _max_health: float) -> void:
+	player_state.current_hp = new_health
 
 
 ## Legacy reset — preserved for backward compatibility.

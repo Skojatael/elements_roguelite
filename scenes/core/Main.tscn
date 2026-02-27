@@ -9,18 +9,6 @@
 [node name="Main" type="Node2D" unique_id=1649108647]
 script = ExtResource("1_fun78")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=237338496]
-custom_minimum_size = Vector2(2000, 2000)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -56.0
-offset_right = 1944.0
-offset_bottom = 2000.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.56245923, 0.4304627, 0.7646147, 1)
-
 [node name="ExplorationHUD" parent="." unique_id=724251855 instance=ExtResource("3_kitw3")]
 
 [node name="DungeonGenerator" type="Node" parent="." unique_id=973713744]

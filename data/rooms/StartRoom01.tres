@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="RoomData" format=3 uid="uid://b3a04ljja8mw8"]
 
-[ext_resource type="PackedScene" uid="uid://bt56d6eih1va4" path="res://scenes/dungeon/rooms/StartRoom01.tscn" id="1_qmero"]
+[ext_resource type="PackedScene" uid="uid://dumnskw8ukrxf" path="res://scenes/dungeon/rooms/BossRoom01.tscn" id="1_qmero"]
 [ext_resource type="Script" uid="uid://con4huobvudxc" path="res://scripts/data_models/RoomData.gd" id="2_mfvqh"]
 
 [resource]

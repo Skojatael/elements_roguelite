@@ -86,6 +86,19 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 - `RunManager.rewards_service.get_room_reward(room_id) -> Dictionary` — returns `{}`
 - Service scripts: `scripts/services/DifficultyService.gd`, `scripts/services/RewardsService.gd`
 
+**Run state snapshot (011-run-state)**:
+- `RunManager.run_state: RunState` — a `RefCounted` data class at `scripts/data_models/RunState.gd`. Non-null at all times (initialized at declaration). RunManager is the sole writer; all other systems are read-only consumers.
+- **Fields**: `current_room_id: String`, `cleared_rooms: Dictionary` (shared reference with RunManager.cleared_rooms), `run_currency: float`, `run_mode: String`, `max_depth_reached: int` (stub, always 0), `seed: int` (stub, always 0), `player_state: PlayerState` (see below).
+- **Reset**: A fresh `RunState.new()` is created in `start_run()`. Final values remain accessible after `end_run()` until the next run starts. No signals — consumers poll `RunManager.run_state`.
+
+**Player state snapshot (012-player-state)**:
+- `RunManager.player_state: PlayerState` — a `RefCounted` data class at `scripts/data_models/PlayerState.gd`. Non-null at all times. RunManager is the sole writer; all other systems are read-only consumers.
+- `RunState.player_state` points to the same instance as `RunManager.player_state` during and after a run. Read via `RunManager.run_state.player_state`.
+- **Live field**: `current_hp: float` — synced from `StatsComponent.health_changed` signal. Connected in `start_run()` with `is_connected()` guard; never disconnected.
+- **Stub fields** (always empty in this feature): `items: Array`, `modifiers: Array`, `skill_changes: Array`, `skill_cooldowns: Dictionary`.
+- **Reset timing**: `PlayerState` resets at `end_run()` (not `start_run()`). A fresh `PlayerState.new()` is created with `current_hp = stats.max_health`. Both `RunManager.player_state` and `run_state.player_state` are updated to the new instance.
+- Signal handler: `RunManager._on_player_health_changed(new_health, _max_health)` writes `player_state.current_hp = new_health`.
+
 ### Dungeon generation (008-dungeon-grid-layout)
 
 `scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn. Connects to `RunManager.run_started` in `_ready()`. On signal: runs a frontier-expansion algorithm on a 5×5 virtual grid and **produces data only — no scenes are instantiated**.
@@ -94,11 +107,20 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 | Property | Type | Description |
 |---|---|---|
-| `rooms_by_id` | `Dictionary` | `room_id → { room_type_id, grid_pos: Vector2i, world_pos: Vector2 }` |
+| `rooms_by_id` | `Dictionary` | `room_id → { room_type_id, grid_pos: Vector2i, world_pos: Vector2, depth: int, difficulty_mult: float }` |
 | `neighbours_by_id` | `Dictionary` | `room_id → Array[String]` of adjacent room_ids in the layout |
 | `start_room_id` | `String` | Always `"room_2_2"` (center cell) |
 
-**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id`. Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Emits `dungeon_layout_ready` signal at the end — `RoomLoader` connects to this to load the start room and place the player.
+**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id` (including `depth` and `difficulty_mult`). Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Then calls `_promote_elite_rooms()` to override `room_type_id = "EliteRoom01"` for one room at each elite depth slot. Emits `dungeon_layout_ready` at the end.
+
+**Depth & difficulty (010-depth-difficulty)**:
+
+- `depth = |col − 2| + |row − 2|` (grid Manhattan distance from center; start room = 0).
+- `difficulty_mult = 1.0 + 0.12 × depth` stored per room in `rooms_by_id`.
+- `RoomLoader` reads `difficulty_mult` from `rooms_by_id` and sets it on `RoomSpawner` after `spawn_room()` returns.
+- `RoomSpawner._spawn_enemies()` calls `enemy.apply_difficulty(difficulty_mult)` after each `add_child(enemy)`.
+- `Enemy.apply_difficulty(mult)` multiplies `_stats.max_health` and resets `current_health`.
+- **Elite rooms**: constants `ELITE_START = 2`, `ELITE_STEP = 2`. Depth slots 2, 4, 6… each get one randomly promoted room. `EliteRoom01` scene and `.tres` resource already exist.
 
 **Room IDs**: `"room_{col}_{row}"` (e.g. `"room_2_2"` for center).
 
@@ -132,6 +154,18 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 **StartRoom01**: `scenes/dungeon/rooms/StartRoom01.tscn` (inherits `RoomBase.tscn`). `RoomData` at `data/rooms/StartRoom01.tres`. Has empty `spawn_points` — no enemies. Assigned by `RoomLoader` at load time; `DungeonGenerator` is unaware of it.
 
 **One room in memory**: At all times exactly one room scene is present. Current room is `queue_free()`'d before next is instantiated.
+
+---
+
+### Hub Room (013-hub-room)
+
+`scenes/hub/HubRoom.tscn` — the game's entry point. Player spawns here at launch. Not part of any run (`RunManager.is_run_active == false` while in hub).
+
+- `scenes/hub/TeleportDoor.tscn` — `Node2D` placeholder containing a Godot `Button` (text="Teleport") and a `ColorRect` visual. Activates when the `Button` is pressed (tap on mobile, click on desktop). Guard: `not RunManager.is_run_active`. Emits `teleport_activated` signal. The `Button` is a Control node (screen-space); the visual will be replaced with a world-space asset in a future iteration.
+- `HubRoom.gd` — connects to `TeleportDoor.teleport_activated`; on activation emits `hub_exited` then calls `queue_free()`.
+- `Main.gd` connects to `hub_exited`: calls `RunManager.start_run("endless")` then `GlobalSignals.gameplay_started.emit()`.
+- `Main._ready()` no longer calls `start_run()` directly — run only starts when player activates TeleportDoor (or via DevPanel bypass in DEV_MODE).
+- ExplorationHUD is hidden during hub (not shown until `gameplay_started` fires).
 
 ---
 

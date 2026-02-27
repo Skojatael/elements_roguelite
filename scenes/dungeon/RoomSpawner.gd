@@ -13,6 +13,9 @@ const MAX_ENEMIES := 10
 ## When false, skips RunManager.register_room() in _ready(). Set by RoomFactory for dynamic rooms.
 @export var auto_register: bool = true
 
+## Applied to each spawned enemy's maximum health. Set by RoomLoader after spawn_room().
+@export var difficulty_mult: float = 1.0
+
 ## Emitted once, the same frame the last living enemy is defeated.
 signal room_cleared(room_id: String)
 
@@ -102,6 +105,7 @@ func _spawn_enemies() -> void:
 		var enemy: Enemy = ENEMY_SCENE.instantiate()
 		enemy.enemy_type_id = sp.enemy_id  # must be set before add_child
 		get_parent().add_child(enemy)
+		enemy.apply_difficulty(difficulty_mult)
 		var offset := Vector2(
 			randf_range(-sp.radius, sp.radius),
 			randf_range(-sp.radius, sp.radius)

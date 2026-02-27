@@ -65,6 +65,11 @@ func initialize(data: EnemyData) -> void:
 	_stats.current_health = data.max_health
 
 
+func apply_difficulty(mult: float) -> void:
+	_stats.max_health *= mult
+	_stats.current_health = _stats.max_health
+
+
 func take_damage(amount: float) -> void:
 	_stats.take_damage(amount)
 

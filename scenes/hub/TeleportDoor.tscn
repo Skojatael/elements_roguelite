@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://x6bdugdg815q"]
+
+[ext_resource type="Script" uid="uid://cao4vnmawp170" path="res://scenes/hub/TeleportDoor.gd" id="1_5rl68"]
+
+[node name="TeleportDoor" type="Node2D" unique_id=1981453522 node_paths=PackedStringArray("button")]
+script = ExtResource("1_5rl68")
+button = NodePath("Teleport")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=190658138]
+offset_right = 76.0
+offset_bottom = 40.0
+color = Color(0.7524196, 0.47014815, 0.99506205, 1)
+
+[node name="Teleport" type="Button" parent="." unique_id=1598454250]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Teleport"

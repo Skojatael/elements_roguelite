@@ -24,3 +24,8 @@ func take_damage(amount: float) -> void:
 func heal(amount: float) -> void:
 	current_health = minf(current_health + amount, max_health)
 	health_changed.emit(current_health, max_health)
+
+
+func reset() -> void:
+	current_health = max_health
+	health_changed.emit(current_health, max_health)

@@ -32,8 +32,6 @@ func _load_room(room_id: String, entry_direction: String) -> void:
 		_loading = false
 		return
 	var type_id: String = room_data["room_type_id"]
-	if room_id == _dungeon_gen.start_room_id:
-		type_id = "StartRoom01"
 	var res_path: String = "res://data/rooms/{type}.tres".format({"type": type_id})
 	var room_resource: RoomData = load(res_path)
 	if room_resource == null:
@@ -45,6 +43,8 @@ func _load_room(room_id: String, entry_direction: String) -> void:
 	if spawner == null:
 		_loading = false
 		return
+	var room_mult: float = _dungeon_gen.rooms_by_id[room_id].get("difficulty_mult", 1.0)
+	spawner.difficulty_mult = room_mult
 	_current_room_node = spawner.get_parent()
 	_configure_doors(_current_room_node, room_id)
 	_place_player(entry_direction, room_data["world_pos"])
@@ -112,4 +112,4 @@ func _place_player(entry_direction: String, world_pos: Vector2) -> void:
 
 func _on_door_activated(direction: String, target_room_id: String) -> void:
 	var entry_direction: String = OPPOSITE[direction]
-	_load_room(target_room_id, entry_direction)
+	_load_room.call_deferred(target_room_id, entry_direction)
