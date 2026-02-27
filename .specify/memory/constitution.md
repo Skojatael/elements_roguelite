@@ -1,11 +1,14 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.1.1
-Bump type: PATCH — Added string formatting style rule to the Scripting bullet
-in the Technology Stack section. No principle added, removed, or redefined.
+Version change: 1.1.1 → 1.2.0
+Bump type: MINOR — New bullet added to Principle IV (Editor-Centric Workflow)
+governing node-reference style in GDScript. No principle removed or redefined;
+existing guidance preserved in full.
 
-Modified principles: NONE
+Modified principles:
+  IV. Editor-Centric Workflow — added "Node references" bullet prohibiting
+      hardcoded $NodeName paths for configurable children.
 
 Added sections: NONE
 
@@ -13,11 +16,11 @@ Removed sections: NONE
 
 Templates reviewed:
   ✅ .specify/templates/plan-template.md
-       — No string formatting references; no changes required.
+       — No node-reference guidance; no changes required.
   ✅ .specify/templates/spec-template.md
-       — No string formatting references; no changes required.
+       — No node-reference guidance; no changes required.
   ✅ .specify/templates/tasks-template.md
-       — No string formatting references; no changes required.
+       — No node-reference guidance; no changes required.
 
 Deferred items: NONE
 Follow-up TODOs: NONE
@@ -102,10 +105,19 @@ The Godot 4.6 Editor is the single source of truth for scene and node hierarchy.
   No external build scripts that modify project files are permitted.
 - Binary assets (`.import` sidecar files) MUST be committed alongside their
   source assets; `.import` files MUST NOT be in `.gitignore`.
+- **Node references**: GDScript MUST use `@export var name: Type` (assigned via
+  the Godot Inspector) for any child-node reference that is part of a
+  configurable scene. Hardcoded `$NodeName` path literals that impose a naming
+  constraint on Editor builders are prohibited. `$NodeName` paths are permitted
+  only when the node name is architecturally fixed within the script's own
+  scene subtree and documented as such (e.g., `$MovementComponent` inside
+  `Player.tscn` where the component name is defined by convention).
 
 **Rationale**: Raw `.tscn` edits produce fragile diffs and break editor
 integrity. Centralising all scene work in the editor keeps the repository
-consistent and reviewable.
+consistent and reviewable. Hardcoded node-name paths couple scripts to a
+specific scene layout, preventing Editor builders from naming nodes freely and
+making refactors unnecessarily brittle.
 
 ### V. Simplicity & YAGNI
 
@@ -150,7 +162,8 @@ and speculative infrastructure are the primary sources of technical debt here.
    never amend published commits on `main`.
 6. **Review gate** — All PRs MUST confirm: SRP is respected at every layer
    (scripts, scenes, autoloads), no hard-coded balance values, shader is
-   Mobile-compatible.
+   Mobile-compatible, and all child-node references use `@export var` rather
+   than hardcoded `$NodeName` paths (Principle IV).
 
 ## Governance
 
@@ -181,4 +194,4 @@ consistent with this constitution; if they conflict, this constitution governs.
 
 ---
 
-**Version**: 1.1.1 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-23
+**Version**: 1.2.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-27
