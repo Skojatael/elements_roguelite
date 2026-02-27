@@ -40,6 +40,8 @@ scenes/
 | `SkillComponent.gd` | Skills/abilities |
 | `StatsComponent.gd` | Health, stats, attributes |
 
+Component scripts live in `scenes/player/components/` without their own `.tscn` files — they are attached directly to child nodes inside `Player.tscn`. This is the **one permitted exception** to the co-location rule: a script may exist without a co-located scene if it is attached exclusively to nodes within a single parent scene and is never referenced from outside that scene. If a component script is ever used by a second scene it MUST be moved to `res://scripts/`.
+
 ### Autoloads (singletons)
 
 Registered in `autoload/`:  `ResourceManager`, `SaveManager`, `MetaManager`, `RunManager`.
@@ -189,6 +191,6 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 |------|---------|
 | `res://autoload/` | Autoloaded singletons |
 | `res://data/` | JSON data/config files |
-| `res://scenes/` | Scenes and co-located scripts |
+| `res://scenes/` | Scenes and co-located scripts. Every `.gd` here MUST be attached to a scene in the same directory — exception: component scripts inside a single parent scene (see Player components above) |
 | `res://scripts/` | Standalone scripts (data models, managers) |
 | `res://assets/` | Sprites, audio, fonts |
