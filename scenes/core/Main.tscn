@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://cs5sn75bsfahn" path="res://scenes/core/Main.gd" id="1_fun78"]
 [ext_resource type="PackedScene" uid="uid://id1otrhsveyr" path="res://scenes/player/Player.tscn" id="2_5pwbx"]
 [ext_resource type="PackedScene" uid="uid://cwwbw4g2rnxcw" path="res://scenes/ui/hud/ExplorationHUD.tscn" id="3_kitw3"]
-[ext_resource type="Script" uid="uid://c12iwmi4ic7a0" path="res://scenes/dungeon/DungeonGenerator.gd" id="4_5pwbx"]
-[ext_resource type="Script" uid="uid://dbqpijkjmgo0g" path="res://scenes/dungeon/RoomLoader.gd" id="4_kitw3"]
+[ext_resource type="Script" uid="uid://c12iwmi4ic7a0" path="res://scripts/dungeon/DungeonGenerator.gd" id="4_5pwbx"]
+[ext_resource type="Script" uid="uid://dbqpijkjmgo0g" path="res://scripts/dungeon/RoomLoader.gd" id="4_kitw3"]
 
 [node name="Main" type="Node2D" unique_id=1649108647]
 script = ExtResource("1_fun78")

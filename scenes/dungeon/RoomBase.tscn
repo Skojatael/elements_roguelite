@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b24rujptqd0af"]
 
-[ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scenes/dungeon/RoomSpawner.gd" id="1_60trx"]
+[ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scripts/dungeon/RoomSpawner.gd" id="1_60trx"]
 [ext_resource type="PackedScene" uid="uid://djs7ain0chhg7" path="res://scenes/dungeon/doors/Door.tscn" id="2_n2r3n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fgitb"]
