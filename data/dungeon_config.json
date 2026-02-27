@@ -1,6 +1,9 @@
 {
 	"combat_room_pool": ["CombatRoom01", "CombatRoom02"],
 	"spawn_configs": {
+		"StartRoom01": {
+			"spawn_points": []
+		},
 		"CombatRoom01": {
 			"spawn_points": [
 				{ "enemy_id": "slime", "position": { "x": -100, "y": 0 }, "radius": 30 },

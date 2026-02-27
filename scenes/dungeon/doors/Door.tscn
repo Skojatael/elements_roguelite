@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://djs7ain0chhg7"]
+
+[ext_resource type="Script" uid="uid://b83yb7175j5k2" path="res://scenes/dungeon/doors/Door.gd" id="1_jwpmb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y07tl"]
+size = Vector2(200, 200)
+
+[node name="Door" type="Area2D" unique_id=2058966213]
+collision_layer = 0
+script = ExtResource("1_jwpmb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1156729544]
+shape = SubResource("RectangleShape2D_y07tl")
+debug_color = Color(0.94070804, 0.54041517, 0, 0.41960785)

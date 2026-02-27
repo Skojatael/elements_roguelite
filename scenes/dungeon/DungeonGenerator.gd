@@ -1,6 +1,8 @@
 class_name DungeonGenerator
 extends Node
 
+signal dungeon_layout_ready
+
 const GRID_SIZE: int = 5
 const TARGET_ROOM_COUNT: int = 8
 const SPACING_X: int = 2000   # 1920 room width + 80 gap
@@ -58,7 +60,7 @@ func _generate() -> void:
 
 	print("[DungeonGenerator] layout rooms={count} start={start} cells={keys}".format({"count": rooms_by_id.size(), "start": start_room_id, "keys": rooms_by_id.keys()}))
 
-	_place_player(rooms_by_id[start_room_id]["world_pos"])
+	dungeon_layout_ready.emit()
 
 
 func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array) -> void:
@@ -97,12 +99,3 @@ func _get_valid_neighbours(cell: Vector2i, occupied: Dictionary) -> Array[Vector
 		if neighbour.x >= 0 and neighbour.x < GRID_SIZE and neighbour.y >= 0 and neighbour.y < GRID_SIZE and not occupied.has(neighbour):
 			result.append(neighbour)
 	return result
-
-
-func _place_player(target_pos: Vector2) -> void:
-	var player: Node = get_tree().get_first_node_in_group("player")
-	if player == null:
-		push_error("DungeonGenerator: player not found in group 'player'")
-		return
-	player.global_position = target_pos
-	print("[DungeonGenerator] player placed at {pos}".format({"pos": target_pos}))

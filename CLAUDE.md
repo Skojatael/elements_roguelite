@@ -21,7 +21,7 @@ scenes/
 ├── core/          Bootstrap.tscn → Main.tscn (entry point and main game scene)
 ├── player/        Player.tscn + components/
 ├── combat/        projectiles/, skills/, effects/ (empty, TBD)
-├── dungeon/       DungeonGenerator.gd, RoomManager.gd, RoomBase.tscn, rooms/
+├── dungeon/       DungeonGenerator.gd, RoomLoader.gd, RoomManager.gd, RoomBase.tscn, rooms/, doors/
 ├── run/           RunManager.gd, RunStats.gd, RewardSystem.gd
 ├── meta/          MetaManager.gd, UpgradeTree.tscn, UpgradeNode.tscn, PassiveIncomeSystem.gd
 ├── ui/            hud/, meta_ui/, menus/
@@ -50,7 +50,7 @@ Implementation counterparts live in `scripts/managers/`.
 JSON configs in `data/` (`upgrades.json`, `skills.json`, `enemies.json`, `dungeon_config.json`).
 GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `EnemyData`, `SpawnPointData`, `RoomSpawnConfig`).
 
-`dungeon_config.json` contains a `room_sequence` array (ordered room type IDs for the dungeon generator) and a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius).
+`dungeon_config.json` contains a `combat_room_pool` array (CombatRoom* type IDs for random selection) and a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius). `StartRoom01` has an empty `spawn_points` array in `spawn_configs`.
 
 ### Enemy spawning (003-enemy-spawning)
 
@@ -98,7 +98,7 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 | `neighbours_by_id` | `Dictionary` | `room_id → Array[String]` of adjacent room_ids in the layout |
 | `start_room_id` | `String` | Always `"room_2_2"` (center cell) |
 
-**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id`. Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Finally places the player at `rooms_by_id[start_room_id].world_pos` (always (0,0)).
+**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id`. Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Emits `dungeon_layout_ready` signal at the end — `RoomLoader` connects to this to load the start room and place the player.
 
 **Room IDs**: `"room_{col}_{row}"` (e.g. `"room_2_2"` for center).
 
@@ -106,9 +106,34 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 **Re-run**: `rooms_by_id`, `neighbours_by_id`, and `start_room_id` are cleared and rebuilt each generation. No scene cleanup required.
 
-**Scene loading** is a separate concern (room-at-a-time principle) handled by a different system that reads `rooms_by_id`. That system is out of scope for this feature.
+**Scene loading** is handled by `RoomLoader` (feature 009), which reads `rooms_by_id` after `dungeon_layout_ready` fires.
 
-`dungeon_config.json` has a `"combat_room_pool"` key (array of CombatRoom* type IDs) alongside `"spawn_configs"`. `"room_sequence"` is removed.
+### Room loading & doors (009-room-loading-doors)
+
+`scenes/dungeon/RoomLoader.gd` — `Node` child of Main.tscn, sibling of `DungeonGenerator`. Owns all room scene lifecycle: loading, unloading, door configuration, and player placement.
+
+**Key behaviour**:
+- Connects to `DungeonGenerator.dungeon_layout_ready` in `_ready()`.
+- On layout ready: overrides `start_room_id`'s type to `"StartRoom01"`, loads the scene via `RunManager.spawn_room()`, configures doors, places player at room center.
+- On door touch: sets `RunManager.current_room = null`, calls `queue_free()` on the current room root, loads next room, places player at the entry offset from the matching opposite wall.
+- `_loading: bool` guard prevents double-loads.
+
+**Door architecture**: `scenes/dungeon/doors/Door.tscn` — `Area2D` (200×200 collision) with `Door.gd`. Four static instances (`DoorN`, `DoorS`, `DoorE`, `DoorW`) are children of `RoomBase.tscn` at positions `(0, ±540)` and `(±960, 0)`. `RoomLoader` shows/hides each door and sets `target_room_id` after each room load.
+
+**Player entry offset**: `ENTRY_OFFSET = 150` px inward from wall. Player placed at `world_pos + ENTRY_LOCAL[entry_direction]`.
+
+| Entry side | Local offset |
+|---|---|
+| `"N"` | `Vector2(0, -390)` |
+| `"S"` | `Vector2(0, 390)` |
+| `"E"` | `Vector2(810, 0)` |
+| `"W"` | `Vector2(-810, 0)` |
+
+**StartRoom01**: `scenes/dungeon/rooms/StartRoom01.tscn` (inherits `RoomBase.tscn`). `RoomData` at `data/rooms/StartRoom01.tres`. Has empty `spawn_points` — no enemies. Assigned by `RoomLoader` at load time; `DungeonGenerator` is unaware of it.
+
+**One room in memory**: At all times exactly one room scene is present. Current room is `queue_free()`'d before next is instantiated.
+
+---
 
 ### Room Factory (006-room-factory)
 

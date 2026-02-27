@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b24rujptqd0af"]
 
 [ext_resource type="Script" uid="uid://by6yd440wvr86" path="res://scenes/dungeon/RoomSpawner.gd" id="1_60trx"]
+[ext_resource type="PackedScene" uid="uid://djs7ain0chhg7" path="res://scenes/dungeon/doors/Door.tscn" id="2_n2r3n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fgitb"]
 size = Vector2(1920, 1080)
@@ -22,3 +23,15 @@ collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EntryArea" unique_id=1426817620]
 shape = SubResource("RectangleShape2D_fgitb")
+
+[node name="DoorN" parent="." unique_id=2143495477 instance=ExtResource("2_n2r3n")]
+position = Vector2(0, -540)
+
+[node name="DoorS" parent="." unique_id=2058966213 instance=ExtResource("2_n2r3n")]
+position = Vector2(0, 540)
+
+[node name="DoorE" parent="." unique_id=1661513415 instance=ExtResource("2_n2r3n")]
+position = Vector2(960, 0)
+
+[node name="DoorW" parent="." unique_id=1893906395 instance=ExtResource("2_n2r3n")]
+position = Vector2(-960, 0)
