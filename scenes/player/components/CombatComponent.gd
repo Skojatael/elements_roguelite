@@ -11,6 +11,7 @@ extends Node
 
 var _overlapping_enemies: Array = []
 var _attack_timer: float = 0.0
+var _base_attack_damage: float = 0.0
 
 
 func _ready() -> void:
@@ -18,8 +19,14 @@ func _ready() -> void:
 		"CombatComponent: attack_damage must be greater than 0")
 	assert(attack_interval > 0.0,
 		"CombatComponent: attack_interval must be greater than 0")
+	_base_attack_damage = attack_damage
+	RunManager.run_started.connect(func(_m: String) -> void: _apply_damage_multiplier())
 	_attack_area.body_entered.connect(_on_body_entered)
 	_attack_area.body_exited.connect(_on_body_exited)
+
+
+func _apply_damage_multiplier() -> void:
+	attack_damage = _base_attack_damage * MetaManager.damage_multiplier
 
 
 func _on_body_entered(body: Node2D) -> void:

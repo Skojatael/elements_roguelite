@@ -8,13 +8,42 @@ func load(save_manager: Node) -> void:
 	meta_state = save_manager.load_meta_state()
 
 
-func on_run_ended(summary: RunSummary, divisor: int, save_manager: Node) -> void:
-	if summary == null:
+func add_shards(amount: int, save_manager: Node) -> void:
+	if amount <= 0:
 		return
-	var shards_earned: int = summary.essence_cashed_out / divisor
-	meta_state.total_shards += shards_earned
+	meta_state.total_shards += amount
 	save_manager.save_meta_state(meta_state)
-	print("[MetaManager] {shards} shards earned — total={total}".format({
-		"shards": shards_earned,
-		"total": meta_state.total_shards,
-	}))
+
+
+func can_spend(cost: int) -> bool:
+	return cost >= 0 and meta_state.total_shards >= cost
+
+
+func spend(cost: int, save_manager: Node) -> bool:
+	if cost == 0:
+		return true
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
+func get_upgrade_cost(level: int, base_cost: int, scale: float) -> int:
+	var cost: int = base_cost
+	for i in level:
+		cost = floori(float(cost) * scale)
+	return cost
+
+
+func purchase_damage_upgrade(cost: int, save_manager: Node) -> bool:
+	if meta_state.total_shards < cost:
+		return false
+	meta_state.total_shards -= cost
+	meta_state.damage_upgrade_level += 1
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
+func get_damage_multiplier(damage_per_level: float) -> float:
+	return 1.0 + float(meta_state.damage_upgrade_level) * damage_per_level

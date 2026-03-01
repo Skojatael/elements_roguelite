@@ -224,15 +224,29 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 ### Meta Progression (016-meta-shards)
 
-**MetaState** (`scripts/data_models/MetaState.gd`) — `RefCounted` data class. Fields: `total_shards: int = 0`. Persisted across sessions. Analogous to `RunState` but for meta data that survives runs.
+**MetaState** (`scripts/data_models/MetaState.gd`) — `RefCounted` data class. Fields: `total_shards: int = 0`, `damage_upgrade_level: int = 0`. Persisted across sessions. Analogous to `RunState` but for meta data that survives runs.
 
-**MetaManager** (`autoload/MetaManager.gd`) — owns meta-progression. Holds `meta_state: MetaState` (non-null after `_ready()`). Connects to `RunManager.run_ended` in `_ready()`. On run end: reads `RunManager.run_summary.essence_cashed_out`, computes `essence_cashed_out / shard_divisor` (integer division), increments `meta_state.total_shards`, calls `SaveManager.save_meta_state()`. Prints `[MetaManager] N shards earned — total=M`.
+**MetaManager** (`autoload/MetaManager.gd`) — owns meta-progression. Holds `meta_state: MetaState` (non-null after `_ready()`). Connects to `RunManager.run_ended` in `_ready()`. On run end: computes `essence_cashed_out / shard_divisor` and calls `add_shards(earned)`. Prints `[MetaManager] N shards earned — total=M`.
 
-**SaveManager** (`autoload/SaveManager.gd`) — owns file persistence. Save path: `user://meta_save.json`. Methods: `save_meta_state(MetaState)`, `load_meta_state() -> MetaState`. JSON format: `{"total_shards": <int>}`. Returns `MetaState.new()` (total=0) if file missing or malformed; never returns null.
+**Shard spending API** (018-shard-spending):
+- `signal shards_changed(new_total: int)` — emitted after every successful balance mutation (spend, grant, run-end conversion). NOT emitted for zero-amount operations.
+- `can_spend(cost: int) -> bool` — pure affordability check; no side effects. Returns `false` for negative cost.
+- `spend(cost: int) -> bool` — deducts cost if `total_shards >= cost`; saves and emits `shards_changed` on success. `spend(0)` returns `true` with no mutation.
+- `add_shards(amount: int) -> void` — adds shards from any source; saves and emits `shards_changed` if `amount > 0`. No-op for `amount <= 0`.
+- **Invariant**: `total_shards >= 0` always. `spend` enforces the guard; no deduction without a matching save.
 
-**ResourceManager** addition — `get_meta_config() -> Dictionary`: reads and caches `data/meta_config.json`. Returns `{"shard_divisor": 3}`.
+**Damage upgrade API** (019-damage-upgrade):
+- `var damage_multiplier: float` (computed property) — `1.0 + damage_upgrade_level * 0.1`. Read by `CombatComponent` at each run start.
+- `get_next_upgrade_cost() -> int` — cost for the next level purchase (0 if maxed).
+- `purchase_damage_upgrade() -> bool` — atomic: checks max level, deducts cost, increments level, saves, emits `shards_changed`. Returns `false` if maxed or insufficient balance.
 
-**Balance config** (`data/meta_config.json`) — `shard_divisor: 3` (3 essence = 1 shard, exact integer division). Loaded via `ResourceManager.get_meta_config()`.
+**SaveManager** (`autoload/SaveManager.gd`) — owns file persistence. Save path: `user://meta_save.json`. Methods: `save_meta_state(MetaState)`, `load_meta_state() -> MetaState`. JSON format: `{"total_shards": <int>, "damage_upgrade_level": <int>}`. Missing fields default to 0 (backward compatible). Returns `MetaState.new()` if file missing or malformed; never returns null.
+
+**ResourceManager** addition — `get_meta_config() -> Dictionary`: reads and caches `data/meta_config.json`.
+
+**Balance config** (`data/meta_config.json`):
+- `shard_divisor: 3` — essence-to-shard conversion (3 essence = 1 shard).
+- `damage_upgrade.base_cost: 50`, `cost_scale: 1.2`, `max_levels: 10`, `damage_per_level: 0.1` — upgrade costs floor at each step; cost table: 50, 60, 72, 86, 103, 123, 147, 176, 211, 253.
 
 **Shard conversion formula**: `shards_earned = essence_cashed_out / shard_divisor` (GDScript integer division, truncates toward zero). Only `essence_cashed_out` from `RunSummary` is used (already accounts for DIED penalty).
 
