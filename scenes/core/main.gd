@@ -26,6 +26,7 @@ func _ready() -> void:
 		panel.start_boss_pressed.connect(func(): print("[DevPanel] start_boss pressed — stub"))
 	_movement.set_joystick(_joystick)
 	_stats.died.connect(_on_player_died)
+	RunManager.run_started.connect(func(_m: String) -> void: _on_run_started())
 	RunManager.run_ended.connect(_on_run_ended)
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
@@ -33,7 +34,18 @@ func _ready() -> void:
 	_exploration_hud.visible = true
 
 
+func _on_run_started() -> void:
+	if is_instance_valid(_hub_room):
+		_hub_room.queue_free()
+		_hub_room = null
+	if _results_layer != null:
+		_results_layer.queue_free()
+		_results_layer = null
+		_results_screen = null
+
+
 func _on_hub_exited() -> void:
+	_hub_room = null  # HubRoom calls queue_free() on itself; clear the reference
 	RunManager.start_run("endless")
 	GlobalSignals.gameplay_started.emit()
 
@@ -44,6 +56,9 @@ func _on_player_died() -> void:
 
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void:
+	if is_instance_valid(_hub_room):
+		_hub_room.queue_free()
+		_hub_room = null
 	_player.visible = false
 	_results_layer = CanvasLayer.new()
 	add_child(_results_layer)
@@ -54,10 +69,11 @@ func _on_run_ended(_reason: RunManager.EndReason) -> void:
 
 
 func _on_results_return() -> void:
-	_player.visible = true
 	_results_layer.queue_free()
 	_results_layer = null
 	_results_screen = null
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
 	_hub_room.hub_exited.connect(_on_hub_exited)
+	_player.global_position = _hub_room.global_position
+	_player.visible = true

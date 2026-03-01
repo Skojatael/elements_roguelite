@@ -47,6 +47,8 @@ Component scripts live in `scenes/player/components/` without their own `.tscn` 
 Registered in `autoload/`:  `ResourceManager`, `SaveManager`, `MetaManager`, `RunManager`.
 Implementation counterparts live in `scripts/managers/`.
 
+**Thin-wrapper rule** (Constitution I): autoload scripts MUST be thin wrappers — they expose signals, state fields, and delegating methods, but MUST NOT contain algorithmic game logic. Logic goes in `scripts/managers/` or `scripts/services/`; the autoload calls into those scripts.
+
 ### Data layer
 
 JSON configs in `data/` (`upgrades.json`, `skills.json`, `enemies.json`, `dungeon_config.json`).
@@ -179,7 +181,12 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 **CanvasLayer**: ResultsScreen is parented to a dynamically created `CanvasLayer` so it renders in screen space regardless of Camera2D position. `_results_layer` and `_results_screen` are both tracked on Main.
 
-**Return**: ResultsScreen emits `return_pressed` → Main.gd calls `_results_layer.queue_free()` (frees layer and screen together), reinstantiates HubRoom.
+**Return**: ResultsScreen emits `return_pressed` → Main.gd calls `_results_layer.queue_free()` (frees layer and screen together), reinstantiates HubRoom, teleports player to hub center (`_player.global_position = _hub_room.global_position`).
+
+**Main.gd scene cleanup** — Main connects to `RunManager.run_started` via `_on_run_started()`, which runs before any run begins. It frees stale scene objects so DevPanel bypasses don't leave orphaned nodes:
+- If `_hub_room` is still valid (DevPanel "Start Run" pressed while hub was active) → `queue_free()` + null.
+- If `_results_layer` is non-null (DevPanel "Start Run" pressed while results screen was showing) → `queue_free()` + null.
+`_on_run_ended` also frees `_hub_room` via `is_instance_valid()` as a secondary guard.
 
 **RunManager additions**: `enemies_slain: int` (reset in `start_run()`, incremented in `_on_enemy_defeated()`); `run_summary: RunSummary` (written in `end_run()`, null before first run ends).
 
@@ -214,6 +221,22 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 **RoomSpawner fields**:
 - `room_type_id` — matches a key in `dungeon_config.json → spawn_configs` (e.g. `"CombatRoom01"`); used for spawn config lookup, tracking (`cleared_rooms`), and signals. Set via Inspector (pre-placed) or by RoomFactory (dynamic).
 - `auto_register` — factory sets `false` before `add_child`; pre-placed Editor rooms use default `true`.
+
+### Meta Progression (016-meta-shards)
+
+**MetaState** (`scripts/data_models/MetaState.gd`) — `RefCounted` data class. Fields: `total_shards: int = 0`. Persisted across sessions. Analogous to `RunState` but for meta data that survives runs.
+
+**MetaManager** (`autoload/MetaManager.gd`) — owns meta-progression. Holds `meta_state: MetaState` (non-null after `_ready()`). Connects to `RunManager.run_ended` in `_ready()`. On run end: reads `RunManager.run_summary.essence_cashed_out`, computes `floori(essence × shard_conversion_rate)`, increments `meta_state.total_shards`, calls `SaveManager.save_meta_state()`. Prints `[MetaManager] N shards earned — total=M`.
+
+**SaveManager** (`autoload/SaveManager.gd`) — owns file persistence. Save path: `user://meta_save.json`. Methods: `save_meta_state(MetaState)`, `load_meta_state() -> MetaState`. JSON format: `{"total_shards": <int>}`. Returns `MetaState.new()` (total=0) if file missing or malformed; never returns null.
+
+**ResourceManager** addition — `get_meta_config() -> Dictionary`: reads and caches `data/meta_config.json`. Returns `{"shard_conversion_rate": 0.3333}`.
+
+**Balance config** (`data/meta_config.json`) — `shard_conversion_rate: 0.3333` (3:1 essence→shards; ~3 essence = 1 shard). Loaded via `ResourceManager.get_meta_config()`.
+
+**Shard conversion formula**: `shards_earned = floori(essence_cashed_out × shard_conversion_rate)`. Only `essence_cashed_out` from `RunSummary` is used (already accounts for DIED penalty).
+
+---
 
 ## Folder Conventions
 
