@@ -17,7 +17,7 @@ When a run ends (either by death or cash-out), the player's cashed-out essence i
 
 **Acceptance Scenarios**:
 
-1. **Given** a run ends with 100 essence cashed out, **When** MetaManager processes the run result, **Then** the shard total increases by 33 shards (floori(100 × 0.3333)) and MetaState stores the new cumulative total.
+1. **Given** a run ends with 100 essence cashed out, **When** MetaManager processes the run result, **Then** the shard total increases by 33 shards (100 / 3, rounded down) and MetaState stores the new cumulative total.
 2. **Given** a run ends with 0 essence cashed out, **When** MetaManager processes the run result, **Then** the shard total does not change.
 3. **Given** multiple runs completed in sequence, **When** each run ends, **Then** shards accumulate correctly across all runs and MetaState always reflects the running total.
 
@@ -52,9 +52,9 @@ The player's total shard count is saved when the game closes and restored when t
 - **FR-002**: MetaManager MUST compute the shard conversion and add it to the cumulative total stored in MetaState.
 - **FR-003**: MetaState MUST store `total_shards: int` as its primary field, non-negative, initialized to 0.
 - **FR-004**: MetaState MUST persist across game sessions via the existing save system.
-- **FR-005**: Shard conversion MUST use `floori()` so the result is always a whole number.
+- **FR-005**: Shard conversion MUST produce a whole number; fractional essence is discarded (rounded down).
 - **FR-006**: MetaManager MUST connect to `RunManager.run_ended` and process the conversion automatically — no manual trigger required.
-- **FR-007**: The conversion formula is: `shards_earned = floori(essence_cashed_out × 0.3333)` — a 3:1 rate, so approximately 3 essence converts to 1 shard (e.g. 100 essence → 33 shards).
+- **FR-007**: The conversion formula is: `shards_earned = essence_cashed_out / 3` (integer division, rounded down) — exactly 3 essence = 1 shard (e.g. 100 essence → 33 shards).
 
 ### Key Entities
 

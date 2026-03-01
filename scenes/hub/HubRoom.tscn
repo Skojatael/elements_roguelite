@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://nwyrbkb32eb8" path="res://scenes/hub/HubRoom.gd" id="1_ynf1v"]
 [ext_resource type="PackedScene" uid="uid://x6bdugdg815q" path="res://scenes/hub/TeleportDoor.tscn" id="2_w7jgr"]
+[ext_resource type="Script" uid="uid://bgka32l818w2v" path="res://scenes/hub/ShardDisplay.gd" id="3_5j0dm"]
 
 [node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door")]
 script = ExtResource("1_ynf1v")
@@ -16,3 +17,33 @@ offset_bottom = 540.0
 
 [node name="Teleport" parent="." unique_id=1981453522 instance=ExtResource("2_w7jgr")]
 position = Vector2(-960, 0)
+
+[node name="ShardDisplayLayer" type="CanvasLayer" parent="." unique_id=803811345]
+
+[node name="ColorRect" type="ColorRect" parent="ShardDisplayLayer" unique_id=1493926948]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 80.0
+offset_bottom = 40.0
+grow_horizontal = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ShardDisplay" type="Control" parent="ShardDisplayLayer" unique_id=269383106 node_paths=PackedStringArray("_label")]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("3_5j0dm")
+_label = NodePath("Label")
+
+[node name="Label" type="Label" parent="ShardDisplayLayer/ShardDisplay" unique_id=254831587]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

@@ -21,13 +21,13 @@ Balance configuration for meta-progression. Consumed by `ResourceManager.get_met
 
 ```json
 {
-  "shard_conversion_rate": 0.3333
+  "shard_divisor": 3
 }
 ```
 
-| Field                   | Type    | Value    | Description                                              |
-|-------------------------|---------|----------|----------------------------------------------------------|
-| `shard_conversion_rate` | `float` | `0.3333` | Multiplier applied to `essence_cashed_out` when computing shards earned. `floori(essence × rate)`. ~3 essence = 1 shard (e.g. 100 essence → 33 shards). |
+| Field           | Type  | Value | Description                                                                                      |
+|-----------------|-------|-------|--------------------------------------------------------------------------------------------------|
+| `shard_divisor` | `int` | `3`   | Divisor applied to `essence_cashed_out` when computing shards earned. `essence / shard_divisor` (integer division). Exactly 3 essence = 1 shard (e.g. 100 essence → 33 shards). |
 
 ---
 
@@ -37,10 +37,10 @@ Balance configuration for meta-progression. Consumed by `ResourceManager.get_met
 RunManager.run_summary: RunSummary
   └── essence_cashed_out: int
         │
-        ▼ (× shard_conversion_rate from meta_config.json)
+        ▼ (÷ shard_divisor from meta_config.json)
 MetaManager._on_run_ended()
         │
-        ▼ floori(essence × rate)
+        ▼ essence / shard_divisor (integer division)
 MetaState.total_shards += shards_earned
         │
         ▼

@@ -77,3 +77,4 @@ func _on_results_return() -> void:
 	_hub_room.hub_exited.connect(_on_hub_exited)
 	_player.global_position = _hub_room.global_position
 	_player.visible = true
+	_exploration_hud.visible = true

@@ -12,5 +12,5 @@ func _ready() -> void:
 
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void:
-	var rate: float = ResourceManager.get_meta_config().get("shard_conversion_rate", 1.0)
-	_impl.on_run_ended(RunManager.run_summary, rate, SaveManager)
+	var divisor: int = ResourceManager.get_meta_config().get("shard_divisor", 3)
+	_impl.on_run_ended(RunManager.run_summary, divisor, SaveManager)

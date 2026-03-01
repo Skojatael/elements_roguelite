@@ -80,12 +80,12 @@ autoload/
 ### MetaManager
 - `var meta_state: MetaState` — loaded from SaveManager in `_ready()`; non-null at all times
 - Connect `RunManager.run_ended` in `_ready()` using a lambda (arg mismatch pattern: signal passes `EndReason`, handler needs no arg OR uses it)
-- `_on_run_ended(reason: RunManager.EndReason)` — reads `RunManager.run_summary.essence_cashed_out`, computes `floori(essence × rate)`, adds to total, saves, prints log
+- `_on_run_ended(reason: RunManager.EndReason)` — reads `RunManager.run_summary.essence_cashed_out`, computes `essence / shard_divisor` (integer division), adds to total, saves, prints log
 - Remove empty `_process()` stub
 
 ### data/meta_config.json
 ```json
 {
-  "shard_conversion_rate": 1.0
+  "shard_divisor": 3
 }
 ```

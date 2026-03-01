@@ -226,15 +226,15 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 **MetaState** (`scripts/data_models/MetaState.gd`) — `RefCounted` data class. Fields: `total_shards: int = 0`. Persisted across sessions. Analogous to `RunState` but for meta data that survives runs.
 
-**MetaManager** (`autoload/MetaManager.gd`) — owns meta-progression. Holds `meta_state: MetaState` (non-null after `_ready()`). Connects to `RunManager.run_ended` in `_ready()`. On run end: reads `RunManager.run_summary.essence_cashed_out`, computes `floori(essence × shard_conversion_rate)`, increments `meta_state.total_shards`, calls `SaveManager.save_meta_state()`. Prints `[MetaManager] N shards earned — total=M`.
+**MetaManager** (`autoload/MetaManager.gd`) — owns meta-progression. Holds `meta_state: MetaState` (non-null after `_ready()`). Connects to `RunManager.run_ended` in `_ready()`. On run end: reads `RunManager.run_summary.essence_cashed_out`, computes `essence_cashed_out / shard_divisor` (integer division), increments `meta_state.total_shards`, calls `SaveManager.save_meta_state()`. Prints `[MetaManager] N shards earned — total=M`.
 
 **SaveManager** (`autoload/SaveManager.gd`) — owns file persistence. Save path: `user://meta_save.json`. Methods: `save_meta_state(MetaState)`, `load_meta_state() -> MetaState`. JSON format: `{"total_shards": <int>}`. Returns `MetaState.new()` (total=0) if file missing or malformed; never returns null.
 
-**ResourceManager** addition — `get_meta_config() -> Dictionary`: reads and caches `data/meta_config.json`. Returns `{"shard_conversion_rate": 0.3333}`.
+**ResourceManager** addition — `get_meta_config() -> Dictionary`: reads and caches `data/meta_config.json`. Returns `{"shard_divisor": 3}`.
 
-**Balance config** (`data/meta_config.json`) — `shard_conversion_rate: 0.3333` (3:1 essence→shards; ~3 essence = 1 shard). Loaded via `ResourceManager.get_meta_config()`.
+**Balance config** (`data/meta_config.json`) — `shard_divisor: 3` (3 essence = 1 shard, exact integer division). Loaded via `ResourceManager.get_meta_config()`.
 
-**Shard conversion formula**: `shards_earned = floori(essence_cashed_out × shard_conversion_rate)`. Only `essence_cashed_out` from `RunSummary` is used (already accounts for DIED penalty).
+**Shard conversion formula**: `shards_earned = essence_cashed_out / shard_divisor` (GDScript integer division, truncates toward zero). Only `essence_cashed_out` from `RunSummary` is used (already accounts for DIED penalty).
 
 ---
 

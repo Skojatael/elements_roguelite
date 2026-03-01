@@ -24,7 +24,7 @@ func _ready() -> void
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void
     # Reads RunManager.run_summary.essence_cashed_out.
-    # Computes shards_earned = floori(essence_cashed_out × rate).
+    # Computes shards_earned = essence_cashed_out / shard_divisor (integer division).
     # Increments meta_state.total_shards.
     # Calls SaveManager.save_meta_state(meta_state).
     # Prints: "[MetaManager] N shards earned — total=M"
@@ -58,7 +58,7 @@ func load_meta_state() -> MetaState
 
 func get_meta_config() -> Dictionary
     # Returns parsed contents of data/meta_config.json, cached after first load.
-    # Guaranteed to contain "shard_conversion_rate": float.
+    # Guaranteed to contain "shard_divisor": int.
 ```
 
 ---
