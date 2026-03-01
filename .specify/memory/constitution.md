@@ -1,14 +1,15 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.1 → 1.2.0
-Bump type: MINOR — New bullet added to Principle IV (Editor-Centric Workflow)
-governing node-reference style in GDScript. No principle removed or redefined;
+Version change: 1.2.0 → 1.3.0
+Bump type: MINOR — Autoloads bullet in Principle I materially expanded to require
+thin-wrapper pattern: autoload scripts coordinate and delegate; game logic MUST
+live in scripts/managers/ or scripts/services/. No principle removed or redefined;
 existing guidance preserved in full.
 
 Modified principles:
-  IV. Editor-Centric Workflow — added "Node references" bullet prohibiting
-      hardcoded $NodeName paths for configurable children.
+  I. Single Responsibility — Autoloads bullet expanded with thin-wrapper rule
+     and explicit delegation requirement.
 
 Added sections: NONE
 
@@ -16,11 +17,12 @@ Removed sections: NONE
 
 Templates reviewed:
   ✅ .specify/templates/plan-template.md
-       — No node-reference guidance; no changes required.
+       — Constitution Check references principles generically; no hardcoded
+         autoload guidance; no changes required.
   ✅ .specify/templates/spec-template.md
-       — No node-reference guidance; no changes required.
+       — No autoload guidance; no changes required.
   ✅ .specify/templates/tasks-template.md
-       — No node-reference guidance; no changes required.
+       — No autoload guidance; no changes required.
 
 Deferred items: NONE
 Follow-up TODOs: NONE
@@ -52,11 +54,20 @@ change — a single, well-defined responsibility.
   `ResourceManager` handles only resource loading; it MUST NOT absorb save or
   meta logic). New autoloads MUST NOT duplicate responsibility with an existing
   autoload, and MUST be explicitly justified in the feature plan.
+  - Autoload scripts MUST be thin wrappers: they expose the domain's public API
+    (signals, state fields, delegating methods) and coordinate cross-system
+    wiring, but MUST NOT contain algorithmic game logic themselves.
+  - Game logic MUST be implemented in dedicated scripts under
+    `res://scripts/managers/` or `res://scripts/services/`; the autoload
+    delegates to these. An autoload that grows beyond signal wiring, state
+    fields, and delegation calls is a violation of this principle.
 
 **Rationale**: A single reason to change makes every unit independently
 testable, replaceable, and understandable. In a Godot roguelite that grows a
 large feature surface quickly, SRP at every layer is the primary defence
-against tangled code.
+against tangled code. Keeping autoloads as thin wrappers ensures game logic
+remains independently testable and prevents autoloads from becoming monolithic
+god-objects over time.
 
 ### II. Data-Driven Content
 
@@ -161,9 +172,10 @@ and speculative infrastructure are the primary sources of technical debt here.
    component wired, data model implemented). Use the godot-git-plugin or CLI;
    never amend published commits on `main`.
 6. **Review gate** — All PRs MUST confirm: SRP is respected at every layer
-   (scripts, scenes, autoloads), no hard-coded balance values, shader is
-   Mobile-compatible, and all child-node references use `@export var` rather
-   than hardcoded `$NodeName` paths (Principle IV).
+   (scripts, scenes, autoloads), autoloads are thin wrappers with logic
+   delegated to `scripts/managers/` or `scripts/services/`, no hard-coded
+   balance values, shader is Mobile-compatible, and all child-node references
+   use `@export var` rather than hardcoded `$NodeName` paths (Principle IV).
 
 ## Governance
 
@@ -194,4 +206,4 @@ consistent with this constitution; if they conflict, this constitution governs.
 
 ---
 
-**Version**: 1.2.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-27
+**Version**: 1.3.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-03-01
