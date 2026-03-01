@@ -9,7 +9,8 @@ extends CanvasLayer
 func _ready() -> void:
 	GlobalSignals.gameplay_started.connect(_on_gameplay_started)
 	GlobalSignals.gameplay_ended.connect(_on_gameplay_ended)
-	RunManager.run_started.connect(_on_gameplay_started)
+	RunManager.run_started.connect(func(_m: String) -> void: _on_gameplay_started())
+	RunManager.run_ended.connect(func(_r: RunManager.EndReason) -> void: _on_gameplay_ended())
 	# Hide by default; shown when a run starts.
 	visible = false
 

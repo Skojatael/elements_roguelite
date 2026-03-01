@@ -12,6 +12,7 @@ var _dungeon_gen: DungeonGenerator = null
 func _ready() -> void:
 	_dungeon_gen = get_parent().get_node("DungeonGenerator")
 	_dungeon_gen.dungeon_layout_ready.connect(_on_layout_ready)
+	RunManager.run_ended.connect(_on_run_ended)
 
 
 func _on_layout_ready() -> void:
@@ -109,6 +110,13 @@ func _place_player(entry_direction: String, world_pos: Vector2) -> void:
 			return
 	player.global_position = world_pos + local_offset
 	print("[RoomLoader] player placed at {pos} via {dir} entry".format({"pos": player.global_position, "dir": entry_direction}))
+
+
+func _on_run_ended(_reason: RunManager.EndReason) -> void:
+	if _current_room_node != null:
+		_current_room_node.queue_free()
+		_current_room_node = null
+		RunManager.current_room = null
 
 
 func _on_door_activated(direction: String, target_room_id: String) -> void:

@@ -25,9 +25,13 @@ var current_room_depth: int = 0
 
 ## Tracks which rooms have been cleared during the current run.
 var cleared_rooms: Dictionary = {}
+var enemies_slain: int = 0
 
 ## Snapshot of current run state. Populated by start_run(); readable at all times.
 var run_state: RunState = RunState.new()
+
+## Summary of the last completed run. Null before the first run ends.
+var run_summary: RunSummary = null
 
 ## Player state snapshot. Updated via health_changed signal; reset in end_run().
 var player_state: PlayerState = PlayerState.new()
@@ -60,6 +64,7 @@ func start_run(mode: String) -> void:
 	current_room = null
 	rooms_entered = 0
 	current_room_depth = 0
+	enemies_slain = 0
 	cleared_rooms = {}
 	run_state = RunState.new()
 	run_state.run_mode = mode
@@ -91,6 +96,7 @@ func end_run(reason: EndReason) -> void:
 	else:
 		cashed_out = floori(run_currency)
 	print("[Essence] {amount} essence cashed out".format({"amount": cashed_out}))
+	run_summary = RunSummary.create(cashed_out, enemies_slain, cleared_rooms.size(), reason)
 	var players: Array = get_tree().get_nodes_in_group("player")
 	for player: Node in players:
 		var stats: StatsComponent = player.get_node_or_null("StatsComponent")
@@ -145,6 +151,7 @@ func _on_room_entered(room_id: String, spawner: Node) -> void:
 
 
 func _on_enemy_defeated(enemy_type_id: String) -> void:
+	enemies_slain += 1
 	var base_essence: float = ResourceManager.get_enemy_base_essence(enemy_type_id)
 	var essence: int = floori(base_essence * (1.0 + 0.10 * float(current_room_depth - 1)))
 	if essence > 0:

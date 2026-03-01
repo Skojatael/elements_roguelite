@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bk03c1lexp45k"]
+
+[ext_resource type="PackedScene" uid="uid://5vvk6a25nyfr" path="res://scenes/ui/run_end/StatRow.tscn" id="1_rf6uw"]
+
+[node name="StatRow" unique_id=1652300726 instance=ExtResource("1_rf6uw")]
+
+[node name="NameLabel" parent="." index="0" unique_id=135922636]
+text = "Essence gathered: "

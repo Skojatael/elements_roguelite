@@ -3,13 +3,17 @@ extends Node2D
 const DEV_MODE: bool = true
 const _DEV_PANEL_SCENE = preload("res://scenes/ui/dev/DevPanel.tscn")
 const _HUB_ROOM_SCENE = preload("res://scenes/hub/HubRoom.tscn")
+const _RESULTS_SCREEN_SCENE = preload("res://scenes/ui/run_end/ResultsScreen.tscn")
 
 @onready var _exploration_hud: CanvasLayer = $ExplorationHUD
 @onready var _joystick: JoystickControl = $ExplorationHUD/Joystick
+@onready var _player: Node2D = $Player
 @onready var _movement: MovementComponent = $Player/MovementComponent
 @onready var _stats: StatsComponent = $Player/StatsComponent
 
 var _hub_room: Node = null
+var _results_screen: Node = null
+var _results_layer: CanvasLayer = null
 
 
 func _ready() -> void:
@@ -22,6 +26,7 @@ func _ready() -> void:
 		panel.start_boss_pressed.connect(func(): print("[DevPanel] start_boss pressed — stub"))
 	_movement.set_joystick(_joystick)
 	_stats.died.connect(_on_player_died)
+	RunManager.run_ended.connect(_on_run_ended)
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
 	_hub_room.hub_exited.connect(_on_hub_exited)
@@ -36,3 +41,23 @@ func _on_hub_exited() -> void:
 func _on_player_died() -> void:
 	GlobalSignals.gameplay_ended.emit()
 	RunManager.end_run(RunManager.EndReason.DIED)
+
+
+func _on_run_ended(_reason: RunManager.EndReason) -> void:
+	_player.visible = false
+	_results_layer = CanvasLayer.new()
+	add_child(_results_layer)
+	_results_screen = _RESULTS_SCREEN_SCENE.instantiate()
+	_results_layer.add_child(_results_screen)
+	(_results_screen as ResultsScreen).setup(RunManager.run_summary)
+	(_results_screen as ResultsScreen).return_pressed.connect(_on_results_return)
+
+
+func _on_results_return() -> void:
+	_player.visible = true
+	_results_layer.queue_free()
+	_results_layer = null
+	_results_screen = null
+	_hub_room = _HUB_ROOM_SCENE.instantiate()
+	add_child(_hub_room)
+	_hub_room.hub_exited.connect(_on_hub_exited)

@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://b60n6o1wkvtjr"]
+
+[ext_resource type="Script" uid="uid://buya0gx0c2iyo" path="res://scenes/ui/run_end/ResultsScreen.gd" id="1_whg4v"]
+[ext_resource type="PackedScene" uid="uid://bk03c1lexp45k" path="res://scenes/ui/run_end/EssenceStat.tscn" id="2_whg4v"]
+[ext_resource type="PackedScene" uid="uid://bqr3xxroo7tqt" path="res://scenes/ui/run_end/EnemiesStat.tscn" id="3_lya11"]
+[ext_resource type="PackedScene" uid="uid://dudqh74i11q5m" path="res://scenes/ui/run_end/RoomsStat.tscn" id="4_batax"]
+
+[node name="ResultsScreen" type="Control" unique_id=620850302 node_paths=PackedStringArray("_essence_row", "_enemies_row", "_rooms_row", "_return_button")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_whg4v")
+_essence_row = NodePath("VBoxContainer/Essence")
+_enemies_row = NodePath("VBoxContainer/Enemies")
+_rooms_row = NodePath("VBoxContainer/Rooms")
+_return_button = NodePath("Button")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=189864943]
+layout_mode = 0
+offset_left = 900.0
+offset_top = 200.0
+offset_right = 1049.0
+offset_bottom = 277.0
+
+[node name="Essence" parent="VBoxContainer" unique_id=1652300726 instance=ExtResource("2_whg4v")]
+layout_mode = 2
+
+[node name="Enemies" parent="VBoxContainer" unique_id=519085756 instance=ExtResource("3_lya11")]
+layout_mode = 2
+
+[node name="Rooms" parent="VBoxContainer" unique_id=1063554430 instance=ExtResource("4_batax")]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="." unique_id=551187428]
+layout_mode = 0
+offset_left = 900.0
+offset_top = 540.0
+offset_right = 962.0
+offset_bottom = 571.0
+text = "Return"

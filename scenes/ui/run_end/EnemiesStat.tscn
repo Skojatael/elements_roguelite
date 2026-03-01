@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bqr3xxroo7tqt"]
+
+[ext_resource type="PackedScene" uid="uid://5vvk6a25nyfr" path="res://scenes/ui/run_end/StatRow.tscn" id="1_6o0wm"]
+
+[node name="StatRow" unique_id=519085756 instance=ExtResource("1_6o0wm")]
+
+[node name="NameLabel" parent="." index="0" unique_id=135922636]
+text = "Enemies slain: "

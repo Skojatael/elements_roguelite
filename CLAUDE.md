@@ -165,6 +165,30 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 ---
 
+### Run End Screen (015-run-end-screen)
+
+**Scenes** (`scenes/ui/run_end/`):
+- `ResultsScreen.tscn` + `ResultsScreen.gd` — shown immediately after a run ends. Replaces the dungeon (freed at `end_run()` time). Freed when player taps "Return". Exports: `_essence_row`, `_enemies_row`, `_rooms_row` (`StatRow`), `_return_button` (`Button`). Exposes `setup(summary: RunSummary)` and signal `return_pressed`.
+- `StatRow.tscn` + `StatRow.gd` — reusable `HBoxContainer` with a name `Label` (text set per-instance in Inspector) and a value `Label` (assigned to `_value_label` export). Exposes only `set_value(n: int)`.
+
+**Data source**: `RunManager.run_summary: RunSummary` — immutable snapshot created in `end_run()` before scene teardown. ResultsScreen reads exclusively from this via `setup(summary)`.
+
+**`RunSummary`** (`scripts/data_models/RunSummary.gd`) — `RefCounted` with fields: `essence_cashed_out: int`, `enemies_slain: int`, `rooms_cleared: int`, `end_reason: RunManager.EndReason`. Created via `RunSummary.create(...)`.
+
+**Flow**: `RunManager.end_run()` → creates `RunSummary`, emits `run_ended` → RoomLoader frees current room → ExplorationHUD hides → Main.gd creates a `CanvasLayer` (`_results_layer`), instantiates ResultsScreen as its child, calls `setup()`.
+
+**CanvasLayer**: ResultsScreen is parented to a dynamically created `CanvasLayer` so it renders in screen space regardless of Camera2D position. `_results_layer` and `_results_screen` are both tracked on Main.
+
+**Return**: ResultsScreen emits `return_pressed` → Main.gd calls `_results_layer.queue_free()` (frees layer and screen together), reinstantiates HubRoom.
+
+**RunManager additions**: `enemies_slain: int` (reset in `start_run()`, incremented in `_on_enemy_defeated()`); `run_summary: RunSummary` (written in `end_run()`, null before first run ends).
+
+**RoomLoader**: connects to `run_ended`; frees `_current_room_node` and nulls `RunManager.current_room` on run end.
+
+**ExplorationHUD**: connects to both `GlobalSignals.gameplay_ended` and `RunManager.run_ended` to hide on all end-run paths.
+
+---
+
 ### Hub Room (013-hub-room)
 
 `scenes/hub/HubRoom.tscn` — the game's entry point. Player spawns here at launch. Not part of any run (`RunManager.is_run_active == false` while in hub).
@@ -173,7 +197,7 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 - `HubRoom.gd` — connects to `TeleportDoor.teleport_activated`; on activation emits `hub_exited` then calls `queue_free()`.
 - `Main.gd` connects to `hub_exited`: calls `RunManager.start_run("endless")` then `GlobalSignals.gameplay_started.emit()`.
 - `Main._ready()` no longer calls `start_run()` directly — run only starts when player activates TeleportDoor (or via DevPanel bypass in DEV_MODE).
-- ExplorationHUD is hidden during hub (not shown until `gameplay_started` fires).
+- ExplorationHUD is hidden during hub (not shown until `gameplay_started` fires or `RunManager.run_started` emits).
 
 ---
 

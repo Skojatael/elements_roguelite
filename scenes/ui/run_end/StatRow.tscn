@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://5vvk6a25nyfr"]
+
+[ext_resource type="Script" uid="uid://x73omlmnyvxt" path="res://scenes/ui/run_end/StatRow.gd" id="1_cm78j"]
+
+[node name="StatRow" type="HBoxContainer" unique_id=519085756 node_paths=PackedStringArray("_name_label", "_value_label")]
+offset_right = 6.0
+offset_bottom = 23.0
+script = ExtResource("1_cm78j")
+_name_label = NodePath("NameLabel")
+_value_label = NodePath("ValueLabel")
+metadata/_custom_type_script = "uid://x73omlmnyvxt"
+
+[node name="NameLabel" type="Label" parent="." unique_id=135922636]
+layout_mode = 2
+
+[node name="ValueLabel" type="Label" parent="." unique_id=132723786]
+layout_mode = 2
