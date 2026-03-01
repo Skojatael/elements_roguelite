@@ -15,7 +15,7 @@ var run_currency: float = 0.0
 ## Run mode: "endless" or "boss". Set at run start; does not change.
 var run_mode: String = ""
 
-## Stub: deepest room reached (in depth steps from start). Always 0 until feature 010 populates it.
+## Deepest room reached this run (Manhattan distance from start room).
 var max_depth_reached: int = 0
 
 ## Stub: run seed for deterministic dungeon generation. Always 0 until seeded-generation feature.

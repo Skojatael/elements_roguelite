@@ -9,7 +9,8 @@ extends CanvasLayer
 func _ready() -> void:
 	GlobalSignals.gameplay_started.connect(_on_gameplay_started)
 	GlobalSignals.gameplay_ended.connect(_on_gameplay_ended)
-	# Hide by default; Main.gd emits gameplay_started which shows the HUD.
+	RunManager.run_started.connect(_on_gameplay_started)
+	# Hide by default; shown when a run starts.
 	visible = false
 
 

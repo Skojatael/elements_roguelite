@@ -7,7 +7,8 @@
 			"damage": 1.0,
 			"move_speed": 60.0,
 			"detection_range": 200.0,
-			"damage_cooldown": 0.5
+			"damage_cooldown": 0.5,
+			"base_essence": 10
 		},
 		{
 			"id": "skeleton",
@@ -16,7 +17,8 @@
 			"damage": 2.0,
 			"move_speed": 80.0,
 			"detection_range": 250.0,
-			"damage_cooldown": 1.0
+			"damage_cooldown": 1.0,
+			"base_essence": 15
 		}
 	]
 }

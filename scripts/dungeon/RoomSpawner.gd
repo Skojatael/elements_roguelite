@@ -16,11 +16,18 @@ const MAX_ENEMIES := 10
 ## Applied to each spawned enemy's maximum health. Set by RoomLoader after spawn_room().
 @export var difficulty_mult: float = 1.0
 
+## Grid depth of this room (Manhattan distance from start). Set by RoomLoader after spawn_room().
+@export var depth: int = 0
+
 ## Emitted once, the same frame the last living enemy is defeated.
 signal room_cleared(room_id: String)
 
 ## Emitted when the player enters this room (after all guards pass).
 signal room_entered(room_id: String)
+
+## Emitted for every enemy defeat. Carries only the enemy type — consumers
+## resolve stats and context from their own sources.
+signal enemy_defeated(enemy_type_id: String)
 
 @onready var _entry_area: Area2D = $"../EntryArea"
 
@@ -111,11 +118,12 @@ func _spawn_enemies() -> void:
 			randf_range(-sp.radius, sp.radius)
 		)
 		enemy.global_position = get_parent().global_position + sp.position + offset
-		enemy.defeated.connect(_on_enemy_defeated)
+		enemy.defeated.connect(_on_enemy_defeated.bind(sp.enemy_id))
 		print("[RoomSpawner] spawned '{id}' at {pos}".format({"id": sp.enemy_id, "pos": enemy.global_position}))
 
 
-func _on_enemy_defeated() -> void:
+func _on_enemy_defeated(enemy_type_id: String) -> void:
+	enemy_defeated.emit(enemy_type_id)
 	_living_count -= 1
 	print("[RoomSpawner] enemy defeated — remaining: {count}".format({"count": _living_count}))
 	if _living_count == 0:

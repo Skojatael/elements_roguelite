@@ -45,6 +45,7 @@ func _load_room(room_id: String, entry_direction: String) -> void:
 		return
 	var room_mult: float = _dungeon_gen.rooms_by_id[room_id].get("difficulty_mult", 1.0)
 	spawner.difficulty_mult = room_mult
+	spawner.depth = _dungeon_gen.rooms_by_id[room_id].get("depth", 0)
 	_current_room_node = spawner.get_parent()
 	_configure_doors(_current_room_node, room_id)
 	_place_player(entry_direction, room_data["world_pos"])

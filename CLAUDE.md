@@ -79,7 +79,7 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 | `rooms_entered` | `int` | How many rooms entered this run (starts at 0) |
 | `cleared_rooms` | `Dictionary` | Map of `room_id → true` for cleared rooms |
 
-**Key methods**: `start_run(mode)`, `end_run()`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
+**Key methods**: `start_run(mode)`, `end_run(reason)`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
 
 **Signals**: `run_started(mode)` (emitted at end of `start_run()`), `run_ended(reason)` (on `end_run()`), `room_cleared(room_id)` (re-emitted from RoomSpawner).
 
@@ -88,9 +88,15 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 - `RunManager.rewards_service.get_room_reward(room_id) -> Dictionary` — returns `{}`
 - Service scripts: `scripts/services/DifficultyService.gd`, `scripts/services/RewardsService.gd`
 
+**Essence currency (014-essence-currency)**:
+- `RunManager.run_currency: float` — accumulates during a run. Awarded per enemy kill via `add_currency()`.
+- Earn formula: `floori(base_essence × (1 + 0.10 × (depth − 1)))` per kill. `base_essence` is per-enemy-type data in `enemies.json` (slime=10, skeleton=15). `depth` is the room's grid depth set on `RoomSpawner` by `RoomLoader`. Depth 1 awards the full base amount; each additional depth step adds 10%.
+- Cash-out fires in `end_run()`: 100% on `CASH_OUT`, `floori(run_currency × 0.85)` on `DIED`. Prints `[Essence] X essence cashed out`. No persistent wallet in this iteration.
+- `run_currency` resets to `0.0` in `start_run()`.
+
 **Run state snapshot (011-run-state)**:
 - `RunManager.run_state: RunState` — a `RefCounted` data class at `scripts/data_models/RunState.gd`. Non-null at all times (initialized at declaration). RunManager is the sole writer; all other systems are read-only consumers.
-- **Fields**: `current_room_id: String`, `cleared_rooms: Dictionary` (shared reference with RunManager.cleared_rooms), `run_currency: float`, `run_mode: String`, `max_depth_reached: int` (stub, always 0), `seed: int` (stub, always 0), `player_state: PlayerState` (see below).
+- **Fields**: `current_room_id: String`, `cleared_rooms: Dictionary` (shared reference with RunManager.cleared_rooms), `run_currency: float`, `run_mode: String`, `max_depth_reached: int` (updated in `_on_room_entered()` via `maxi`), `seed: int` (stub, always 0), `player_state: PlayerState` (see below).
 - **Reset**: A fresh `RunState.new()` is created in `start_run()`. Final values remain accessible after `end_run()` until the next run starts. No signals — consumers poll `RunManager.run_state`.
 
 **Player state snapshot (012-player-state)**:

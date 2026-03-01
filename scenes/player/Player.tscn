@@ -10,7 +10,7 @@
 radius = 30.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7oing"]
-radius = 60.0
+radius = 90.0
 
 [node name="Player" type="CharacterBody2D" unique_id=1724136209 groups=["player"]]
 collision_mask = 0

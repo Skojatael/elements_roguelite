@@ -21,6 +21,7 @@ var run_start_time: float = 0.0
 var run_currency: float = 0.0
 var current_room: Node = null
 var rooms_entered: int = 0
+var current_room_depth: int = 0
 
 ## Tracks which rooms have been cleared during the current run.
 var cleared_rooms: Dictionary = {}
@@ -58,6 +59,7 @@ func start_run(mode: String) -> void:
 	run_currency = 0.0
 	current_room = null
 	rooms_entered = 0
+	current_room_depth = 0
 	cleared_rooms = {}
 	run_state = RunState.new()
 	run_state.run_mode = mode
@@ -83,6 +85,12 @@ func end_run(reason: EndReason) -> void:
 		print("[RunManager] end_run called — no active run, ignoring")
 		return
 	is_run_active = false
+	var cashed_out: int
+	if reason == EndReason.DIED:
+		cashed_out = floori(run_currency * 0.85)  # floor ensures result is always a whole number
+	else:
+		cashed_out = floori(run_currency)
+	print("[Essence] {amount} essence cashed out".format({"amount": cashed_out}))
 	var players: Array = get_tree().get_nodes_in_group("player")
 	for player: Node in players:
 		var stats: StatsComponent = player.get_node_or_null("StatsComponent")
@@ -111,6 +119,7 @@ func spawn_room(room_data: RoomData, room_id: String, context: SpawnContext) -> 
 		return null
 	spawner.room_entered.connect(_on_room_entered.bind(spawner))
 	spawner.room_cleared.connect(_on_room_cleared)
+	spawner.enemy_defeated.connect(_on_enemy_defeated)
 	current_room = spawner
 	return spawner
 
@@ -119,6 +128,7 @@ func spawn_room(room_data: RoomData, room_id: String, context: SpawnContext) -> 
 func register_room(spawner: Node) -> void:
 	spawner.room_entered.connect(_on_room_entered.bind(spawner))
 	spawner.room_cleared.connect(_on_room_cleared)
+	spawner.enemy_defeated.connect(_on_enemy_defeated)
 	current_room = spawner
 	print("[RunManager] registered room_id='{id}' room_type='{type}'".format({"id": spawner.room_id, "type": spawner.room_type_id}))
 
@@ -129,7 +139,16 @@ func _on_room_entered(room_id: String, spawner: Node) -> void:
 	current_room = spawner
 	rooms_entered += 1
 	run_state.current_room_id = room_id
+	current_room_depth = (spawner as RoomSpawner).depth
+	run_state.max_depth_reached = maxi(run_state.max_depth_reached, current_room_depth)
 	print("[RunManager] room entered room_id='{id}' — rooms_entered={rooms_entered}".format({"id": room_id, "rooms_entered": rooms_entered}))
+
+
+func _on_enemy_defeated(enemy_type_id: String) -> void:
+	var base_essence: float = ResourceManager.get_enemy_base_essence(enemy_type_id)
+	var essence: int = floori(base_essence * (1.0 + 0.10 * float(current_room_depth - 1)))
+	if essence > 0:
+		add_currency(float(essence))
 
 
 func _on_room_cleared(room_id: String) -> void:
