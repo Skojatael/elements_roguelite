@@ -46,4 +46,4 @@ func purchase_damage_upgrade(cost: int, save_manager: Node) -> bool:
 
 
 func get_damage_multiplier(damage_per_level: float) -> float:
-	return 1.0 + float(meta_state.damage_upgrade_level) * damage_per_level
+	return pow(1.0 + damage_per_level, float(meta_state.damage_upgrade_level))

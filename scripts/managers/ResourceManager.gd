@@ -5,9 +5,11 @@ var _dungeon_config_cache: Dictionary = {}
 var _enemy_ids_cache: Array[String] = []
 var _enemy_essence_cache: Dictionary = {}
 var _meta_config_cache: Dictionary = {}
+var _relics_cache: Dictionary = {}
 var _dungeon_config_loaded: bool = false
 var _enemy_ids_loaded: bool = false
 var _meta_config_loaded: bool = false
+var _relics_loaded: bool = false
 
 
 ## Returns the parsed contents of data/dungeon_config.json, cached after first load.
@@ -57,6 +59,23 @@ func get_meta_config() -> Dictionary:
 	_meta_config_cache = parsed as Dictionary
 	_meta_config_loaded = true
 	return _meta_config_cache
+
+
+## Returns the parsed contents of data/relics.json, cached after first load.
+func get_relics() -> Dictionary:
+	if _relics_loaded:
+		return _relics_cache
+
+	var file := FileAccess.open("res://data/relics.json", FileAccess.READ)
+	assert(file != null, "ResourceManager: failed to open res://data/relics.json")
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	assert(parsed is Dictionary,
+		"ResourceManager: relics.json root must be a Dictionary")
+
+	_relics_cache = parsed as Dictionary
+	_relics_loaded = true
+	return _relics_cache
 
 
 func _load_enemy_data() -> void:

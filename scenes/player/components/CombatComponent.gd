@@ -12,6 +12,7 @@ extends Node
 var _overlapping_enemies: Array = []
 var _attack_timer: float = 0.0
 var _base_attack_damage: float = 0.0
+var _base_attack_interval: float = 0.0
 
 
 func _ready() -> void:
@@ -20,13 +21,18 @@ func _ready() -> void:
 	assert(attack_interval > 0.0,
 		"CombatComponent: attack_interval must be greater than 0")
 	_base_attack_damage = attack_damage
-	RunManager.run_started.connect(func(_m: String) -> void: _apply_damage_multiplier())
+	_base_attack_interval = attack_interval
+	RunManager.run_started.connect(func(_m: String) -> void: _recompute_stats())
+	RelicManager.relic_applied.connect(func(_id: String) -> void: _recompute_stats())
+	RelicManager.relics_cleared.connect(func() -> void: _recompute_stats())
 	_attack_area.body_entered.connect(_on_body_entered)
 	_attack_area.body_exited.connect(_on_body_exited)
 
 
-func _apply_damage_multiplier() -> void:
-	attack_damage = _base_attack_damage * MetaManager.damage_multiplier
+func _recompute_stats() -> void:
+	attack_damage = _base_attack_damage * MetaManager.damage_multiplier \
+		* RelicManager.get_stat_mult("attack_damage")
+	attack_interval = _base_attack_interval / RelicManager.get_stat_mult("attack_speed")
 
 
 func _on_body_entered(body: Node2D) -> void:

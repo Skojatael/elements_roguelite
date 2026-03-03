@@ -39,6 +39,7 @@ func _generate() -> void:
 	if pool.is_empty():
 		push_error("DungeonGenerator: combat_room_pool missing or empty in dungeon_config.json")
 		return
+	var difficulty_scale: float = raw.get("difficulty_scale", 0.12)
 
 	if TARGET_ROOM_COUNT > GRID_SIZE * GRID_SIZE:
 		push_error("DungeonGenerator: TARGET_ROOM_COUNT={count} exceeds grid capacity={cap}".format({"count": TARGET_ROOM_COUNT, "cap": GRID_SIZE * GRID_SIZE}))
@@ -46,14 +47,14 @@ func _generate() -> void:
 	var occupied: Dictionary = {}
 	var frontier: Array = []
 
-	_record_room(CENTER, "StartRoom01", occupied, frontier)
+	_record_room(CENTER, "StartRoom01", occupied, frontier, difficulty_scale)
 	start_room_id = "room_{x}_{y}".format({"x": CENTER.x, "y": CENTER.y})
 
 	while occupied.size() < TARGET_ROOM_COUNT and not frontier.is_empty():
 		var idx: int = randi() % frontier.size()
 		var cell: Vector2i = frontier[idx]
 		frontier.remove_at(idx)
-		_record_room(cell, pool.pick_random(), occupied, frontier)
+		_record_room(cell, pool.pick_random(), occupied, frontier, difficulty_scale)
 
 	if occupied.size() < TARGET_ROOM_COUNT:
 		push_warning("DungeonGenerator: frontier exhausted at {count}/{target} rooms".format({"count": occupied.size(), "target": TARGET_ROOM_COUNT}))
@@ -66,10 +67,10 @@ func _generate() -> void:
 	dungeon_layout_ready.emit()
 
 
-func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array) -> void:
+func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array, difficulty_scale: float) -> void:
 	var room_id: String = "room_{x}_{y}".format({"x": cell.x, "y": cell.y})
 	var depth: int = abs(cell.x - CENTER.x) + abs(cell.y - CENTER.y)
-	var difficulty_mult: float = 1.0 + 0.12 * float(depth)
+	var difficulty_mult: float = 1.0 + difficulty_scale * float(depth)
 	rooms_by_id[room_id] = {
 		"room_type_id": type_id,
 		"grid_pos": cell,

@@ -21,3 +21,7 @@ func get_enemy_base_essence(id: String) -> float:
 
 func get_meta_config() -> Dictionary:
 	return _impl.get_meta_config()
+
+
+func get_relics() -> Dictionary:
+	return _impl.get_relics()

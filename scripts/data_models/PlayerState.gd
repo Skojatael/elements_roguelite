@@ -9,8 +9,8 @@ var current_hp: float = 0.0
 ## Stub: items acquired this run. Always empty until item system is implemented.
 var items: Array = []
 
-## Stub: active stat modifiers. Always empty until modifier system is implemented.
-var modifiers: Array = []
+## Relic IDs collected this run. Populated by RelicManager.pick_relic(). Read-only for all systems except RelicManager.
+var active_modifiers: Array[String] = []
 
 ## Stub: run-specific skill modifications. Always empty until skill-change system is implemented.
 var skill_changes: Array = []

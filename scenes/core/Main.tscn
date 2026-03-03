@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b04euk47ajcmk"]
 
-[ext_resource type="Script" uid="uid://cs5sn75bsfahn" path="res://scenes/core/Main.gd" id="1_fun78"]
+[ext_resource type="Script" uid="uid://rvscne556xh5" path="res://scenes/core/Main.gd" id="1_fun78"]
 [ext_resource type="PackedScene" uid="uid://id1otrhsveyr" path="res://scenes/player/Player.tscn" id="2_5pwbx"]
 [ext_resource type="PackedScene" uid="uid://cwwbw4g2rnxcw" path="res://scenes/ui/hud/ExplorationHUD.tscn" id="3_kitw3"]
 [ext_resource type="Script" uid="uid://c12iwmi4ic7a0" path="res://scripts/dungeon/DungeonGenerator.gd" id="4_5pwbx"]
@@ -20,3 +20,5 @@ script = ExtResource("4_kitw3")
 
 [node name="Player" parent="." unique_id=1059078168 instance=ExtResource("2_5pwbx")]
 z_index = 1
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=889655758]

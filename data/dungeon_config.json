@@ -1,4 +1,6 @@
 {
+	"difficulty_scale": 0.12,
+	"essence_depth_scale": 0.10,
 	"combat_room_pool": ["CombatRoom01", "CombatRoom02"],
 	"spawn_configs": {
 		"StartRoom01": {
@@ -17,6 +19,8 @@
 			]
 		},
 		"EliteRoom01": {
+			"enemy_count_mult": 1.5,
+			"essence_mult": 1.8,
 			"spawn_points": [
 				{ "enemy_id": "slime", "position": { "x": -80, "y": 0 }, "radius": 20 },
 				{ "enemy_id": "skeleton", "position": { "x": 80, "y": 0 }, "radius": 20 }

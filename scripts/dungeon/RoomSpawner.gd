@@ -35,6 +35,9 @@ var _config: RoomSpawnConfig
 var _living_count: int = 0
 var _spawned: bool = false
 
+var essence_mult: float:
+	get: return _config.essence_mult if _config != null else 1.0
+
 
 func _ready() -> void:
 	_config = _load_config()
@@ -103,12 +106,16 @@ func _on_player_entered(body: Node2D) -> void:
 
 func _spawn_enemies() -> void:
 	_spawned = true
-	_living_count = _config.spawn_points.size()
+	var base_count: int = _config.spawn_points.size()
+	_living_count = mini(floori(float(base_count) * _config.enemy_count_mult), MAX_ENEMIES)
 	if _living_count == 0:
 		print("[RoomSpawner] no spawn points configured for room_type='{type}'".format({"type": room_type_id}))
 		return
-	print("[RoomSpawner] spawning {count} enemies in room_type='{type}'".format({"count": _living_count, "type": room_type_id}))
-	for sp: SpawnPointData in _config.spawn_points:
+	print("[RoomSpawner] spawning {count} enemies in room_type='{type}' (base={base} mult={mult})".format({
+		"count": _living_count, "type": room_type_id, "base": base_count, "mult": _config.enemy_count_mult,
+	}))
+	for i: int in _living_count:
+		var sp: SpawnPointData = _config.spawn_points[i % base_count]
 		var enemy: Enemy = ENEMY_SCENE.instantiate()
 		enemy.enemy_type_id = sp.enemy_id  # must be set before add_child
 		get_parent().add_child(enemy)

@@ -7,7 +7,6 @@ layer = 128
 script = ExtResource("1_2fabs")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=137086767]
-anchors_preset = -1
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 10.0
@@ -35,3 +34,7 @@ text = "Cash out"
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
 text = "Start boss"
+
+[node name="GetRelic" type="Button" parent="PanelContainer/VBoxContainer" unique_id=558787602]
+layout_mode = 2
+text = "Get relic"

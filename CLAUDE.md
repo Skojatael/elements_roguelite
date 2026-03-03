@@ -252,6 +252,34 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 ---
 
+### Relic System (021-relic-system)
+
+Run-scoped modifier system. Relics are collected via a post-clear offer screen and apply stat multipliers for the duration of the run.
+
+**Data** (`data/relics.json`) — 6 initial relics across 4 stat categories: `attack_damage`, `attack_speed`, `max_health`, `move_speed`. Each entry: `id`, `name`, `tier`, `tags`, `effect_stat`, `effect_mult`, `description`.
+
+**RelicData** (`scripts/data_models/RelicData.gd`) — `RefCounted` typed wrapper. Factory: `RelicData.from_dict(data)`.
+
+**RelicManagerImpl** (`scripts/managers/RelicManagerImpl.gd`) — `RefCounted`. Owns algorithmic logic: `should_offer_for_room(room_type_id)` (frequency), `draw_offer(pool)`, `pick_relic(id)`, `compute_stat_mult(stat, pool)`. State: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`. `OFFER_INTERVAL = 2`.
+
+**RelicManager** (`autoload/RelicManager.gd`) — thin wrapper. Connects to `RunManager.run_started`, `run_ended`, `room_cleared`. On room_cleared: reads `RunManager.current_room.room_type_id`, delegates to impl, emits `relic_offer_ready(options: Array)`. Exposes `pick_relic(id)`, `get_stat_mult(stat)`, `active_relic_ids`. Signals: `relic_offer_ready`, `relic_applied(relic_id)`, `relics_cleared`.
+
+**Elite detection**: `room_type_id.contains("Elite")` → always offer. Standard rooms: offer every `OFFER_INTERVAL` clears (counter does NOT reset on elite offer).
+
+**PlayerState** (`scripts/data_models/PlayerState.gd`) — `active_modifiers: Array[String]` (replaces `modifiers: Array` stub). Updated by `RelicManager.pick_relic()`.
+
+**Stat application** — reactive pattern: `CombatComponent`, `StatsComponent`, and `MovementComponent` connect to `RelicManager.relic_applied` and `relics_cleared`, then recompute from cached base values:
+- `attack_damage = _base_attack_damage × MetaManager.damage_multiplier × RelicManager.get_stat_mult("attack_damage")`
+- `attack_interval = _base_attack_interval / RelicManager.get_stat_mult("attack_speed")`
+- `max_health = _base_max_health × RelicManager.get_stat_mult("max_health")` (current_health scales proportionally)
+- `move_speed = _base_move_speed × RelicManager.get_stat_mult("move_speed")`
+
+**Offer UI** — `scenes/ui/relic_offer/RelicOfferScreen.tscn` + `RelicCard.tscn`. `Main.gd` listens to `relic_offer_ready`: hides ExplorationHUD, creates CanvasLayer, instantiates RelicOfferScreen, calls `setup(options)`. On `relic_picked`: calls `RelicManager.pick_relic(id)`, frees layer, shows ExplorationHUD.
+
+**ResourceManager** addition — `get_relics() -> Dictionary`: reads and caches `data/relics.json`.
+
+---
+
 ## Folder Conventions
 
 | Path | Purpose |
