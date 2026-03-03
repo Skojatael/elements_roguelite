@@ -1,58 +1,66 @@
 {
-	"relics": [
-		{
-			"id": "sharp_edge",
-			"name": "Whetstone",
-			"tier": "common",
-			"tags": ["combat"],
-			"effect_stat": "attack_damage",
-			"effect_mult": 1.15,
-			"description": "+15% attack damage"
+	"relics": {
+		"common": {
+			"sharp_edge": {
+				"name": "Whetstone",
+				"tags": ["combat"],
+				"effect_stat": "attack_damage",
+				"effect_mult": 1.15,
+				"description": "+15% attack damage"
+			},
+			"swift_strike": {
+				"name": "Agility Cloak",
+				"tags": ["combat"],
+				"effect_stat": "attack_speed",
+				"effect_mult": 1.12,
+				"description": "+12% attack speed"
+			},
+			"iron_hide": {
+				"name": "Iron Hide",
+				"tags": ["survival"],
+				"effect_stat": "max_health",
+				"effect_mult": 1.25,
+				"description": "+25% max health"
+			},
+			"feather": {
+				"name": "Fleetfoot Feather",
+				"tags": ["combat"],
+				"effect_stat": "move_speed",
+				"effect_mult": 1.15,
+				"description": "+15% movement speed"
+			}
 		},
-		{
-			"id": "rage_crystal",
-			"name": "Rage Crystal",
-			"tier": "rare",
-			"tags": ["combat"],
-			"effect_stat": "attack_damage",
-			"effect_mult": 1.3,
-			"description": "+30% attack damage"
+		"uncommon": {
+			"storm_band": {
+				"name": "Storm Band",
+				"tags": ["combat"],
+				"effect_stat": "attack_speed",
+				"effect_mult": 1.25,
+				"description": "+25% attack speed"
+			},
+			"bulwark_shard": {
+				"name": "Bulwark Shard",
+				"tags": ["survival"],
+				"effect_stat": "max_health",
+				"effect_mult": 1.35,
+				"description": "+35% max health"
+			}
 		},
-		{
-			"id": "swift_strike",
-			"name": "Agility Cloak",
-			"tier": "common",
-			"tags": ["combat"],
-			"effect_stat": "attack_speed",
-			"effect_mult": 1.12,
-			"description": "+12% attack speed"
-		},
-		{
-			"id": "iron_hide",
-			"name": "Iron Hide",
-			"tier": "common",
-			"tags": ["survival"],
-			"effect_stat": "max_health",
-			"effect_mult": 1.25,
-			"description": "+25% max health"
-		},
-		{
-			"id": "vital_core",
-			"name": "Vital Core",
-			"tier": "rare",
-			"tags": ["survival"],
-			"effect_stat": "max_health",
-			"effect_mult": 1.5,
-			"description": "+50% max health"
-		},
-		{
-			"id": "feather",
-			"name": "Fleetfoot Feather",
-			"tier": "common",
-			"tags": ["combat"],
-			"effect_stat": "move_speed",
-			"effect_mult": 1.15,
-			"description": "+15% movement speed"
+		"rare": {
+			"rage_crystal": {
+				"name": "Rage Crystal",
+				"tags": ["combat"],
+				"effect_stat": "attack_damage",
+				"effect_mult": 1.3,
+				"description": "+30% attack damage"
+			},
+			"vital_core": {
+				"name": "Vital Core",
+				"tags": ["survival"],
+				"effect_stat": "max_health",
+				"effect_mult": 1.5,
+				"description": "+50% max health"
+			}
 		}
-	]
+	}
 }

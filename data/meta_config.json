@@ -5,5 +5,10 @@
 		"cost_scale": 1.2,
 		"max_levels": 10,
 		"damage_per_level": 0.1
+	},
+	"relic_tier_weights": {
+		"common": 0.6,
+		"uncommon": 0.3,
+		"rare": 0.1
 	}
 }
