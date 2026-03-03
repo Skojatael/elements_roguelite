@@ -38,6 +38,7 @@ func _ready() -> void:
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
 	_hub_room.hub_exited.connect(_on_hub_exited)
+	GlobalSignals.hub_entered.emit()
 	_exploration_hud.visible = true
 
 
@@ -90,6 +91,7 @@ func _on_results_return() -> void:
 	add_child(_hub_room)
 	_camera.global_position = Vector2.ZERO
 	_hub_room.hub_exited.connect(_on_hub_exited)
+	GlobalSignals.hub_entered.emit()
 	_player.global_position = _hub_room.global_position
 	_player.visible = true
 	_exploration_hud.visible = true

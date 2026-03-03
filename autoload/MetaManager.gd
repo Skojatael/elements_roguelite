@@ -5,12 +5,20 @@ signal shards_changed(new_total: int)
 var meta_state: MetaState:
 	get: return _impl.meta_state
 
+var is_adventurer_bag_unlocked: bool:
+	get: return _impl.meta_state.adventurer_bag_unlocked
+
+var is_relic_offers_active: bool:
+	get: return _impl.meta_state.relic_offers_active
+
 var _impl: MetaManagerImpl = MetaManagerImpl.new()
 
 
 func _ready() -> void:
 	_impl.load(SaveManager)
 	RunManager.run_ended.connect(func(r: RunManager.EndReason) -> void: _on_run_ended(r))
+	RunManager.room_cleared.connect(_on_room_cleared)
+	GlobalSignals.hub_entered.connect(_on_hub_entered)
 
 
 func can_spend(cost: int) -> bool:
@@ -54,6 +62,23 @@ func purchase_damage_upgrade() -> bool:
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success
+
+
+func _on_hub_entered() -> void:
+	var activated: bool = _impl.try_activate_relic_offers(SaveManager)
+	if activated:
+		print("[MetaManager] relic offers activated — first hub return after Adventurer Bag unlock")
+
+
+func _on_room_cleared(room_id: String) -> void:
+	if RunManager.current_room == null:
+		return
+	var room_type: String = (RunManager.current_room as RoomSpawner).room_type_id
+	if not room_type.contains("Elite"):
+		return
+	var unlocked: bool = _impl.unlock_adventurer_bag(SaveManager)
+	if unlocked:
+		print("[MetaManager] Adventurer Bag unlocked — room_id={id}".format({"id": room_id}))
 
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void:

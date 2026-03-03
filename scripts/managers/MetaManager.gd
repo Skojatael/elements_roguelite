@@ -47,3 +47,25 @@ func purchase_damage_upgrade(cost: int, save_manager: Node) -> bool:
 
 func get_damage_multiplier(damage_per_level: float) -> float:
 	return pow(1.0 + damage_per_level, float(meta_state.damage_upgrade_level))
+
+
+## Activates relic offers if the Adventurer Bag is unlocked and offers are not yet active.
+## Returns true if this call changed the state (first activation), false otherwise.
+func try_activate_relic_offers(save_manager: Node) -> bool:
+	if not meta_state.adventurer_bag_unlocked:
+		return false
+	if meta_state.relic_offers_active:
+		return false
+	meta_state.relic_offers_active = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
+## Sets adventurer_bag_unlocked if not already set. Returns true if this call
+## changed the state (first unlock), false if already unlocked.
+func unlock_adventurer_bag(save_manager: Node) -> bool:
+	if meta_state.adventurer_bag_unlocked:
+		return false
+	meta_state.adventurer_bag_unlocked = true
+	save_manager.save_meta_state(meta_state)
+	return true

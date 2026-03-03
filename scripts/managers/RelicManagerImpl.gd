@@ -79,16 +79,23 @@ func _draw_one() -> RelicData:
 	return (_decks[selected_tier] as Array[RelicData]).pop_back()
 
 
-## Returns Array[RelicData] of exactly 2 entries.
-## Empty if no relics defined. Both same if only 1 relic exists.
-## Otherwise draws two cards independently via _draw_one().
+## Returns Array[RelicData] of exactly 2 distinct entries.
+## Empty if no relics defined.
+## Draws left first, then if left's tier deck is exhausted refills it excluding
+## the left relic before drawing right — guaranteeing the two relics are different.
 func draw_offer() -> Array[RelicData]:
 	if _relics_by_id.is_empty():
 		return []
-	if _relics_by_id.size() == 1:
-		var single: RelicData = (_relics_by_id.values() as Array)[0]
-		return [single, single]
-	return [_draw_one(), _draw_one()]
+	var left: RelicData = _draw_one()
+	if (_decks[left.tier] as Array).is_empty():
+		var refill: Array[RelicData] = []
+		for r: RelicData in (_all_by_tier[left.tier] as Array):
+			if r.id != left.id:
+				refill.append(r)
+		refill.shuffle()
+		_decks[left.tier] = refill
+	var right: RelicData = _draw_one()
+	return [left, right]
 
 
 ## Appends relic_id to active_relic_ids.

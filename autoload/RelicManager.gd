@@ -35,6 +35,8 @@ func _on_run_ended() -> void:
 
 
 func _on_room_cleared(room_id: String) -> void:
+	if not MetaManager.is_relic_offers_active:
+		return
 	if not RunManager.is_run_active:
 		return
 	var room_type: String = ""

@@ -282,6 +282,10 @@ Run-scoped modifier system. Relics are collected via a post-clear offer screen a
 - `executioners_mark` — ×1.35 damage when `target_hp_ratio < 0.30` (`Enemy.get_hp_ratio()` added).
 - `berserker_stone` — ×1.30 damage when `attacker_hp_ratio < 0.50` (`_stats_component` export on `CombatComponent`, assigned in Inspector).
 
+**Adventurer Bag gate (026-adventurer-bag)** — relic offers are gated behind a permanent meta-unlock called Adventurer Bag. The unlock fires once — when the player clears an elite room for the first time across all runs. Detection is in `MetaManager._on_room_cleared()` (connected to `RunManager.room_cleared`); it delegates to `MetaManagerImpl.unlock_adventurer_bag(SaveManager)`. The flag lives in `MetaState.adventurer_bag_unlocked: bool` and is persisted in `user://meta_save.json`.
+
+**Relic offers delayed until hub return (027-relic-unlock-hub-return)** — relic offers do NOT activate in the same run as the Adventurer Bag unlock. A second flag `MetaState.relic_offers_active: bool` gates offer generation in `RelicManager._on_room_cleared()`. It is set on the player's first hub visit after `adventurer_bag_unlocked` becomes `true`. Hub entry is signalled via `GlobalSignals.hub_entered` (emitted by `Main.gd` in `_ready()` and `_on_results_return()`). `MetaManager` connects to this signal and delegates to `MetaManagerImpl.try_activate_relic_offers(SaveManager)`. State machine: bag unlocked (elite clear) → flag set → hub return → `relic_offers_active = true` → offers appear in all subsequent runs.
+
 ---
 
 ## Folder Conventions
