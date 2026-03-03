@@ -278,6 +278,10 @@ Run-scoped modifier system. Relics are collected via a post-clear offer screen a
 
 **ResourceManager** addition — `get_relics() -> Dictionary`: reads and caches `data/relics.json`.
 
+**Conditional relics (024-execute-relic)** — relics whose bonus depends on runtime context (target HP, player HP) use `effect_stat: ""` and `effect_mult: 1.0` in JSON (so `compute_stat_mult` ignores them). All conditional relic logic lives in `RelicManagerImpl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, exposed via `RelicManager.get_hit_damage_mult()`. `CombatComponent` calls this at hit time with context ratios and applies the returned multiplier — it is unaware of specific relic IDs. Two relics of this type exist:
+- `executioners_mark` — ×1.35 damage when `target_hp_ratio < 0.30` (`Enemy.get_hp_ratio()` added).
+- `berserker_stone` — ×1.30 damage when `attacker_hp_ratio < 0.50` (`_stats_component` export on `CombatComponent`, assigned in Inspector).
+
 ---
 
 ## Folder Conventions

@@ -44,6 +44,20 @@
 				"effect_stat": "max_health",
 				"effect_mult": 1.35,
 				"description": "+35% max health"
+			},
+			"executioners_mark": {
+				"name": "Executioner's Mark",
+				"tags": ["combat"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"description": "+35% damage to enemies below 30% HP"
+			},
+			"berserker_stone": {
+				"name": "Berserker Stone",
+				"tags": ["combat"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"description": "+30% damage when below 50% HP"
 			}
 		},
 		"rare": {

@@ -70,6 +70,12 @@ func apply_difficulty(mult: float) -> void:
 	_stats.current_health = _stats.max_health
 
 
+func get_hp_ratio() -> float:
+	if _stats.max_health <= 0.0:
+		return 1.0
+	return _stats.current_health / _stats.max_health
+
+
 func take_damage(amount: float) -> void:
 	_stats.take_damage(amount)
 

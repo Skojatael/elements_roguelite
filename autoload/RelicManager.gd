@@ -66,6 +66,11 @@ func get_stat_mult(stat: String) -> float:
 	return _impl.compute_stat_mult(stat)
 
 
+## Returns the combined damage multiplier from conditional relics at hit time.
+func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> float:
+	return _impl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio)
+
+
 ## Draws an offer from the pool and emits relic_offer_ready. No-op if pool is empty.
 func trigger_offer() -> void:
 	var options: Array[RelicData] = _impl.draw_offer()

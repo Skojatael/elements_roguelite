@@ -8,6 +8,7 @@ extends Node
 @export var attack_interval: float = 0.5
 
 @onready var _attack_area: Area2D = $"../AttackArea"
+@onready var _stats_component: StatsComponent = $"../StatsComponent"
 
 var _overlapping_enemies: Array = []
 var _attack_timer: float = 0.0
@@ -55,5 +56,9 @@ func _physics_process(delta: float) -> void:
 			func(e: Enemy) -> bool: return is_instance_valid(e)
 		)
 		if not _overlapping_enemies.is_empty():
-			(_overlapping_enemies[0] as Enemy).take_damage(attack_damage)
+			var target: Enemy = _overlapping_enemies[0] as Enemy
+			var attacker_ratio: float = _stats_component.current_health / _stats_component.max_health
+			var dmg: float = attack_damage \
+				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio)
+			target.take_damage(dmg)
 		_attack_timer = attack_interval

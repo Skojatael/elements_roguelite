@@ -96,6 +96,19 @@ func pick_relic(relic_id: String) -> void:
 	active_relic_ids.append(relic_id)
 
 
+## Returns the combined damage multiplier from conditional relics at hit time.
+## target_hp_ratio:   target's current_hp / max_hp  (0.0–1.0)
+## attacker_hp_ratio: attacker's current_hp / max_hp (0.0–1.0)
+## Returns 1.0 if no conditional relics are active or no conditions are met.
+func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> float:
+	var mult: float = 1.0
+	if active_relic_ids.has("executioners_mark") and target_hp_ratio < 0.30:
+		mult *= 1.35
+	if active_relic_ids.has("berserker_stone") and attacker_hp_ratio < 0.50:
+		mult *= 1.30
+	return mult
+
+
 ## Returns the combined multiplicative effect_mult for all held relics with effect_stat == stat.
 ## Returns 1.0 if no held relics match the stat.
 func compute_stat_mult(stat: String) -> float:
