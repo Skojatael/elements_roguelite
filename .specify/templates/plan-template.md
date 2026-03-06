@@ -33,6 +33,14 @@
 
 [Gates determined based on constitution file]
 
+Principles to check (I–VI):
+- **I. Single Responsibility**: Each script/scene/autoload has one reason to change; autoloads are thin wrappers.
+- **II. Data-Driven Content**: No balance constants in code; all values in `res://data/` JSON.
+- **III. Mobile-First**: Feature evaluated against 60 fps mobile constraint.
+- **IV. Editor-Centric**: No raw `.tscn` edits; node references via `@export var`.
+- **V. Simplicity & YAGNI**: No speculative abstractions; no placeholder hooks.
+- **VI. Early Return**: Functions use guard clauses; max nesting depth 2; loop bodies use `continue` over wrapping `if`.
+
 ## Project Structure
 
 ### Documentation (this feature)

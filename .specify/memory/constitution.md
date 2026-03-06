@@ -1,28 +1,27 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.0 → 1.3.0
-Bump type: MINOR — Autoloads bullet in Principle I materially expanded to require
-thin-wrapper pattern: autoload scripts coordinate and delegate; game logic MUST
-live in scripts/managers/ or scripts/services/. No principle removed or redefined;
-existing guidance preserved in full.
+Version change: 1.3.0 → 1.4.0
+Bump type: MINOR — New Principle VI (Early Return) added. No existing principle
+removed or redefined; existing guidance preserved in full.
 
-Modified principles:
-  I. Single Responsibility — Autoloads bullet expanded with thin-wrapper rule
-     and explicit delegation requirement.
+Modified principles: NONE
 
-Added sections: NONE
+Added sections:
+  VI. Early Return Principle — GDScript functions MUST use guard clauses with
+      early returns (and `continue` in loops) rather than deep nesting. Reduces
+      indentation depth and makes the happy path visually dominant.
 
 Removed sections: NONE
 
 Templates reviewed:
   ✅ .specify/templates/plan-template.md
-       — Constitution Check references principles generically; no hardcoded
-         autoload guidance; no changes required.
+       — Constitution Check section references principles generically; adding
+         "VI. Early Return" to the check list is sufficient; no structural changes.
   ✅ .specify/templates/spec-template.md
-       — No autoload guidance; no changes required.
+       — No code-style guidance; no changes required.
   ✅ .specify/templates/tasks-template.md
-       — No autoload guidance; no changes required.
+       — No code-style guidance; no changes required.
 
 Deferred items: NONE
 Follow-up TODOs: NONE
@@ -143,6 +142,30 @@ speculative future one.
 **Rationale**: Roguelite games grow feature-rich quickly. Premature abstraction
 and speculative infrastructure are the primary sources of technical debt here.
 
+### VI. Early Return
+
+GDScript functions MUST use guard clauses with early returns rather than deep
+nesting. This applies equally to loop bodies, where `continue` replaces a
+wrapping `if` block.
+
+- A function MUST exit at the earliest point its preconditions are not met.
+  Wrapping the entire function body in a positive `if` condition is prohibited
+  when an early `return` (or `continue`) achieves the same result with less
+  indentation.
+- The maximum nesting depth for any conditional block is 2 levels. A third
+  level MUST be flattened via an early return, a helper function, or a
+  `continue` statement.
+- Loop bodies MUST invert their guard conditions: `if not condition: continue`
+  is required in place of `if condition: [entire body]`.
+- The happy path (the primary non-error logic) MUST be the least-indented code
+  path in the function.
+
+**Rationale**: Deep nesting forces the reader to track multiple simultaneous
+conditions. Guard clauses make precondition failures explicit and local,
+leaving the main logic unindented and immediately legible. GDScript's lack of
+early-exit syntactic sugar (no `guard` keyword) makes this discipline especially
+important.
+
 ## Technology Stack
 
 - **Engine**: Godot 4.6 (GDScript; no C# unless explicitly decided)
@@ -206,4 +229,4 @@ consistent with this constitution; if they conflict, this constitution governs.
 
 ---
 
-**Version**: 1.3.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-03-01
+**Version**: 1.4.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-03-05

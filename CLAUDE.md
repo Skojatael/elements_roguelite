@@ -288,6 +288,58 @@ Run-scoped modifier system. Relics are collected via a post-clear offer screen a
 
 ---
 
+### Boss Room (029-boss-room)
+
+Boss encounter accessed via a "Teleport to Boss" button in ExplorationHUD. Not part of the dungeon door graph.
+
+**Data** — `data/enemies.json` is restructured: `"enemies"` is now a category Dictionary (`"common"` → Array, `"boss"` → Array) instead of a flat array. Consumers iterate all category values via `.values()`. Boss entry in the `"boss"` array: `id="boss"`, `max_health=40`, `damage=5`, `damage_cooldown=2`, `rooms_required=6`. `damage_cooldown` maps to `attack_interval` from the user description (same field, same semantics). Boss spawn config in `data/dungeon_config.json` under `"BossRoom01"` key: one spawn point at (0,0), `enemy_id="boss"`.
+
+**`EnemyData.gd`** — adds `rooms_required: int = 0` (optional field; 0 for non-boss enemies).
+
+**`ResourceManagerImpl`** — adds `_enemy_rooms_required_cache: Dictionary` and `get_enemy_rooms_required(id: String) -> int`, cached alongside `get_enemy_base_essence`. `ResourceManager` autoload exposes the wrapper.
+
+**HP scaling** — computed in `Main._on_boss_teleport_pressed()`: `boss_mult = 1.0 + 0.06 * float(maxi(0, rooms_cleared - 6))`. Scaling starts only beyond the 6-room unlock threshold; at exactly 6 rooms cleared the boss has base HP. Set on `spawner.difficulty_mult` before the player enters the room. The existing `Enemy.apply_difficulty(boss_mult)` pathway handles `max_health × boss_mult`. No new Enemy methods needed.
+
+**Boss room world position** — `Vector2(0, -3000)` (constant `Main.BOSS_ROOM_WORLD_POS`). North of hub (0,0), outside the dungeon grid (northernmost dungeon row is at y=−2400).
+
+**Camera** — `Main._process()` gains an `else` branch: when `current_room.room_id` is not in `rooms_by_id`, use `(RunManager.current_room as RoomSpawner).get_parent().global_position`. Handles the boss room (and any future out-of-grid rooms) without boss-specific logic.
+
+**RoomLoader** — adds one public method `free_current_room() -> void`. Called by `Main._on_boss_teleport_pressed()` before spawning the boss room, to cleanly null and free `_current_room_node` (preventing double-free in `_on_run_ended()`).
+
+**ExplorationHUD** — adds `signal boss_teleport_pressed`, `@export var _boss_button: Button`, and `const BOSS_ENEMY_ID: String = "boss"`. Button shown when `cleared_rooms.size() >= ResourceManager.get_enemy_rooms_required(BOSS_ENEMY_ID)` (checked on each `RunManager.room_cleared`). Hidden on button press and reset on `run_started`.
+
+**Main.gd additions**: preload `_BOSS_ROOM_DATA` (BossRoom01.tres), `@onready var _room_loader: RoomLoader = $RoomLoader`, connect `boss_teleport_pressed`, implement `_on_boss_teleport_pressed()`.
+
+### Boss Victory Outcome (030-boss-victory-outcome)
+
+**No doors**: After spawning the boss room, `_on_boss_teleport_pressed()` iterates `spawner.get_parent().get_children()` and sets `visible = false` + `monitoring = false` on every `Door` node (`Door` has `class_name Door`). Boss room Door nodes are inherited from `RoomBase.tscn` but suppressed in code rather than removed in the editor.
+
+**Victory overlay**: `scenes/ui/boss_victory/BossVictoryOverlay.tscn` — `Control` root with two `Button` children (`CashOutButton`, `ContinueButton`). Script: `BossVictoryOverlay.gd` (`class_name BossVictoryOverlay`). Signals: `cash_out_pressed`, `continue_pressed`. On cash_out: button disables; on continue (stub): button disables + text changes to "Coming Soon...".
+
+**Trigger**: `_on_boss_teleport_pressed()` stores the spawner ref and connects `room_cleared → _on_boss_room_cleared()`. On boss room cleared: ExplorationHUD hidden, overlay instantiated inside a new CanvasLayer (`_boss_victory_layer`).
+
+**Cash Out flow**: `_on_boss_cash_out_pressed()` → `RunManager.end_run(CASH_OUT)` → existing `_on_run_ended()` shows ResultsScreen. Overlay layer freed in `_on_run_ended()` before ResultsScreen is shown.
+
+**ExplorationHUD fix**: `_on_room_cleared_for_boss()` gains `const BOSS_ROOM_ID = "boss_room"` and an early return `if room_id == BOSS_ROOM_ID: return`, preventing the boss button from reappearing after the boss is killed.
+
+**Main.gd new fields**: `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer: CanvasLayer`, `_boss_victory_overlay: BossVictoryOverlay`. Both `_on_run_ended()` and `_on_run_started()` free `_boss_victory_layer` if non-null.
+
+### Boss Rewards (032-boss-rewards)
+
+**Essence reward**: Boss `base_essence` in enemies.json is 80. On boss room cleared, `Main._on_boss_room_cleared()` computes `floori(base_essence × (1.0 + 0.06 × max(0, rooms_cleared − 6)))` and calls `RunManager.add_currency(reward)`. Same threshold as HP: no bonus at exactly 6 rooms, scaling starts at 7+. The normal `enemy_defeated` path is not used for the boss (depth=0 would apply a penalty).
+
+**Rare relic offer**: After essence award, `RelicManager.trigger_boss_offer()` draws up to 3 rare relics (from full rare pool, excluding already-held relics) and emits `relic_offer_ready`. The existing `RelicOfferScreen` shows the offer. After the player picks, `_on_relic_picked()` checks `_boss_relic_pending: bool` — if true, calls `_show_boss_victory_overlay()` instead of restoring ExplorationHUD.
+
+**Fallback**: If no rare relics are available, `trigger_boss_offer()` returns false and `_show_boss_victory_overlay()` is called directly.
+
+**Bug fix**: `RelicManager._on_room_cleared()` now returns early for `room_id == "boss_room"` — prevents the boss room clear from incrementing the regular relic offer counter or triggering a spurious regular offer.
+
+**RelicManagerImpl additions**: `draw_boss_offer() -> Array[RelicData]` — shuffles available (non-held) rare relics, returns up to 3.
+
+**Main.gd additions**: `_boss_relic_pending: bool`, `_show_boss_victory_overlay()` (extracted helper called from both post-relic-pick and no-rare-fallback paths).
+
+---
+
 ## Folder Conventions
 
 | Path | Purpose |

@@ -119,6 +119,16 @@ func _on_run_ended(_reason: RunManager.EndReason) -> void:
 		RunManager.current_room = null
 
 
+## Frees the current room scene and clears RunManager.current_room.
+## Called by Main.gd before spawning the boss room.
+func free_current_room() -> void:
+	if _current_room_node == null:
+		return
+	RunManager.current_room = null
+	_current_room_node.queue_free()
+	_current_room_node = null
+
+
 func _on_door_activated(direction: String, target_room_id: String) -> void:
 	var entry_direction: String = OPPOSITE[direction]
 	_load_room.call_deferred(target_room_id, entry_direction)

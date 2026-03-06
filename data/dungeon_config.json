@@ -25,6 +25,11 @@
 				{ "enemy_id": "slime", "position": { "x": -80, "y": 0 }, "radius": 20 },
 				{ "enemy_id": "skeleton", "position": { "x": 80, "y": 0 }, "radius": 20 }
 			]
+		},
+		"BossRoom01": {
+			"spawn_points": [
+				{ "enemy_id": "boss", "position": { "x": 0, "y": 0 }, "radius": 0 }
+			]
 		}
 	}
 }

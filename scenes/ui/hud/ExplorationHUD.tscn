@@ -1,11 +1,22 @@
 [gd_scene format=3 uid="uid://cwwbw4g2rnxcw"]
 
-[ext_resource type="Script" path="res://scenes/ui/hud/ExplorationHUD.gd" id="1_xrock"]
+[ext_resource type="Script" uid="uid://bsibqyqgiawg7" path="res://scenes/ui/hud/ExplorationHUD.gd" id="1_xrock"]
 [ext_resource type="PackedScene" uid="uid://xq5xl8vwj6r1" path="res://scenes/ui/hud/Joystick.tscn" id="2_4b0pi"]
 
-[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444]
+[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444 node_paths=PackedStringArray("_boss_button")]
 script = ExtResource("1_xrock")
+_boss_button = NodePath("BossButton")
 
 [node name="Joystick" parent="." unique_id=1344280826 instance=ExtResource("2_4b0pi")]
 anchors_preset = 2
 offset_left = 20.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = 0.0
+
+[node name="BossButton" type="Button" parent="." unique_id=1600938085]
+offset_left = 1692.0
+offset_top = 568.0
+offset_right = 1825.0
+offset_bottom = 599.0
+text = "Teleport to boss"

@@ -127,6 +127,20 @@ func compute_stat_mult(stat: String) -> float:
 	return mult
 
 
+## Draws up to 3 rare relics not already held by the player.
+## Draws from the full rare pool (not the deck) — boss offer is a one-time event.
+## Returns empty array if rare tier has no available relics.
+func draw_boss_offer() -> Array[RelicData]:
+	if not _all_by_tier.has("rare"):
+		return []
+	var available: Array[RelicData] = []
+	for r: RelicData in (_all_by_tier["rare"] as Array):
+		if not active_relic_ids.has(r.id):
+			available.append(r)
+	available.shuffle()
+	return available.slice(0, mini(3, available.size()))
+
+
 ## Returns true if a relic offer should trigger for the given room type.
 ## Elite rooms (room_type_id contains "Elite"): always true, counter unchanged.
 ## Standard rooms: increments counter; returns true and resets counter when OFFER_INTERVAL is reached.

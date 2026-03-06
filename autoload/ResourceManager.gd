@@ -25,3 +25,7 @@ func get_meta_config() -> Dictionary:
 
 func get_relics() -> Dictionary:
 	return _impl.get_relics()
+
+
+func get_enemy_rooms_required(id: String) -> int:
+	return _impl.get_enemy_rooms_required(id)

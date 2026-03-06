@@ -1,24 +1,39 @@
 {
-	"enemies": [
-		{
-			"id": "slime",
-			"display_name": "Slime",
-			"max_health": 10.0,
-			"damage": 1.0,
-			"move_speed": 60.0,
-			"detection_range": 200.0,
-			"damage_cooldown": 0.5,
-			"base_essence": 10
-		},
-		{
-			"id": "skeleton",
-			"display_name": "Skeleton",
-			"max_health": 8.0,
-			"damage": 2.0,
-			"move_speed": 80.0,
-			"detection_range": 250.0,
-			"damage_cooldown": 1.0,
-			"base_essence": 15
-		}
-	]
+	"enemies": {
+		"common": [
+			{
+				"id": "slime",
+				"display_name": "Slime",
+				"max_health": 10.0,
+				"damage": 1.0,
+				"move_speed": 60.0,
+				"detection_range": 200.0,
+				"damage_cooldown": 0.5,
+				"base_essence": 10
+			},
+			{
+				"id": "skeleton",
+				"display_name": "Skeleton",
+				"max_health": 8.0,
+				"damage": 2.0,
+				"move_speed": 80.0,
+				"detection_range": 250.0,
+				"damage_cooldown": 1.0,
+				"base_essence": 15
+			}
+		],
+		"boss": [
+			{
+				"id": "boss",
+				"display_name": "Boss",
+				"max_health": 40.0,
+				"damage": 5.0,
+				"move_speed": 60.0,
+				"detection_range": 300.0,
+				"damage_cooldown": 2.0,
+				"base_essence": 80,
+				"rooms_required": 6
+			}
+		]
+	}
 }

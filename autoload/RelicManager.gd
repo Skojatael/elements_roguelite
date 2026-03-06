@@ -35,6 +35,8 @@ func _on_run_ended() -> void:
 
 
 func _on_room_cleared(room_id: String) -> void:
+	if room_id == "boss_room":
+		return
 	if not MetaManager.is_relic_offers_active:
 		return
 	if not RunManager.is_run_active:
@@ -71,6 +73,18 @@ func get_stat_mult(stat: String) -> float:
 ## Returns the combined damage multiplier from conditional relics at hit time.
 func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> float:
 	return _impl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio)
+
+
+## Draws 3 rare relics and emits relic_offer_ready. Returns true if offer was triggered.
+## Returns false if no rare relics are available (caller should show victory overlay directly).
+func trigger_boss_offer() -> bool:
+	var options: Array[RelicData] = _impl.draw_boss_offer()
+	if options.is_empty():
+		print("[RelicManager] trigger_boss_offer — no rare relics available, skipping")
+		return false
+	print("[RelicManager] boss offer triggered — {count} rare relics".format({"count": options.size()}))
+	relic_offer_ready.emit(options)
+	return true
 
 
 ## Draws an offer from the pool and emits relic_offer_ready. No-op if pool is empty.

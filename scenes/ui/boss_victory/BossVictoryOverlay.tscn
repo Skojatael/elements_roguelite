@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://dq10v8fhtwoq8"]
+
+[ext_resource type="Script" uid="uid://jqruhgtsfmug" path="res://scenes/ui/boss_victory/BossVictoryOverlay.gd" id="1_hbpcs"]
+
+[node name="BossVictoryOverlay" type="Control" unique_id=905910271 node_paths=PackedStringArray("_cash_out_button", "_continue_button")]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1840.0
+offset_top = 401.0
+offset_right = 1840.0
+offset_bottom = 401.0
+script = ExtResource("1_hbpcs")
+_cash_out_button = NodePath("CashOut")
+_continue_button = NodePath("Continue")
+
+[node name="CashOut" type="Button" parent="." unique_id=675524159]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Cash Out"
+
+[node name="Continue" type="Button" parent="." unique_id=1223992683]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 58.0
+offset_right = 77.0
+offset_bottom = 89.0
+text = "Continue"

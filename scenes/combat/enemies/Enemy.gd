@@ -36,14 +36,20 @@ func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(json_text)
 	assert(parsed is Dictionary, "Enemy: enemies.json root must be a Dictionary")
 
-	var enemies_array: Array = parsed["enemies"]
+	var enemies_root: Dictionary = parsed.get("enemies", {})
 	var entry: Dictionary = {}
-	for item: Variant in enemies_array:
-		if item is Dictionary and item.get("id", "") == enemy_type_id:
+	for category: Variant in enemies_root.values():
+		if not category is Array:
+			continue
+		for item: Variant in category:
+			if not (item is Dictionary and item.get("id", "") == enemy_type_id):
+				continue
 			entry = item
 			break
+		if not entry.is_empty():
+			break
 	assert(not entry.is_empty(),
-		"Enemy: no entry found in enemies.json for id '%s'" % enemy_type_id)
+		"Enemy: no entry found in enemies.json for id={id}".format({"id": enemy_type_id}))
 
 	initialize(EnemyData.from_dict(entry))
 
@@ -66,7 +72,7 @@ func initialize(data: EnemyData) -> void:
 
 
 func apply_difficulty(mult: float) -> void:
-	_stats.max_health *= mult
+	_stats.max_health = floorf(_stats.max_health * mult)
 	_stats.current_health = _stats.max_health
 
 

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c7gcfrtfphmjj" path="res://scenes/ui/relic_offer/RelicOfferScreen.gd" id="1_avbh0"]
 [ext_resource type="PackedScene" uid="uid://d2gxfhmblpula" path="res://scenes/ui/relic_offer/RelicCard.tscn" id="2_t6dsx"]
 
-[node name="RelicOfferScreen" type="Control" unique_id=751150163 node_paths=PackedStringArray("_card_left", "_card_right")]
+[node name="RelicOfferScreen" type="Control" unique_id=751150163 node_paths=PackedStringArray("_card_left", "_card_middle", "_card_right")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_avbh0")
 _card_left = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardLeft")
+_card_middle = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardMiddle")
 _card_right = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardRight")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=967481560]
@@ -51,4 +52,7 @@ custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 
 [node name="RelicCardRight" parent="VBoxContainer/CenterContainer/HBoxContainer" unique_id=1871099358 instance=ExtResource("2_t6dsx")]
+layout_mode = 2
+
+[node name="RelicCardMiddle" parent="VBoxContainer/CenterContainer/HBoxContainer" unique_id=11285737 instance=ExtResource("2_t6dsx")]
 layout_mode = 2

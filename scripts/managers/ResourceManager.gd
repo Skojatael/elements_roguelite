@@ -4,6 +4,7 @@ extends RefCounted
 var _dungeon_config_cache: Dictionary = {}
 var _enemy_ids_cache: Array[String] = []
 var _enemy_essence_cache: Dictionary = {}
+var _enemy_rooms_required_cache: Dictionary = {}
 var _meta_config_cache: Dictionary = {}
 var _relics_cache: Dictionary = {}
 var _dungeon_config_loaded: bool = false
@@ -78,6 +79,14 @@ func get_relics() -> Dictionary:
 	return _relics_cache
 
 
+## Returns the rooms_required value for the given enemy id. Returns 0 for non-boss enemies
+## or unknown ids.
+func get_enemy_rooms_required(id: String) -> int:
+	if not _enemy_ids_loaded:
+		_load_enemy_data()
+	return _enemy_rooms_required_cache.get(id, 0)
+
+
 func _load_enemy_data() -> void:
 	var file := FileAccess.open("res://data/enemies.json", FileAccess.READ)
 	assert(file != null, "ResourceManager: failed to open res://data/enemies.json")
@@ -85,8 +94,16 @@ func _load_enemy_data() -> void:
 	file.close()
 	assert(parsed is Dictionary, "ResourceManager: enemies.json root must be a Dictionary")
 
-	for entry: Variant in (parsed as Dictionary).get("enemies", []):
-		if entry is Dictionary and entry.has("id"):
+	var enemies_root: Variant = (parsed as Dictionary).get("enemies", {})
+	assert(enemies_root is Dictionary,
+		"ResourceManager: enemies.json 'enemies' field must be a Dictionary — got wrong type (old flat-array format?)")
+	for category: Variant in (enemies_root as Dictionary).values():
+		if not category is Array:
+			continue
+		for entry: Variant in category:
+			if not (entry is Dictionary and entry.has("id")):
+				continue
 			_enemy_ids_cache.append(entry["id"])
 			_enemy_essence_cache[entry["id"]] = float(entry.get("base_essence", 0.0))
+			_enemy_rooms_required_cache[entry["id"]] = int(entry.get("rooms_required", 0))
 	_enemy_ids_loaded = true
