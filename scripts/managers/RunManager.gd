@@ -20,7 +20,6 @@ var current_tier: int = 1
 var run_start_time: float = 0.0
 var run_currency: float = 0.0
 var current_room: Node = null
-var rooms_entered: int = 0
 var current_room_depth: int = 0
 
 ## Tracks which rooms have been cleared during the current run.
@@ -62,7 +61,6 @@ func start_run(mode: String) -> void:
 	run_start_time = Time.get_ticks_msec() / 1000.0
 	run_currency = 0.0
 	current_room = null
-	rooms_entered = 0
 	current_room_depth = 0
 	enemies_slain = 0
 	cleared_rooms = {}
@@ -106,10 +104,9 @@ func end_run(reason: EndReason) -> void:
 			run_state.player_state = player_state
 			break
 	run_ended.emit(reason)
-	print("[RunManager] run ended — id={id} reason={reason} rooms_entered={rooms_entered} currency={currency}".format({
+	print("[RunManager] run ended — id={id} reason={reason} currency={currency}".format({
 		"id": run_id,
 		"reason": EndReason.keys()[reason],
-		"rooms_entered": rooms_entered,
 		"currency": run_currency,
 	}))
 
@@ -143,15 +140,16 @@ func _on_room_entered(room_id: String, spawner: Node) -> void:
 	if not is_run_active:
 		return
 	current_room = spawner
-	rooms_entered += 1
 	run_state.current_room_id = room_id
 	current_room_depth = (spawner as RoomSpawner).depth
 	run_state.max_depth_reached = maxi(run_state.max_depth_reached, current_room_depth)
-	print("[RunManager] room entered room_id='{id}' — rooms_entered={rooms_entered}".format({"id": room_id, "rooms_entered": rooms_entered}))
+	print("[RunManager] room entered room_id='{id}'".format({"id": room_id}))
 
 
 func _on_enemy_defeated(enemy_type_id: String) -> void:
 	enemies_slain += 1
+	if ResourceManager.get_enemy_rooms_required(enemy_type_id) > 0:
+		return
 	var base_essence: float = ResourceManager.get_enemy_base_essence(enemy_type_id)
 	var essence_depth_scale: float = ResourceManager.get_dungeon_config().get("essence_depth_scale", 0.10)
 	var room_essence_mult: float = (current_room as RoomSpawner).essence_mult if current_room != null else 1.0

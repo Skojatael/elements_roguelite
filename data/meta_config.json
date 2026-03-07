@@ -1,5 +1,6 @@
 {
 	"shard_divisor": 3,
+	"adventuring_gear_cost": 300,
 	"damage_upgrade": {
 		"base_cost": 50,
 		"cost_scale": 1.2,

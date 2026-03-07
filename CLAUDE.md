@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Repo map**: `repo_map.md` at the project root lists every `.gd` file with its class name, signals, exports, and public methods. Reference it whenever you need to locate a symbol or understand project structure before opening files.
+
 ## Project
 
 A Godot 4.6 mobile roguelite game (portrait, 1080×1920). Renderer: Mobile (D3D12 on Windows). Physics: Jolt.
@@ -78,7 +80,6 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 | `run_start_time` | `float` | Engine time at run start (seconds) |
 | `run_currency` | `float` | Gold accumulated this run (floor 0) |
 | `current_room` | `Node` | Reference to active `RoomSpawner`; null between rooms |
-| `rooms_entered` | `int` | How many rooms entered this run (starts at 0) |
 | `cleared_rooms` | `Dictionary` | Map of `room_id → true` for cleared rooms |
 
 **Key methods**: `start_run(mode)`, `end_run(reason)`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
@@ -111,7 +112,7 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 
 ### Dungeon generation (008-dungeon-grid-layout)
 
-`scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn. Connects to `RunManager.run_started` in `_ready()`. On signal: runs a frontier-expansion algorithm on a 5×5 virtual grid and **produces data only — no scenes are instantiated**.
+`scenes/dungeon/DungeonGenerator.gd` — `Node` child of Main.tscn. Connects to `RunManager.run_started` in `_ready()`. On signal: runs a frontier-expansion algorithm on an 11×11 virtual grid and **produces data only — no scenes are instantiated**.
 
 **Output properties** (public, populated after every `run_started`):
 
@@ -119,22 +120,24 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 |---|---|---|
 | `rooms_by_id` | `Dictionary` | `room_id → { room_type_id, grid_pos: Vector2i, world_pos: Vector2, depth: int, difficulty_mult: float }` |
 | `neighbours_by_id` | `Dictionary` | `room_id → Array[String]` of adjacent room_ids in the layout |
-| `start_room_id` | `String` | Always `"room_2_2"` (center cell) |
+| `start_room_id` | `String` | Always `"room_6_6"` (center cell) |
 
-**Algorithm**: starts at center cell (col=2, row=2), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id` (including `depth` and `difficulty_mult`). Repeats until `TARGET_ROOM_COUNT` (8) rooms recorded. Then builds `neighbours_by_id` in one pass. Then calls `_promote_elite_rooms()` to override `room_type_id = "EliteRoom01"` for one room at each elite depth slot. Emits `dungeon_layout_ready` at the end.
+**Algorithm**: starts at center cell (col=6, row=6), keeps an `Array[Vector2i]` frontier of unoccupied N/S/E/W neighbours, picks a random frontier cell each step, assigns a random `room_type_id` from `combat_room_pool`, records data into `rooms_by_id` (including `depth` and `difficulty_mult`). Repeats until `base_room_count` (9 — read from `dungeon_config.json`) rooms recorded. Then builds `neighbours_by_id` in one pass. Then calls `_promote_elite_rooms()` to override `room_type_id = "EliteRoom01"` for one room at each elite depth slot. Emits `dungeon_layout_ready` at the end.
+
+**Dungeon expansion (033-dungeon-expansion)**: if `MetaManager.is_adventuring_gear_owned`, `_expand_dungeon()` runs after base generation. It finds Room A (deepest base room), then frontier-expands 4 more rooms from Room A, constraining new rooms to depth strictly > Room A's depth. `expansion_room_count: 4` in `dungeon_config.json`. Total rooms = 13 when gear owned. Grid is 13×13 (was 5×5, changed in 033) to guarantee 4 expansion rooms always fit — 11×11 is insufficient for 9 base rooms (max depth 8).
 
 **Depth & difficulty (010-depth-difficulty)**:
 
-- `depth = |col − 2| + |row − 2|` (grid Manhattan distance from center; start room = 0).
+- `depth = |col − 6| + |row − 6|` (grid Manhattan distance from center; start room = 0).
 - `difficulty_mult = 1.0 + 0.12 × depth` stored per room in `rooms_by_id`.
 - `RoomLoader` reads `difficulty_mult` from `rooms_by_id` and sets it on `RoomSpawner` after `spawn_room()` returns.
 - `RoomSpawner._spawn_enemies()` calls `enemy.apply_difficulty(difficulty_mult)` after each `add_child(enemy)`.
 - `Enemy.apply_difficulty(mult)` multiplies `_stats.max_health` and resets `current_health`.
 - **Elite rooms**: constants `ELITE_START = 2`, `ELITE_STEP = 2`. Depth slots 2, 4, 6… each get one randomly promoted room. `EliteRoom01` scene and `.tres` resource already exist.
 
-**Room IDs**: `"room_{col}_{row}"` (e.g. `"room_2_2"` for center).
+**Room IDs**: `"room_{col}_{row}"` (e.g. `"room_6_6"` for center).
 
-**World positions**: `Vector2((col − 2) × SPACING_X, (row − 2) × SPACING_Y)` where `SPACING_X = 2000`, `SPACING_Y = 1200`. Center (2,2) → (0, 0).
+**World positions**: `Vector2((col − 6) × SPACING_X, (row − 6) × SPACING_Y)` where `SPACING_X = 2000`, `SPACING_Y = 1200`. Center (6,6) → (0, 0).
 
 **Re-run**: `rooms_by_id`, `neighbours_by_id`, and `start_room_id` are cleared and rebuilt each generation. No scene cleanup required.
 
@@ -323,6 +326,18 @@ Boss encounter accessed via a "Teleport to Boss" button in ExplorationHUD. Not p
 **ExplorationHUD fix**: `_on_room_cleared_for_boss()` gains `const BOSS_ROOM_ID = "boss_room"` and an early return `if room_id == BOSS_ROOM_ID: return`, preventing the boss button from reappearing after the boss is killed.
 
 **Main.gd new fields**: `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer: CanvasLayer`, `_boss_victory_overlay: BossVictoryOverlay`. Both `_on_run_ended()` and `_on_run_started()` free `_boss_victory_layer` if non-null.
+
+### Dungeon Expansion / Adventuring Gear (033-dungeon-expansion)
+
+**MetaState new fields**: `first_boss_killed: bool` (set on first boss room clear), `adventuring_gear_owned: bool` (set on purchase for 300 shards). Both persist in `user://meta_save.json`.
+
+**Detection**: `MetaManager._on_room_cleared()` gains a boss branch: `if room_id == "boss_room": _impl.record_boss_kill(SaveManager)` — returns early before the elite detection logic.
+
+**Purchase**: `MetaManager.purchase_adventuring_gear()` delegates to `MetaManagerImpl.purchase_adventuring_gear(cost, SaveManager)`. Cost (`adventuring_gear_cost: 300`) read from `data/meta_config.json`. Returns false silently if insufficient shards (button in hub does nothing when broke).
+
+**Hub UI**: `scenes/hub/AdventuringGearShop.tscn` — `Control` child of `HubRoom.tscn`. Visible when `first_boss_killed && !adventuring_gear_owned`. Single `Button` child, never disabled. On press: calls `MetaManager.purchase_adventuring_gear()`.
+
+**Grid change**: `DungeonGenerator.GRID_SIZE` changed 5 → 13, `CENTER` changed `(2,2)` → `(6,6)`. Start room is now `"room_6_6"`. Grid size is a structural constant (not in JSON) because it defines the room ID namespace. `TARGET_ROOM_COUNT` const removed — base room count read from `dungeon_config.json` as `base_room_count: 9` (1 start + 8 combat).
 
 ### Boss Rewards (032-boss-rewards)
 

@@ -1,6 +1,8 @@
 {
 	"difficulty_scale": 0.12,
 	"essence_depth_scale": 0.10,
+	"base_room_count": 9,
+	"expansion_room_count": 4,
 	"combat_room_pool": ["CombatRoom01", "CombatRoom02"],
 	"spawn_configs": {
 		"StartRoom01": {

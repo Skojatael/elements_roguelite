@@ -3,11 +3,10 @@ extends Node
 
 signal dungeon_layout_ready
 
-const GRID_SIZE: int = 5
-const TARGET_ROOM_COUNT: int = 8
+const GRID_SIZE: int = 13
 const SPACING_X: int = 2000   # 1920 room width + 80 gap
 const SPACING_Y: int = 1200   # 1080 room height + 120 gap
-const CENTER: Vector2i = Vector2i(2, 2)
+const CENTER: Vector2i = Vector2i(6, 6)
 const ELITE_START: int = 2
 const ELITE_STEP: int = 2
 
@@ -17,7 +16,7 @@ var rooms_by_id: Dictionary = {}
 ## Maps room_id → Array of adjacent room_ids present in this layout
 var neighbours_by_id: Dictionary = {}
 
-## Always "room_2_2" after a successful generation
+## Always "room_6_6" after a successful generation
 var start_room_id: String = ""
 
 
@@ -40,9 +39,7 @@ func _generate() -> void:
 		push_error("DungeonGenerator: combat_room_pool missing or empty in dungeon_config.json")
 		return
 	var difficulty_scale: float = raw.get("difficulty_scale", 0.12)
-
-	if TARGET_ROOM_COUNT > GRID_SIZE * GRID_SIZE:
-		push_error("DungeonGenerator: TARGET_ROOM_COUNT={count} exceeds grid capacity={cap}".format({"count": TARGET_ROOM_COUNT, "cap": GRID_SIZE * GRID_SIZE}))
+	var target_room_count: int = raw.get("base_room_count", 9)
 
 	var occupied: Dictionary = {}
 	var frontier: Array = []
@@ -50,19 +47,24 @@ func _generate() -> void:
 	_record_room(CENTER, "StartRoom01", occupied, frontier, difficulty_scale)
 	start_room_id = "room_{x}_{y}".format({"x": CENTER.x, "y": CENTER.y})
 
-	while occupied.size() < TARGET_ROOM_COUNT and not frontier.is_empty():
+	while occupied.size() < target_room_count and not frontier.is_empty():
 		var idx: int = randi() % frontier.size()
 		var cell: Vector2i = frontier[idx]
 		frontier.remove_at(idx)
 		_record_room(cell, pool.pick_random(), occupied, frontier, difficulty_scale)
 
-	if occupied.size() < TARGET_ROOM_COUNT:
-		push_warning("DungeonGenerator: frontier exhausted at {count}/{target} rooms".format({"count": occupied.size(), "target": TARGET_ROOM_COUNT}))
+	if occupied.size() < target_room_count:
+		push_warning("DungeonGenerator: frontier exhausted at {count}/{target} rooms".format({"count": occupied.size(), "target": target_room_count}))
 
 	_build_neighbours(occupied)
+
+	if MetaManager.is_adventuring_gear_owned:
+		_expand_dungeon(occupied, pool, difficulty_scale)
+		_build_neighbours(occupied)
+
 	_promote_elite_rooms()
 
-	print("[DungeonGenerator] layout rooms={count} start={start} cells={keys}".format({"count": rooms_by_id.size(), "start": start_room_id, "keys": rooms_by_id.keys()}))
+	print("[DungeonGenerator] layout rooms={count} start={start}".format({"count": rooms_by_id.size(), "start": start_room_id}))
 
 	dungeon_layout_ready.emit()
 
@@ -119,5 +121,58 @@ func _get_valid_neighbours(cell: Vector2i, occupied: Dictionary) -> Array[Vector
 	for offset: Vector2i in offsets:
 		var neighbour: Vector2i = cell + offset
 		if neighbour.x >= 0 and neighbour.x < GRID_SIZE and neighbour.y >= 0 and neighbour.y < GRID_SIZE and not occupied.has(neighbour):
+			result.append(neighbour)
+	return result
+
+
+func _expand_dungeon(occupied: Dictionary, pool: Array, difficulty_scale: float) -> void:
+	var expansion_count: int = ResourceManager.get_dungeon_config().get("expansion_room_count", 4)
+	var max_depth: int = 0
+	for room_data: Variant in rooms_by_id.values():
+		var d: int = (room_data as Dictionary).get("depth", 0)
+		if d > max_depth:
+			max_depth = d
+	var seed_id: String = ""
+	for rid: String in rooms_by_id:
+		if rooms_by_id[rid].get("depth", 0) == max_depth:
+			seed_id = rid
+			break
+
+	var seed_cell: Vector2i = rooms_by_id[seed_id]["grid_pos"]
+	var expansion_frontier: Array = []
+	for neighbour: Vector2i in _get_expansion_neighbours(seed_cell, occupied, max_depth):
+		expansion_frontier.append(neighbour)
+
+	var added: int = 0
+	while added < expansion_count and not expansion_frontier.is_empty():
+		var idx: int = randi() % expansion_frontier.size()
+		var cell: Vector2i = expansion_frontier[idx]
+		expansion_frontier.remove_at(idx)
+		_record_room(cell, pool.pick_random(), occupied, expansion_frontier, difficulty_scale)
+		expansion_frontier = expansion_frontier.filter(
+			func(c: Vector2i) -> bool:
+				var d: int = abs(c.x - CENTER.x) + abs(c.y - CENTER.y)
+				return d > max_depth
+		)
+		added += 1
+
+	if added < expansion_count:
+		push_warning("DungeonGenerator: expansion placed {a}/{e} rooms".format({"a": added, "e": expansion_count}))
+	print("[DungeonGenerator] expansion seed={s} max_depth={d} rooms_added={a}".format({
+		"s": seed_id, "d": max_depth, "a": added,
+	}))
+
+
+func _get_expansion_neighbours(cell: Vector2i, occupied: Dictionary, min_depth: int) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var offsets: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	for offset: Vector2i in offsets:
+		var neighbour: Vector2i = cell + offset
+		if neighbour.x < 0 or neighbour.x >= GRID_SIZE or neighbour.y < 0 or neighbour.y >= GRID_SIZE:
+			continue
+		if occupied.has(neighbour):
+			continue
+		var depth: int = abs(neighbour.x - CENTER.x) + abs(neighbour.y - CENTER.y)
+		if depth > min_depth:
 			result.append(neighbour)
 	return result

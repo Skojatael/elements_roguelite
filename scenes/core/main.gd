@@ -24,6 +24,7 @@ var _results_layer: CanvasLayer = null
 var _relic_offer_layer: CanvasLayer = null
 var _relic_offer_screen: RelicOfferScreen = null
 var _boss_room_spawner: RoomSpawner = null
+var _boss_room_node: Node = null
 var _boss_victory_layer: CanvasLayer = null
 var _boss_victory_overlay: BossVictoryOverlay = null
 var _boss_relic_pending: bool = false
@@ -62,6 +63,10 @@ func _process(_delta: float) -> void:
 
 func _on_run_started() -> void:
 	_boss_relic_pending = false
+	if is_instance_valid(_boss_room_node):
+		_boss_room_node.queue_free()
+	_boss_room_node = null
+	_boss_room_spawner = null
 	if _boss_victory_layer != null:
 		_boss_victory_layer.queue_free()
 		_boss_victory_layer = null
@@ -87,6 +92,10 @@ func _on_player_died() -> void:
 
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void:
+	if is_instance_valid(_boss_room_node):
+		_boss_room_node.queue_free()
+	_boss_room_node = null
+	_boss_room_spawner = null
 	if _boss_victory_layer != null:
 		_boss_victory_layer.visible = false
 		_boss_victory_layer.queue_free()
@@ -208,6 +217,7 @@ func _on_boss_teleport_pressed() -> void:
 			child.visible = false
 			child.monitoring = false
 	_boss_room_spawner = spawner
+	_boss_room_node = room_node
 	spawner.room_cleared.connect(_on_boss_room_cleared)
 	_player.global_position = BOSS_ROOM_WORLD_POS
 	_camera.global_position = BOSS_ROOM_WORLD_POS

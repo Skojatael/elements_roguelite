@@ -8,7 +8,10 @@
       "Bash(powershell.exe -NonInteractive -ExecutionPolicy Bypass -File \".specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude)",
       "Bash(powershell.exe -NonInteractive -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
       "Bash(git -C \"C:/Users/small/Documents/first\" log -1 --stat)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(ls or:*)",
+      "Bash(find .:*)",
+      "Bash(wc:*)"
     ]
   }
 }

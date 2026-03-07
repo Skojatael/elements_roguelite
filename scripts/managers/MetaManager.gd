@@ -61,6 +61,25 @@ func try_activate_relic_offers(save_manager: Node) -> bool:
 	return true
 
 
+## Records first boss kill. Returns true if this call changed the state.
+func record_boss_kill(save_manager: Node) -> bool:
+	if meta_state.first_boss_killed:
+		return false
+	meta_state.first_boss_killed = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
+## Purchases Adventuring Gear if affordable. Returns true on success.
+func purchase_adventuring_gear(cost: int, save_manager: Node) -> bool:
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.adventuring_gear_owned = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
 ## Sets adventurer_bag_unlocked if not already set. Returns true if this call
 ## changed the state (first unlock), false if already unlocked.
 func unlock_adventurer_bag(save_manager: Node) -> bool:

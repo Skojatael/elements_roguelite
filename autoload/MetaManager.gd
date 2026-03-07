@@ -11,6 +11,12 @@ var is_adventurer_bag_unlocked: bool:
 var is_relic_offers_active: bool:
 	get: return _impl.meta_state.relic_offers_active
 
+var is_first_boss_killed: bool:
+	get: return _impl.meta_state.first_boss_killed
+
+var is_adventuring_gear_owned: bool:
+	get: return _impl.meta_state.adventuring_gear_owned
+
 var _impl: MetaManagerImpl = MetaManagerImpl.new()
 
 
@@ -70,7 +76,20 @@ func _on_hub_entered() -> void:
 		print("[MetaManager] relic offers activated — first hub return after Adventurer Bag unlock")
 
 
+func purchase_adventuring_gear() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("adventuring_gear_cost", 300)
+	var success: bool = _impl.purchase_adventuring_gear(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
 func _on_room_cleared(room_id: String) -> void:
+	if room_id == "boss_room":
+		var recorded: bool = _impl.record_boss_kill(SaveManager)
+		if recorded:
+			print("[MetaManager] first boss kill recorded")
+		return
 	if RunManager.current_room == null:
 		return
 	var room_type: String = (RunManager.current_room as RoomSpawner).room_type_id

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://x6bdugdg815q" path="res://scenes/hub/TeleportDoor.tscn" id="2_w7jgr"]
 [ext_resource type="Script" uid="uid://bgka32l818w2v" path="res://scenes/hub/ShardDisplay.gd" id="3_5j0dm"]
 [ext_resource type="Script" uid="uid://clvikslk34xri" path="res://scenes/hub/UpgradeShop.gd" id="4_y2y4c"]
+[ext_resource type="PackedScene" uid="uid://debgkvlk1r6tu" path="res://scenes/hub/advgearupg.tscn" id="5_nglky"]
 
 [node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door")]
 script = ExtResource("1_ynf1v")
@@ -79,3 +80,14 @@ color = Color(0, 0, 0, 1)
 layout_mode = 0
 offset_right = 8.0
 offset_bottom = 8.0
+
+[node name="Advgearupg" parent="." unique_id=1610636936 instance=ExtResource("5_nglky")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 600.0
+offset_right = 600.0
+grow_horizontal = 2
+grow_vertical = 0
