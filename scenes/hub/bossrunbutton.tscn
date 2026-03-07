@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bmtytmy7cy4rx"]
+
+[ext_resource type="Script" uid="uid://dnhe2ptqsly60" path="res://scenes/hub/BossRunButton.gd" id="1_h311f"]
+
+[node name="Bossrunbutton" type="Control" unique_id=1665930268 node_paths=PackedStringArray("_button")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_h311f")
+_button = NodePath("Button")
+
+[node name="Button" type="Button" parent="." unique_id=539906373]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Start boss run"

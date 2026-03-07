@@ -8,6 +8,10 @@ signal continue_pressed
 @export var _continue_button: Button
 
 
+func setup(show_continue: bool) -> void:
+	_continue_button.visible = show_continue
+
+
 func _ready() -> void:
 	_cash_out_button.pressed.connect(_on_cash_out_pressed)
 	_continue_button.pressed.connect(_on_continue_pressed)

@@ -11,8 +11,8 @@
 
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`
-- **properties**: `meta_state: MetaState`, `is_adventurer_bag_unlocked: bool`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `damage_multiplier: float`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`
+- **properties**: `meta_state: MetaState`, `is_adventurer_bag_unlocked: bool`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `try_activate_relic_offers(save_manager) -> bool`, `record_boss_kill(save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `unlock_adventurer_bag(save_manager) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `try_activate_relic_offers(save_manager) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `unlock_adventurer_bag(save_manager) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -65,7 +65,7 @@
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `adventurer_bag_unlocked: bool`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `adventurer_bag_unlocked: bool`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
@@ -196,9 +196,22 @@
 - **exports**: `_button: Button`
 - **methods**: `_update_visibility()`, `_on_buy_pressed()`
 
+### `scenes/hub/AdventuringGearShop.gd` (`class_name AdventuringGearShop extends Control`)
+- **exports**: `_button: Button`
+- **methods**: `_update_visibility()`, `_on_buy_pressed()`
+
+### `scenes/hub/BossRunShop.gd` (`class_name BossRunShop extends Control`)
+- **exports**: `_button: Button`
+- **methods**: `_update_visibility()`, `_on_buy_pressed()`
+
+### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
+- **signals**: `boss_run_pressed`
+- **exports**: `_button: Button`
+- **methods**: `_update_visibility()`, `_on_pressed()`
+
 ### `scenes/hub/HubRoom.gd`
-- **signals**: `hub_exited`
-- **exports**: `teleport_door: TeleportDoor`
+- **signals**: `hub_exited`, `hub_boss_run_pressed`
+- **exports**: `teleport_door: TeleportDoor`, `_boss_run_button: BossRunButton`
 
 ### `scenes/hub/ShardDisplay.gd`
 - **exports**: `_label: Label`
@@ -218,6 +231,7 @@
 ### `scenes/ui/boss_victory/BossVictoryOverlay.gd` (`class_name BossVictoryOverlay extends Control`)
 - **signals**: `cash_out_pressed`, `continue_pressed`
 - **exports**: `_cash_out_button: Button`, `_continue_button: Button`
+- **methods**: `setup(show_continue: bool)`
 
 ### `scenes/ui/dev/DevPanel.gd`
 - **signals**: `start_run_pressed`, `end_run_pressed`, `cash_out_pressed`, `start_boss_pressed`, `get_relic_pressed`

@@ -80,6 +80,24 @@ func purchase_adventuring_gear(cost: int, save_manager: Node) -> bool:
 	return true
 
 
+## Increments the endless-mode boss kill counter and saves.
+func increment_endless_boss_kills(save_manager: Node) -> void:
+	meta_state.endless_boss_kill_count += 1
+	save_manager.save_meta_state(meta_state)
+
+
+## Purchases the Boss Run unlock if affordable and not already unlocked. Returns true on success.
+func purchase_boss_run(cost: int, save_manager: Node) -> bool:
+	if meta_state.boss_run_unlocked:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.boss_run_unlocked = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
 ## Sets adventurer_bag_unlocked if not already set. Returns true if this call
 ## changed the state (first unlock), false if already unlocked.
 func unlock_adventurer_bag(save_manager: Node) -> bool:

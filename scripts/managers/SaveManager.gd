@@ -12,6 +12,8 @@ func save_meta_state(state: MetaState) -> void:
 		"relic_offers_active": state.relic_offers_active,
 		"first_boss_killed": state.first_boss_killed,
 		"adventuring_gear_owned": state.adventuring_gear_owned,
+		"endless_boss_kill_count": state.endless_boss_kill_count,
+		"boss_run_unlocked": state.boss_run_unlocked,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -38,4 +40,6 @@ func load_meta_state() -> MetaState:
 		state.relic_offers_active = bool((parsed as Dictionary).get("relic_offers_active", false))
 		state.first_boss_killed = bool((parsed as Dictionary).get("first_boss_killed", false))
 		state.adventuring_gear_owned = bool((parsed as Dictionary).get("adventuring_gear_owned", false))
+		state.endless_boss_kill_count = int((parsed as Dictionary).get("endless_boss_kill_count", 0))
+		state.boss_run_unlocked = bool((parsed as Dictionary).get("boss_run_unlocked", false))
 	return state

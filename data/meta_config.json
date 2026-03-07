@@ -11,5 +11,8 @@
 		"common": 0.6,
 		"uncommon": 0.3,
 		"rare": 0.1
-	}
+	},
+	"boss_run_kill_threshold": 3,
+	"boss_run_cost": 300,
+	"boss_run_shard_award": 35
 }

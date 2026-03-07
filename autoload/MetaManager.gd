@@ -17,6 +17,12 @@ var is_first_boss_killed: bool:
 var is_adventuring_gear_owned: bool:
 	get: return _impl.meta_state.adventuring_gear_owned
 
+var is_boss_run_unlocked: bool:
+	get: return _impl.meta_state.boss_run_unlocked
+
+var endless_boss_kill_count: int:
+	get: return _impl.meta_state.endless_boss_kill_count
+
 var _impl: MetaManagerImpl = MetaManagerImpl.new()
 
 
@@ -76,6 +82,14 @@ func _on_hub_entered() -> void:
 		print("[MetaManager] relic offers activated — first hub return after Adventurer Bag unlock")
 
 
+func purchase_boss_run() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("boss_run_cost", 300)
+	var success: bool = _impl.purchase_boss_run(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
 func purchase_adventuring_gear() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("adventuring_gear_cost", 300)
 	var success: bool = _impl.purchase_adventuring_gear(cost, SaveManager)
@@ -86,9 +100,13 @@ func purchase_adventuring_gear() -> bool:
 
 func _on_room_cleared(room_id: String) -> void:
 	if room_id == "boss_room":
+		if RunManager.run_mode != "endless":
+			return
 		var recorded: bool = _impl.record_boss_kill(SaveManager)
 		if recorded:
 			print("[MetaManager] first boss kill recorded")
+		_impl.increment_endless_boss_kills(SaveManager)
+		print("[MetaManager] endless boss kills: {n}".format({"n": _impl.meta_state.endless_boss_kill_count}))
 		return
 	if RunManager.current_room == null:
 		return
@@ -100,7 +118,15 @@ func _on_room_cleared(room_id: String) -> void:
 		print("[MetaManager] Adventurer Bag unlocked — room_id={id}".format({"id": room_id}))
 
 
-func _on_run_ended(_reason: RunManager.EndReason) -> void:
+func _on_run_ended(reason: RunManager.EndReason) -> void:
+	if RunManager.run_mode == "boss":
+		if reason == RunManager.EndReason.CASH_OUT:
+			var award: int = ResourceManager.get_meta_config().get("boss_run_shard_award", 35)
+			add_shards(award)
+			print("[MetaManager] boss run cash out — {n} shards awarded".format({"n": award}))
+		else:
+			print("[MetaManager] boss run ended — no shards (died)")
+		return
 	var summary := RunManager.run_summary
 	if summary == null:
 		return

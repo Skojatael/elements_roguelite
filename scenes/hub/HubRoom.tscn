@@ -5,10 +5,13 @@
 [ext_resource type="Script" uid="uid://bgka32l818w2v" path="res://scenes/hub/ShardDisplay.gd" id="3_5j0dm"]
 [ext_resource type="Script" uid="uid://clvikslk34xri" path="res://scenes/hub/UpgradeShop.gd" id="4_y2y4c"]
 [ext_resource type="PackedScene" uid="uid://debgkvlk1r6tu" path="res://scenes/hub/advgearupg.tscn" id="5_nglky"]
+[ext_resource type="PackedScene" uid="uid://yqhrcqysntsb" path="res://scenes/hub/bossrunshop.tscn" id="6_tqygv"]
+[ext_resource type="PackedScene" uid="uid://bmtytmy7cy4rx" path="res://scenes/hub/bossrunbutton.tscn" id="7_dp14r"]
 
-[node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door")]
+[node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door", "_boss_run_button")]
 script = ExtResource("1_ynf1v")
 teleport_door = NodePath("Teleport")
+_boss_run_button = NodePath("Bossrunbutton")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=940193861]
 custom_minimum_size = Vector2(1920, 1080)
@@ -91,3 +94,22 @@ offset_left = 600.0
 offset_right = 600.0
 grow_horizontal = 2
 grow_vertical = 0
+
+[node name="Bossrun" parent="." unique_id=393252580 instance=ExtResource("6_tqygv")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 600.0
+offset_top = 40.0
+offset_right = 600.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Bossrunbutton" parent="." unique_id=1665930268 instance=ExtResource("7_dp14r")]
+offset_left = -960.0
+offset_top = 40.0
+offset_right = -960.0
+offset_bottom = 40.0

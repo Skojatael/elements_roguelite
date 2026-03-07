@@ -8,6 +8,7 @@ const _RELIC_OFFER_SCENE = preload("res://scenes/ui/relic_offer/RelicOfferScreen
 const _BOSS_ROOM_DATA := preload("res://data/rooms/BossRoom01.tres")
 const _BOSS_VICTORY_OVERLAY_SCENE = preload("res://scenes/ui/boss_victory/BossVictoryOverlay.tscn")
 const BOSS_ROOM_WORLD_POS: Vector2 = Vector2(0.0, -3000.0)
+const BOSS_PLAYER_SPAWN_OFFSET: Vector2 = Vector2(0.0, 400.0)
 
 @onready var _exploration_hud: CanvasLayer = $ExplorationHUD
 @onready var _joystick: JoystickControl = $ExplorationHUD/Joystick
@@ -48,6 +49,7 @@ func _ready() -> void:
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
 	_hub_room.hub_exited.connect(_on_hub_exited)
+	_hub_room.hub_boss_run_pressed.connect(_on_hub_boss_run_pressed)
 	GlobalSignals.hub_entered.emit()
 	_exploration_hud.visible = true
 
@@ -84,6 +86,13 @@ func _on_hub_exited() -> void:
 	_hub_room = null  # HubRoom calls queue_free() on itself; clear the reference
 	RunManager.start_run("endless")
 	GlobalSignals.gameplay_started.emit()
+
+
+func _on_hub_boss_run_pressed() -> void:
+	_hub_room = null  # HubRoom calls queue_free() on itself; clear the reference
+	RunManager.start_run("boss")
+	GlobalSignals.gameplay_started.emit()
+	_on_boss_teleport_pressed()
 
 
 func _on_player_died() -> void:
@@ -125,6 +134,7 @@ func _on_results_return() -> void:
 	add_child(_hub_room)
 	_camera.global_position = Vector2.ZERO
 	_hub_room.hub_exited.connect(_on_hub_exited)
+	_hub_room.hub_boss_run_pressed.connect(_on_hub_boss_run_pressed)
 	GlobalSignals.hub_entered.emit()
 	_player.global_position = _hub_room.global_position
 	_player.visible = true
@@ -155,18 +165,19 @@ func _on_relic_picked(relic_id: String) -> void:
 
 func _on_boss_room_cleared(_room_id: String) -> void:
 	_boss_room_spawner = null
-	var base: float = ResourceManager.get_enemy_base_essence("boss")
-	var rooms_cleared: int = RunManager.cleared_rooms.size()
-	var reward: int = floori(base * (1.0 + 0.06 * float(maxi(0, rooms_cleared - 6))))
-	RunManager.add_currency(reward)
-	print("[Main] boss reward — base={b} rooms_cleared={r} reward={w}".format({
-		"b": base, "r": rooms_cleared, "w": reward,
-	}))
 	_exploration_hud.visible = false
-	if RelicManager.trigger_boss_offer():
-		_boss_relic_pending = true
-	else:
-		_show_boss_victory_overlay()
+	if RunManager.run_mode == "endless":
+		var base: float = ResourceManager.get_enemy_base_essence("boss")
+		var rooms_cleared: int = RunManager.cleared_rooms.size()
+		var reward: int = floori(base * (1.0 + 0.06 * float(maxi(0, rooms_cleared - 6))))
+		RunManager.add_currency(reward)
+		print("[Main] boss reward — base={b} rooms_cleared={r} reward={w}".format({
+			"b": base, "r": rooms_cleared, "w": reward,
+		}))
+		if RelicManager.trigger_boss_offer():
+			_boss_relic_pending = true
+			return
+	_show_boss_victory_overlay()
 
 
 func _show_boss_victory_overlay() -> void:
@@ -174,6 +185,7 @@ func _show_boss_victory_overlay() -> void:
 	add_child(_boss_victory_layer)
 	_boss_victory_overlay = _BOSS_VICTORY_OVERLAY_SCENE.instantiate() as BossVictoryOverlay
 	_boss_victory_layer.add_child(_boss_victory_overlay)
+	_boss_victory_overlay.setup(RunManager.run_mode == "endless")
 	_boss_victory_overlay.cash_out_pressed.connect(_on_boss_cash_out_pressed)
 	_boss_victory_overlay.continue_pressed.connect(_on_boss_continue_pressed)
 
@@ -219,6 +231,6 @@ func _on_boss_teleport_pressed() -> void:
 	_boss_room_spawner = spawner
 	_boss_room_node = room_node
 	spawner.room_cleared.connect(_on_boss_room_cleared)
-	_player.global_position = BOSS_ROOM_WORLD_POS
+	_player.global_position = BOSS_ROOM_WORLD_POS + BOSS_PLAYER_SPAWN_OFFSET
 	_camera.global_position = BOSS_ROOM_WORLD_POS
 	print("[Main] boss teleport — rooms_cleared={r} boss_mult={m}".format({"r": rooms_cleared, "m": boss_mult}))
