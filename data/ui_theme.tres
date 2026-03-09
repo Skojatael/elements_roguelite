@@ -1,0 +1,13 @@
+[gd_resource type="Theme" format=3 uid="uid://b3y3keebfuofp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h1iuo"]
+bg_color = Color(0.29770643, 0.29770648, 0.2977063, 1)
+
+[resource]
+HBoxContainer/constants/separation = 10
+MarginContainer/constants/margin_bottom = 20
+MarginContainer/constants/margin_left = 20
+MarginContainer/constants/margin_right = 20
+MarginContainer/constants/margin_top = 20
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_h1iuo")
+VBoxContainer/constants/separation = 20

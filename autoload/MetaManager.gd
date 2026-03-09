@@ -20,6 +20,9 @@ var is_adventuring_gear_owned: bool:
 var is_boss_run_unlocked: bool:
 	get: return _impl.meta_state.boss_run_unlocked
 
+var is_magic_forge_unlocked: bool:
+	get: return _impl.meta_state.magic_forge_unlocked
+
 var endless_boss_kill_count: int:
 	get: return _impl.meta_state.endless_boss_kill_count
 
@@ -85,6 +88,14 @@ func _on_hub_entered() -> void:
 func purchase_boss_run() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("boss_run_cost", 300)
 	var success: bool = _impl.purchase_boss_run(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_magic_forge() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("magic_forge_cost", 120)
+	var success: bool = _impl.purchase_magic_forge(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success

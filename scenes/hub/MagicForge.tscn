@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://df0soil2cutpe"]
+
+[ext_resource type="Script" uid="uid://dq47pwysmwu0f" path="res://scenes/hub/MagicForge.gd" id="1_orvdk"]
+[ext_resource type="PackedScene" uid="uid://dfwedguq4rdx7" path="res://scenes/hub/RestoreForgeOverlay.tscn" id="2_jxdkg"]
+
+[node name="MagicForge" type="Control" unique_id=113241182 node_paths=PackedStringArray("_ruined_visual", "_magic_visual", "_label", "_button")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_orvdk")
+_ruined_visual = NodePath("Ruined")
+_magic_visual = NodePath("Restored")
+_label = NodePath("Label")
+_button = NodePath("Button")
+_restore_overlay_scene = ExtResource("2_jxdkg")
+
+[node name="Ruined" type="ColorRect" parent="." unique_id=1399601183]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.0056611504, 0.0056611514, 0.00566115, 1)
+
+[node name="Restored" type="ColorRect" parent="." unique_id=55421376]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.46034718, 0.46034718, 0.46034712, 1)
+
+[node name="Label" type="Label" parent="." unique_id=401506312]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Button" type="Button" parent="." unique_id=1549327924]
+visibility_layer = 0
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0

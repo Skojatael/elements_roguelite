@@ -98,6 +98,18 @@ func purchase_boss_run(cost: int, save_manager: Node) -> bool:
 	return true
 
 
+## Purchases Magic Forge unlock if affordable and not already unlocked. Returns true on success.
+func purchase_magic_forge(cost: int, save_manager: Node) -> bool:
+	if meta_state.magic_forge_unlocked:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.magic_forge_unlocked = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
 ## Sets adventurer_bag_unlocked if not already set. Returns true if this call
 ## changed the state (first unlock), false if already unlocked.
 func unlock_adventurer_bag(save_manager: Node) -> bool:

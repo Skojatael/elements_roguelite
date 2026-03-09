@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://dpkd78jmyokrs"]
+
+[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_ifs7x"]
+[ext_resource type="Script" uid="uid://c83gs4vihkpg3" path="res://scenes/hub/ForgeUpgradeScreen.gd" id="2_b614d"]
+
+[node name="ForgeUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_damage_button", "_close_button")]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -960.0
+offset_top = -540.0
+offset_right = -960.0
+offset_bottom = -540.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_ifs7x")
+script = ExtResource("2_b614d")
+_damage_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Damage")
+_close_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Close")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=2095778666]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 0
+offset_right = 90.0
+offset_bottom = 99.0
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=1891952172]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=1666394855]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=1285930482]
+layout_mode = 2
+alignment = 1
+
+[node name="Damage" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1228518805]
+layout_mode = 2
+
+[node name="Close" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2127859287]
+layout_mode = 2
+text = "Close"

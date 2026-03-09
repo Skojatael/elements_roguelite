@@ -9,3 +9,4 @@ var first_boss_killed: bool = false
 var adventuring_gear_owned: bool = false
 var endless_boss_kill_count: int = 0
 var boss_run_unlocked: bool = false
+var magic_forge_unlocked: bool = false

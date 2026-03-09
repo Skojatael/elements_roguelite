@@ -3,10 +3,11 @@
 [ext_resource type="Script" uid="uid://nwyrbkb32eb8" path="res://scenes/hub/HubRoom.gd" id="1_ynf1v"]
 [ext_resource type="PackedScene" uid="uid://x6bdugdg815q" path="res://scenes/hub/TeleportDoor.tscn" id="2_w7jgr"]
 [ext_resource type="Script" uid="uid://bgka32l818w2v" path="res://scenes/hub/ShardDisplay.gd" id="3_5j0dm"]
-[ext_resource type="Script" uid="uid://clvikslk34xri" path="res://scenes/hub/UpgradeShop.gd" id="4_y2y4c"]
 [ext_resource type="PackedScene" uid="uid://debgkvlk1r6tu" path="res://scenes/hub/advgearupg.tscn" id="5_nglky"]
 [ext_resource type="PackedScene" uid="uid://yqhrcqysntsb" path="res://scenes/hub/bossrunshop.tscn" id="6_tqygv"]
+[ext_resource type="PackedScene" uid="uid://df0soil2cutpe" path="res://scenes/hub/MagicForge.tscn" id="7_4kahi"]
 [ext_resource type="PackedScene" uid="uid://bmtytmy7cy4rx" path="res://scenes/hub/bossrunbutton.tscn" id="7_dp14r"]
+[ext_resource type="PackedScene" uid="uid://dpkd78jmyokrs" path="res://scenes/hub/ForgeUpgradeScreen.tscn" id="8_4kahi"]
 
 [node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door", "_boss_run_button")]
 script = ExtResource("1_ynf1v")
@@ -51,39 +52,6 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="UpgradeShop" type="Control" parent="." unique_id=1976606343 node_paths=PackedStringArray("_button")]
-layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("4_y2y4c")
-_button = NodePath("Button")
-
-[node name="ColorRect" type="ColorRect" parent="UpgradeShop" unique_id=467448445]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -20.0
-offset_right = 80.0
-offset_bottom = 40.0
-grow_horizontal = 2
-color = Color(0, 0, 0, 1)
-
-[node name="Button" type="Button" parent="UpgradeShop" unique_id=1880165443]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
-
 [node name="Advgearupg" parent="." unique_id=1610636936 instance=ExtResource("5_nglky")]
 anchors_preset = 7
 anchor_left = 0.5
@@ -113,3 +81,8 @@ offset_left = -960.0
 offset_top = 40.0
 offset_right = -960.0
 offset_bottom = 40.0
+
+[node name="MagicForge" parent="." unique_id=113241182 instance=ExtResource("7_4kahi")]
+offset_top = -350.0
+offset_bottom = -350.0
+_upgrade_screen_scene = ExtResource("8_4kahi")

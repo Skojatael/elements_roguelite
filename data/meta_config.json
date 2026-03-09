@@ -14,5 +14,6 @@
 	},
 	"boss_run_kill_threshold": 3,
 	"boss_run_cost": 300,
-	"boss_run_shard_award": 35
+	"boss_run_shard_award": 35,
+	"magic_forge_cost": 120
 }
