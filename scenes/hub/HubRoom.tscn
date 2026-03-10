@@ -3,10 +3,9 @@
 [ext_resource type="Script" uid="uid://nwyrbkb32eb8" path="res://scenes/hub/HubRoom.gd" id="1_ynf1v"]
 [ext_resource type="PackedScene" uid="uid://x6bdugdg815q" path="res://scenes/hub/TeleportDoor.tscn" id="2_w7jgr"]
 [ext_resource type="Script" uid="uid://bgka32l818w2v" path="res://scenes/hub/ShardDisplay.gd" id="3_5j0dm"]
-[ext_resource type="PackedScene" uid="uid://debgkvlk1r6tu" path="res://scenes/hub/advgearupg.tscn" id="5_nglky"]
-[ext_resource type="PackedScene" uid="uid://yqhrcqysntsb" path="res://scenes/hub/bossrunshop.tscn" id="6_tqygv"]
 [ext_resource type="PackedScene" uid="uid://df0soil2cutpe" path="res://scenes/hub/MagicForge.tscn" id="7_4kahi"]
 [ext_resource type="PackedScene" uid="uid://bmtytmy7cy4rx" path="res://scenes/hub/bossrunbutton.tscn" id="7_dp14r"]
+[ext_resource type="PackedScene" uid="uid://bcdu4qtnt6qsd" path="res://scenes/hub/MageTower.tscn" id="7_hb6ud"]
 [ext_resource type="PackedScene" uid="uid://dpkd78jmyokrs" path="res://scenes/hub/ForgeUpgradeScreen.tscn" id="8_4kahi"]
 
 [node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door", "_boss_run_button")]
@@ -52,30 +51,6 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Advgearupg" parent="." unique_id=1610636936 instance=ExtResource("5_nglky")]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = 600.0
-offset_right = 600.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="Bossrun" parent="." unique_id=393252580 instance=ExtResource("6_tqygv")]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = 600.0
-offset_top = 40.0
-offset_right = 600.0
-offset_bottom = 40.0
-grow_horizontal = 2
-grow_vertical = 0
-
 [node name="Bossrunbutton" parent="." unique_id=1665930268 instance=ExtResource("7_dp14r")]
 offset_left = -960.0
 offset_top = 40.0
@@ -86,3 +61,7 @@ offset_bottom = 40.0
 offset_top = -350.0
 offset_bottom = -350.0
 _upgrade_screen_scene = ExtResource("8_4kahi")
+
+[node name="MageTower" parent="." unique_id=1452751293 instance=ExtResource("7_hb6ud")]
+offset_left = 800.0
+offset_right = 800.0

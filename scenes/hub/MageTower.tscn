@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://bcdu4qtnt6qsd"]
+
+[ext_resource type="Script" uid="uid://bburip5t634r5" path="res://scenes/hub/MageTower.gd" id="1_5unrk"]
+[ext_resource type="PackedScene" uid="uid://86l658bjcni2" path="res://scenes/hub/RestoreTowerOverlay.tscn" id="2_px87h"]
+[ext_resource type="PackedScene" uid="uid://bfyi7ks3e8bsr" path="res://scenes/hub/MageTowerUpgradeScreen.tscn" id="3_ta423"]
+
+[node name="MageTower" type="Control" unique_id=113241182 node_paths=PackedStringArray("_ruined_visual", "_magic_visual", "_label", "_button")]
+layout_mode = 3
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("1_5unrk")
+_ruined_visual = NodePath("Ruined")
+_magic_visual = NodePath("Restored")
+_label = NodePath("Label")
+_button = NodePath("Button")
+_restore_overlay_scene = ExtResource("2_px87h")
+_upgrade_screen_scene = ExtResource("3_ta423")
+
+[node name="Ruined" type="ColorRect" parent="." unique_id=1399601183]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.0056611504, 0.0056611514, 0.00566115, 1)
+
+[node name="Restored" type="ColorRect" parent="." unique_id=55421376]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.46034718, 0.46034718, 0.46034712, 1)
+
+[node name="Label" type="Label" parent="." unique_id=401506312]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Button" type="Button" parent="." unique_id=1549327924]
+visibility_layer = 0
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0

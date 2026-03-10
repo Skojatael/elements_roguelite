@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://yqhrcqysntsb"]
+[gd_scene format=3 uid="uid://bvhxdoeu3k568"]
 
-[ext_resource type="Script" uid="uid://q2uu1ytj81ng" path="res://scenes/hub/BossRunShop.gd" id="1_dpicx"]
+[ext_resource type="Script" path="res://scenes/hub/BossRunShop.gd" id="1_dpicx"]
 
 [node name="Bossrun" type="Control" unique_id=393252580 node_paths=PackedStringArray("_button")]
 layout_mode = 3

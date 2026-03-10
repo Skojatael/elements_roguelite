@@ -23,6 +23,9 @@ var is_boss_run_unlocked: bool:
 var is_magic_forge_unlocked: bool:
 	get: return _impl.meta_state.magic_forge_unlocked
 
+var is_mage_tower_unlocked: bool:
+	get: return _impl.meta_state.mage_tower_unlocked
+
 var endless_boss_kill_count: int:
 	get: return _impl.meta_state.endless_boss_kill_count
 
@@ -33,7 +36,6 @@ func _ready() -> void:
 	_impl.load(SaveManager)
 	RunManager.run_ended.connect(func(r: RunManager.EndReason) -> void: _on_run_ended(r))
 	RunManager.room_cleared.connect(_on_room_cleared)
-	GlobalSignals.hub_entered.connect(_on_hub_entered)
 
 
 func can_spend(cost: int) -> bool:
@@ -79,14 +81,8 @@ func purchase_damage_upgrade() -> bool:
 	return success
 
 
-func _on_hub_entered() -> void:
-	var activated: bool = _impl.try_activate_relic_offers(SaveManager)
-	if activated:
-		print("[MetaManager] relic offers activated — first hub return after Adventurer Bag unlock")
-
-
 func purchase_boss_run() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("boss_run_cost", 300)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower_boss_challenge_cost", 200)
 	var success: bool = _impl.purchase_boss_run(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
@@ -102,31 +98,39 @@ func purchase_magic_forge() -> bool:
 
 
 func purchase_adventuring_gear() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("adventuring_gear_cost", 300)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower_dungeon_expansion_cost", 200)
 	var success: bool = _impl.purchase_adventuring_gear(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success
 
 
+func purchase_mage_tower() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower_cost", 200)
+	var success: bool = _impl.purchase_mage_tower(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_mage_tower_relic_system() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower_relic_system_cost", 100)
+	var success: bool = _impl.purchase_mage_tower_relic_system(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
 func _on_room_cleared(room_id: String) -> void:
-	if room_id == "boss_room":
-		if RunManager.run_mode != "endless":
-			return
-		var recorded: bool = _impl.record_boss_kill(SaveManager)
-		if recorded:
-			print("[MetaManager] first boss kill recorded")
-		_impl.increment_endless_boss_kills(SaveManager)
-		print("[MetaManager] endless boss kills: {n}".format({"n": _impl.meta_state.endless_boss_kill_count}))
+	if room_id != "boss_room":
 		return
-	if RunManager.current_room == null:
+	if RunManager.run_mode != "endless":
 		return
-	var room_type: String = (RunManager.current_room as RoomSpawner).room_type_id
-	if not room_type.contains("Elite"):
-		return
-	var unlocked: bool = _impl.unlock_adventurer_bag(SaveManager)
-	if unlocked:
-		print("[MetaManager] Adventurer Bag unlocked — room_id={id}".format({"id": room_id}))
+	var recorded: bool = _impl.record_boss_kill(SaveManager)
+	if recorded:
+		print("[MetaManager] first boss kill recorded")
+	_impl.increment_endless_boss_kills(SaveManager)
+	print("[MetaManager] endless boss kills: {n}".format({"n": _impl.meta_state.endless_boss_kill_count}))
 
 
 func _on_run_ended(reason: RunManager.EndReason) -> void:

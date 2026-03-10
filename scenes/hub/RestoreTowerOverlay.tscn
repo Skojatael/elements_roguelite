@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://86l658bjcni2"]
+
+[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_7k3ji"]
+[ext_resource type="Script" uid="uid://rrlsib6il01b" path="res://scenes/hub/RestoreTowerOverlay.gd" id="2_7k3ji"]
+
+[node name="RestoreTowerOverlay" type="Control" unique_id=1542253236 node_paths=PackedStringArray("_restore_button", "_later_button")]
+layout_mode = 3
+anchors_preset = 0
+theme = ExtResource("1_7k3ji")
+script = ExtResource("2_7k3ji")
+_restore_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox/Restore")
+_later_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox/Maybe later")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1063895234]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=1549012241]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=882209792]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=569309231]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1366819991]
+layout_mode = 2
+text = "The building is a ruined mage tower. It has a destroyed lab, a library with no books, and an observatory with a broken telescope.
+You'll need a significant amount of magic to restore it."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="hbox" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1930643600]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Restore" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox" unique_id=2020951543]
+layout_mode = 2
+text = "Restore the tower: 200 shards"
+
+[node name="Maybe later" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox" unique_id=341118208]
+layout_mode = 2
+text = "Maybe later"

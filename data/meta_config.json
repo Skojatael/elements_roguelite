@@ -1,6 +1,5 @@
 {
 	"shard_divisor": 3,
-	"adventuring_gear_cost": 300,
 	"damage_upgrade": {
 		"base_cost": 50,
 		"cost_scale": 1.2,
@@ -12,8 +11,10 @@
 		"uncommon": 0.3,
 		"rare": 0.1
 	},
-	"boss_run_kill_threshold": 3,
-	"boss_run_cost": 300,
 	"boss_run_shard_award": 35,
-	"magic_forge_cost": 120
+	"magic_forge_cost": 120,
+	"mage_tower_cost": 200,
+	"mage_tower_dungeon_expansion_cost": 200,
+	"mage_tower_relic_system_cost": 100,
+	"mage_tower_boss_challenge_cost": 200
 }

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://debgkvlk1r6tu"]
 
-[ext_resource type="Script" uid="uid://cl5h701q4le8" path="res://scenes/hub/AdventuringGearShop.gd" id="1_8m4cj"]
+[ext_resource type="Script" path="res://scenes/hub/AdventuringGearShop.gd" id="1_8m4cj"]
 
 [node name="Advgearupg" type="Control" unique_id=1610636936 node_paths=PackedStringArray("_button")]
 layout_mode = 3
