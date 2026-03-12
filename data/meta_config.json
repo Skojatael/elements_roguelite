@@ -1,20 +1,34 @@
 {
 	"shard_divisor": 3,
-	"damage_upgrade": {
-		"base_cost": 50,
-		"cost_scale": 1.2,
-		"max_levels": 10,
-		"damage_per_level": 0.1
-	},
+	"boss_run_shard_award": 35,
 	"relic_tier_weights": {
 		"common": 0.6,
 		"uncommon": 0.3,
 		"rare": 0.1
 	},
-	"boss_run_shard_award": 35,
-	"magic_forge_cost": 120,
-	"mage_tower_cost": 200,
-	"mage_tower_dungeon_expansion_cost": 200,
-	"mage_tower_relic_system_cost": 100,
-	"mage_tower_boss_challenge_cost": 200
+	"magic_forge": {
+		"name": "Magic Forge",
+		"cost": 120,
+		"upgrades": {
+			"damage_upgrade": {
+				"name": "Damage Multiplier",
+				"base_cost": 50,
+				"cost_scale": 1.2,
+				"max_levels": 10,
+				"damage_per_level": 0.1
+			}
+		}
+	},
+	"mage_tower": {
+		"name": "Mage Tower",
+		"cost": 200,
+		"first_boss_killed": {
+			"popup_message": "You have defeated the boss. Boss Challenge Mode can now be unlocked in the Mage Tower."
+		},
+		"upgrades": {
+			"dungeon_expansion": { "name": "Dungeon Expansion", "cost": 200 },
+			"relic_system":      { "name": "Relic System",      "cost": 100 },
+			"boss_challenge":    { "name": "Boss Challenge Mode", "cost": 200, "gate_text": "Major essence required" }
+		}
+	}
 }

@@ -7,6 +7,7 @@ const _RESULTS_SCREEN_SCENE = preload("res://scenes/ui/run_end/ResultsScreen.tsc
 const _RELIC_OFFER_SCENE = preload("res://scenes/ui/relic_offer/RelicOfferScreen.tscn")
 const _BOSS_ROOM_DATA := preload("res://data/rooms/BossRoom01.tres")
 const _BOSS_VICTORY_OVERLAY_SCENE = preload("res://scenes/ui/boss_victory/BossVictoryOverlay.tscn")
+const _BOSS_KILL_POPUP_SCENE = preload("res://scenes/ui/boss_kill_popup/BossKillPopup.tscn")
 const BOSS_ROOM_WORLD_POS: Vector2 = Vector2(0.0, -3000.0)
 const BOSS_PLAYER_SPAWN_OFFSET: Vector2 = Vector2(0.0, 400.0)
 
@@ -19,8 +20,8 @@ const BOSS_PLAYER_SPAWN_OFFSET: Vector2 = Vector2(0.0, 400.0)
 @onready var _dungeon_gen: DungeonGenerator = $DungeonGenerator
 @onready var _room_loader: RoomLoader = $RoomLoader
 
-var _hub_room: Node = null
-var _results_screen: Node = null
+var _hub_room: HubRoom = null
+var _results_screen: ResultsScreen = null
 var _results_layer: CanvasLayer = null
 var _relic_offer_layer: CanvasLayer = null
 var _relic_offer_screen: RelicOfferScreen = null
@@ -29,6 +30,8 @@ var _boss_room_node: Node = null
 var _boss_victory_layer: CanvasLayer = null
 var _boss_victory_overlay: BossVictoryOverlay = null
 var _boss_relic_pending: bool = false
+var _boss_kill_popup_layer: CanvasLayer = null
+var _first_boss_popup_pending: bool = false
 
 
 func _ready() -> void:
@@ -65,10 +68,14 @@ func _process(_delta: float) -> void:
 
 func _on_run_started() -> void:
 	_boss_relic_pending = false
+	_first_boss_popup_pending = false
 	if is_instance_valid(_boss_room_node):
 		_boss_room_node.queue_free()
 	_boss_room_node = null
 	_boss_room_spawner = null
+	if _boss_kill_popup_layer != null:
+		_boss_kill_popup_layer.queue_free()
+		_boss_kill_popup_layer = null
 	if _boss_victory_layer != null:
 		_boss_victory_layer.queue_free()
 		_boss_victory_layer = null
@@ -105,6 +112,9 @@ func _on_run_ended(_reason: RunManager.EndReason) -> void:
 		_boss_room_node.queue_free()
 	_boss_room_node = null
 	_boss_room_spawner = null
+	if _boss_kill_popup_layer != null:
+		_boss_kill_popup_layer.queue_free()
+		_boss_kill_popup_layer = null
 	if _boss_victory_layer != null:
 		_boss_victory_layer.visible = false
 		_boss_victory_layer.queue_free()
@@ -156,11 +166,11 @@ func _on_relic_picked(relic_id: String) -> void:
 	_relic_offer_layer.queue_free()
 	_relic_offer_layer = null
 	_relic_offer_screen = null
-	if _boss_relic_pending:
-		_boss_relic_pending = false
-		_show_boss_victory_overlay()
-	else:
+	if not _boss_relic_pending:
 		_exploration_hud.visible = true
+		return
+	_boss_relic_pending = false
+	_show_boss_victory_overlay()
 
 
 func _on_boss_room_cleared(_room_id: String) -> void:
@@ -169,11 +179,13 @@ func _on_boss_room_cleared(_room_id: String) -> void:
 	if RunManager.run_mode == "endless":
 		var base: float = ResourceManager.get_enemy_base_essence("boss")
 		var rooms_cleared: int = RunManager.cleared_rooms.size()
-		var reward: int = floori(base * (1.0 + 0.06 * float(maxi(0, rooms_cleared - 6))))
+		var reward: int = RunManager.rewards_service.get_boss_reward(base, rooms_cleared)
 		RunManager.add_currency(reward)
 		print("[Main] boss reward — base={b} rooms_cleared={r} reward={w}".format({
 			"b": base, "r": rooms_cleared, "w": reward,
 		}))
+		if MetaManager.endless_boss_kill_count == 1:
+			_first_boss_popup_pending = true
 		if RelicManager.trigger_boss_offer():
 			_boss_relic_pending = true
 			return
@@ -181,6 +193,10 @@ func _on_boss_room_cleared(_room_id: String) -> void:
 
 
 func _show_boss_victory_overlay() -> void:
+	if _first_boss_popup_pending:
+		_first_boss_popup_pending = false
+		_show_boss_kill_popup()
+		return
 	_boss_victory_layer = CanvasLayer.new()
 	add_child(_boss_victory_layer)
 	_boss_victory_overlay = _BOSS_VICTORY_OVERLAY_SCENE.instantiate() as BossVictoryOverlay
@@ -188,6 +204,22 @@ func _show_boss_victory_overlay() -> void:
 	_boss_victory_overlay.setup(RunManager.run_mode == "endless")
 	_boss_victory_overlay.cash_out_pressed.connect(_on_boss_cash_out_pressed)
 	_boss_victory_overlay.continue_pressed.connect(_on_boss_continue_pressed)
+
+
+func _show_boss_kill_popup() -> void:
+	var message: String = ResourceManager.get_meta_config().get("mage_tower", {}).get("first_boss_killed", {}).get("popup_message", "")
+	_boss_kill_popup_layer = CanvasLayer.new()
+	add_child(_boss_kill_popup_layer)
+	var popup: BossKillPopup = _BOSS_KILL_POPUP_SCENE.instantiate() as BossKillPopup
+	_boss_kill_popup_layer.add_child(popup)
+	popup.setup(message)
+	popup.ok_pressed.connect(_on_boss_kill_popup_ok)
+
+
+func _on_boss_kill_popup_ok() -> void:
+	_boss_kill_popup_layer.queue_free()
+	_boss_kill_popup_layer = null
+	_show_boss_victory_overlay()
 
 
 func _on_boss_cash_out_pressed() -> void:
@@ -219,7 +251,7 @@ func _on_dev_get_relic() -> void:
 func _on_boss_teleport_pressed() -> void:
 	_room_loader.free_current_room()
 	var rooms_cleared: int = RunManager.cleared_rooms.size()
-	var boss_mult: float = 1.0 + 0.06 * float(maxi(0, rooms_cleared - 6))
+	var boss_mult: float = RunManager.difficulty_service.get_boss_multiplier(rooms_cleared)
 	var context: SpawnContext = SpawnContext.create(self, BOSS_ROOM_WORLD_POS)
 	var spawner: RoomSpawner = RunManager.spawn_room(_BOSS_ROOM_DATA, "boss_room", context)
 	spawner.difficulty_mult = boss_mult

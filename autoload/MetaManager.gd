@@ -5,9 +5,6 @@ signal shards_changed(new_total: int)
 var meta_state: MetaState:
 	get: return _impl.meta_state
 
-var is_adventurer_bag_unlocked: bool:
-	get: return _impl.meta_state.adventurer_bag_unlocked
-
 var is_relic_offers_active: bool:
 	get: return _impl.meta_state.relic_offers_active
 
@@ -57,12 +54,12 @@ func add_shards(amount: int) -> void:
 
 var damage_multiplier: float:
 	get:
-		var cfg: Dictionary = ResourceManager.get_meta_config().get("damage_upgrade", {})
+		var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("damage_upgrade", {})
 		return _impl.get_damage_multiplier(cfg.get("damage_per_level", 0.1))
 
 
 func get_next_upgrade_cost() -> int:
-	var cfg: Dictionary = ResourceManager.get_meta_config().get("damage_upgrade", {})
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("damage_upgrade", {})
 	return _impl.get_upgrade_cost(
 		meta_state.damage_upgrade_level,
 		cfg.get("base_cost", 50),
@@ -71,7 +68,7 @@ func get_next_upgrade_cost() -> int:
 
 
 func purchase_damage_upgrade() -> bool:
-	var cfg: Dictionary = ResourceManager.get_meta_config().get("damage_upgrade", {})
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("damage_upgrade", {})
 	if meta_state.damage_upgrade_level >= cfg.get("max_levels", 10):
 		return false
 	var cost: int = get_next_upgrade_cost()
@@ -82,7 +79,7 @@ func purchase_damage_upgrade() -> bool:
 
 
 func purchase_boss_run() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("mage_tower_boss_challenge_cost", 200)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("upgrades", {}).get("boss_challenge", {}).get("cost", 200)
 	var success: bool = _impl.purchase_boss_run(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
@@ -90,7 +87,7 @@ func purchase_boss_run() -> bool:
 
 
 func purchase_magic_forge() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("magic_forge_cost", 120)
+	var cost: int = ResourceManager.get_meta_config().get("magic_forge", {}).get("cost", 120)
 	var success: bool = _impl.purchase_magic_forge(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
@@ -98,7 +95,7 @@ func purchase_magic_forge() -> bool:
 
 
 func purchase_adventuring_gear() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("mage_tower_dungeon_expansion_cost", 200)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("upgrades", {}).get("dungeon_expansion", {}).get("cost", 200)
 	var success: bool = _impl.purchase_adventuring_gear(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
@@ -106,7 +103,7 @@ func purchase_adventuring_gear() -> bool:
 
 
 func purchase_mage_tower() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("mage_tower_cost", 200)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("cost", 200)
 	var success: bool = _impl.purchase_mage_tower(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
@@ -114,7 +111,7 @@ func purchase_mage_tower() -> bool:
 
 
 func purchase_mage_tower_relic_system() -> bool:
-	var cost: int = ResourceManager.get_meta_config().get("mage_tower_relic_system_cost", 100)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("upgrades", {}).get("relic_system", {}).get("cost", 100)
 	var success: bool = _impl.purchase_mage_tower_relic_system(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)

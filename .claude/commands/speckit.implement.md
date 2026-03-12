@@ -138,4 +138,23 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+10. **Update repo_map.md** (always runs after step 9, even if some tasks were skipped):
+    - Identify every `.gd` file that was **created or modified** during this implementation run.
+    - Also identify any `.gd` files that were **deleted** during this run.
+    - For each created/modified file, read it and extract:
+      - `class_name` (if declared)
+      - `extends` base type
+      - `signal` declarations (name + parameter list)
+      - `@export var` declarations (name + type)
+      - `const` declarations that are architectural (not magic numbers) — include name and value
+      - Public `var` properties with getters (computed properties)
+      - Public `func` signatures (name + parameters + return type); skip `_` prefixed private functions **unless** they are signal handlers that other systems connect to
+    - Update `repo_map.md`:
+      - **New file**: insert a new entry in the correct section (Autoloads, Scripts — Managers, Scripts — Data Models, Scenes — Hub, etc.) following the existing format conventions.
+      - **Modified file**: update the existing entry in-place — replace signals, properties, and methods lists entirely rather than appending.
+      - **Deleted file**: remove the entry entirely.
+      - Preserve all entries for files not touched by this feature.
+    - Do **not** regenerate the entire repo_map from scratch — surgical edits only.
+    - After editing, do a quick sanity check: confirm the number of `###` headings in the hub/scenes section matches the actual `.gd` files in that directory.
+
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit.tasks` first to regenerate the task list.

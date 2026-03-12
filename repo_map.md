@@ -11,8 +11,8 @@
 
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`
-- **properties**: `meta_state: MetaState`, `is_adventurer_bag_unlocked: bool`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`
+- **properties**: `meta_state: MetaState`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `try_activate_relic_offers(save_manager) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `unlock_adventurer_bag(save_manager) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -65,7 +65,7 @@
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `adventurer_bag_unlocked: bool`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
@@ -148,8 +148,8 @@
 
 ### `scenes/core/Main.gd`
 - **const**: `BOSS_ROOM_WORLD_POS = Vector2(0, -3000)`
-- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`
-- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
+- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`
+- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
 
 ---
 
@@ -192,17 +192,19 @@
 
 ## Scenes — Hub (`scenes/hub/`)
 
-### `scenes/hub/AdventuringGearShop.gd` (`class_name AdventuringGearShop extends Control`)
-- **exports**: `_button: Button`
-- **methods**: `_update_visibility()`, `_on_buy_pressed()`
+### `scenes/hub/MageTower.gd` (`class_name MageTower extends Control`)
+- **exports**: `_ruined_visual: ColorRect`, `_magic_visual: ColorRect`, `_label: Label`, `_button: Button`, `_restore_overlay_scene: PackedScene`, `_upgrade_screen_scene: PackedScene`
+- **methods**: `_update_visuals()`, `_on_tower_pressed()`, `_show_restore_overlay()`, `_show_upgrade_screen()`, `_close_overlay()`, `_on_restore_pressed()`
 
-### `scenes/hub/AdventuringGearShop.gd` (`class_name AdventuringGearShop extends Control`)
-- **exports**: `_button: Button`
-- **methods**: `_update_visibility()`, `_on_buy_pressed()`
+### `scenes/hub/RestoreTowerOverlay.gd` (`class_name RestoreTowerOverlay extends Control`)
+- **signals**: `restore_pressed`, `maybe_later_pressed`
+- **exports**: `_restore_button: Button`, `_later_button: Button`
 
-### `scenes/hub/BossRunShop.gd` (`class_name BossRunShop extends Control`)
-- **exports**: `_button: Button`
-- **methods**: `_update_visibility()`, `_on_buy_pressed()`
+### `scenes/hub/MageTowerUpgradeScreen.gd` (`class_name MageTowerUpgradeScreen extends Control`)
+- **signals**: `close_pressed`
+- **exports**: `_de_button: Button`, `_rs_button: Button`, `_bc_button: Button`, `_close_button: Button`
+- **state**: `_entries: Array[Dictionary]` — built in `_ready()` by merging JSON upgrade config with runtime refs (`button`, `owned_prop`, `purchase` Callable, optional `gate_prop`/`gate_text`)
+- **methods**: `_update_entries()`, `_apply_entry(cfg: Dictionary)`
 
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`
@@ -227,6 +229,11 @@
 ---
 
 ## Scenes — UI (`scenes/ui/`)
+
+### `scenes/ui/boss_kill_popup/BossKillPopup.gd` (`class_name BossKillPopup extends Control`)
+- **signals**: `ok_pressed`
+- **exports**: `_message_label: Label`, `_ok_button: Button`
+- **methods**: `setup(message: String)`
 
 ### `scenes/ui/boss_victory/BossVictoryOverlay.gd` (`class_name BossVictoryOverlay extends Control`)
 - **signals**: `cash_out_pressed`, `continue_pressed`
@@ -271,7 +278,7 @@
 |------|-------------|
 | `data/dungeon_config.json` | `combat_room_pool`, `spawn_configs` (per room type), `difficulty_scale`, `base_room_count: 9`, `expansion_room_count: 4` |
 | `data/enemies.json` | `enemies` dict with categories `"common"` and `"boss"`, each an Array of enemy entries |
-| `data/meta_config.json` | `shard_divisor: 3`, `damage_upgrade` (base_cost, cost_scale, max_levels, damage_per_level), `adventuring_gear_cost: 300` |
+| `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}) |
 | `data/relics.json` | `relics` array — 6 relics across 4 stat categories |
 | `data/skills.json` | (stub/TBD) |
 | `data/upgrades.json` | (stub/TBD) |

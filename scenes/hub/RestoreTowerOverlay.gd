@@ -9,7 +9,7 @@ signal maybe_later_pressed
 
 
 func _ready() -> void:
-	var cost: int = ResourceManager.get_meta_config().get("mage_tower_cost", 200)
+	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("cost", 200)
 	_restore_button.text = "Restore the Mage Tower ({c} shards)".format({"c": cost})
 	_restore_button.disabled = not MetaManager.can_spend(cost)
 	_restore_button.pressed.connect(func() -> void: restore_pressed.emit())

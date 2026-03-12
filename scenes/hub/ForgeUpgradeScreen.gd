@@ -15,16 +15,18 @@ func _ready() -> void:
 
 
 func _update_buttons() -> void:
-	var cfg: Dictionary = ResourceManager.get_meta_config().get("damage_upgrade", {})
-	var max_levels: int = cfg.get("max_levels", 10)
+	var upgrade: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("damage_upgrade", {})
+	var upgrade_name: String = upgrade.get("name", "damage_upgrade")
+	var max_levels: int = upgrade.get("max_levels", 10)
 	if MetaManager.meta_state.damage_upgrade_level >= max_levels:
-		_damage_button.text = "Damage Multiplier — MAX"
+		_damage_button.text = "{n} — MAX".format({"n": upgrade_name})
 		_damage_button.disabled = true
 		return
 	var cost: int = MetaManager.get_next_upgrade_cost()
 	var level: int = MetaManager.meta_state.damage_upgrade_level
-	var pct: int = int(float(level + 1) * cfg.get("damage_per_level", 0.1) * 100.0)
-	_damage_button.text = "Damage +{pct}% (Lv{lv}) — {cost} shards".format({
+	var pct: int = int(float(level + 1) * upgrade.get("damage_per_level", 0.1) * 100.0)
+	_damage_button.text = "{n} +{pct}% (Lv{lv}) — {cost} shards".format({
+		"n": upgrade_name,
 		"pct": pct,
 		"lv": level + 1,
 		"cost": cost,

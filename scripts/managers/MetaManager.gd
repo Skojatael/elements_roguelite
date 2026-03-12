@@ -110,15 +110,13 @@ func purchase_mage_tower(cost: int, save_manager: Node) -> bool:
 	return true
 
 
-## Purchases Relic System unlock via Mage Tower. Sets both adventurer_bag_unlocked and
-## relic_offers_active atomically. Returns true on success.
+## Purchases Relic System unlock via Mage Tower. Returns true on success.
 func purchase_mage_tower_relic_system(cost: int, save_manager: Node) -> bool:
 	if meta_state.relic_offers_active:
 		return false
 	if not can_spend(cost):
 		return false
 	meta_state.total_shards -= cost
-	meta_state.adventurer_bag_unlocked = true
 	meta_state.relic_offers_active = true
 	save_manager.save_meta_state(meta_state)
 	return true

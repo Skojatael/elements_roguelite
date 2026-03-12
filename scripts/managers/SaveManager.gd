@@ -8,7 +8,6 @@ func save_meta_state(state: MetaState) -> void:
 	var data: Dictionary = {
 		"total_shards": state.total_shards,
 		"damage_upgrade_level": state.damage_upgrade_level,
-		"adventurer_bag_unlocked": state.adventurer_bag_unlocked,
 		"relic_offers_active": state.relic_offers_active,
 		"first_boss_killed": state.first_boss_killed,
 		"adventuring_gear_owned": state.adventuring_gear_owned,
@@ -38,7 +37,6 @@ func load_meta_state() -> MetaState:
 	if parsed is Dictionary:
 		state.total_shards = int((parsed as Dictionary).get("total_shards", 0))
 		state.damage_upgrade_level = int((parsed as Dictionary).get("damage_upgrade_level", 0))
-		state.adventurer_bag_unlocked = bool((parsed as Dictionary).get("adventurer_bag_unlocked", false))
 		state.relic_offers_active = bool((parsed as Dictionary).get("relic_offers_active", false))
 		state.first_boss_killed = bool((parsed as Dictionary).get("first_boss_killed", false))
 		state.adventuring_gear_owned = bool((parsed as Dictionary).get("adventuring_gear_owned", false))

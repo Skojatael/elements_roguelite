@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://br3swybe5kq4b"]
+
+[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_r4khx"]
+[ext_resource type="Script" uid="uid://brqulj7pov1mu" path="res://scenes/ui/boss_kill_popup/BossKillPopup.gd" id="1_tcmm2"]
+
+[node name="BossKillPopup" type="Control" unique_id=962616551 node_paths=PackedStringArray("_message_label", "_ok_button")]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_right = -260.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_r4khx")
+script = ExtResource("1_tcmm2")
+_message_label = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Label")
+_ok_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Button")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1126893589]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=820034530]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=1891981749]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=1528768151]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1259634750]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=123446592]
+layout_mode = 2
+text = "Okay"

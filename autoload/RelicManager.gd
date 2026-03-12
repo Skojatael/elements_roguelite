@@ -78,6 +78,8 @@ func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> fl
 ## Draws 3 rare relics and emits relic_offer_ready. Returns true if offer was triggered.
 ## Returns false if no rare relics are available (caller should show victory overlay directly).
 func trigger_boss_offer() -> bool:
+	if not MetaManager.is_relic_offers_active:
+		return false
 	var options: Array[RelicData] = _impl.draw_boss_offer()
 	if options.is_empty():
 		print("[RelicManager] trigger_boss_offer — no rare relics available, skipping")

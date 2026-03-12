@@ -285,9 +285,7 @@ Run-scoped modifier system. Relics are collected via a post-clear offer screen a
 - `executioners_mark` — ×1.35 damage when `target_hp_ratio < 0.30` (`Enemy.get_hp_ratio()` added).
 - `berserker_stone` — ×1.30 damage when `attacker_hp_ratio < 0.50` (`_stats_component` export on `CombatComponent`, assigned in Inspector).
 
-**Adventurer Bag gate (026-adventurer-bag)** — relic offers are gated behind a permanent meta-unlock called Adventurer Bag. The unlock fires once — when the player clears an elite room for the first time across all runs. Detection is in `MetaManager._on_room_cleared()` (connected to `RunManager.room_cleared`); it delegates to `MetaManagerImpl.unlock_adventurer_bag(SaveManager)`. The flag lives in `MetaState.adventurer_bag_unlocked: bool` and is persisted in `user://meta_save.json`.
-
-**Relic offers delayed until hub return (027-relic-unlock-hub-return)** — relic offers do NOT activate in the same run as the Adventurer Bag unlock. A second flag `MetaState.relic_offers_active: bool` gates offer generation in `RelicManager._on_room_cleared()`. It is set on the player's first hub visit after `adventurer_bag_unlocked` becomes `true`. Hub entry is signalled via `GlobalSignals.hub_entered` (emitted by `Main.gd` in `_ready()` and `_on_results_return()`). `MetaManager` connects to this signal and delegates to `MetaManagerImpl.try_activate_relic_offers(SaveManager)`. State machine: bag unlocked (elite clear) → flag set → hub return → `relic_offers_active = true` → offers appear in all subsequent runs.
+**Relic unlock gate** — `MetaState.relic_offers_active: bool` gates offer generation in `RelicManager._on_room_cleared()`. Set by `MetaManagerImpl.purchase_mage_tower_relic_system()` (via Mage Tower — see 037).
 
 ---
 
@@ -329,13 +327,11 @@ Boss encounter accessed via a "Teleport to Boss" button in ExplorationHUD. Not p
 
 ### Dungeon Expansion / Adventuring Gear (033-dungeon-expansion)
 
-**MetaState new fields**: `first_boss_killed: bool` (set on first boss room clear), `adventuring_gear_owned: bool` (set on purchase for 300 shards). Both persist in `user://meta_save.json`.
+**MetaState new fields**: `first_boss_killed: bool` (set on first boss room clear), `adventuring_gear_owned: bool` (set on purchase). Both persist in `user://meta_save.json`.
 
 **Detection**: `MetaManager._on_room_cleared()` gains a boss branch: `if room_id == "boss_room": _impl.record_boss_kill(SaveManager)` — returns early before the elite detection logic.
 
-**Purchase**: `MetaManager.purchase_adventuring_gear()` delegates to `MetaManagerImpl.purchase_adventuring_gear(cost, SaveManager)`. Cost (`adventuring_gear_cost: 300`) read from `data/meta_config.json`. Returns false silently if insufficient shards (button in hub does nothing when broke).
-
-**Hub UI**: `scenes/hub/AdventuringGearShop.tscn` — `Control` child of `HubRoom.tscn`. Visible when `first_boss_killed && !adventuring_gear_owned`. Single `Button` child, never disabled. On press: calls `MetaManager.purchase_adventuring_gear()`.
+**Purchase**: `MetaManager.purchase_adventuring_gear()` delegates to `MetaManagerImpl.purchase_adventuring_gear(cost, SaveManager)`. Cost (`mage_tower_dungeon_expansion_cost: 200`) read from `data/meta_config.json`. Purchased via Mage Tower upgrade screen (see 037).
 
 **Grid change**: `DungeonGenerator.GRID_SIZE` changed 5 → 13, `CENTER` changed `(2,2)` → `(6,6)`. Start room is now `"room_6_6"`. Grid size is a structural constant (not in JSON) because it defines the room ID namespace. `TARGET_ROOM_COUNT` const removed — base room count read from `dungeon_config.json` as `base_room_count: 9` (1 start + 8 combat).
 
@@ -352,6 +348,39 @@ Boss encounter accessed via a "Teleport to Boss" button in ExplorationHUD. Not p
 **RelicManagerImpl additions**: `draw_boss_offer() -> Array[RelicData]` — shuffles available (non-held) rare relics, returns up to 3.
 
 **Main.gd additions**: `_boss_relic_pending: bool`, `_show_boss_victory_overlay()` (extracted helper called from both post-relic-pick and no-rare-fallback paths).
+
+---
+
+### Mage Tower (037-mage-tower)
+
+Hub building with two visual states (Ruined / Restored). Once restored, opens a system upgrades screen with three purchasable system unlocks. Replaces the standalone `AdventuringGearShop` and `BossRunShop` nodes (deleted in this feature). The old two-stage elite-clear → hub-return relic auto-unlock path is removed entirely.
+
+**Scenes** (`scenes/hub/`):
+- `MageTower.tscn` + `MageTower.gd` (`class_name MageTower extends Control`) — zone node. Exports: `_ruined_visual: ColorRect`, `_magic_visual: ColorRect`, `_label: Label`, `_button: Button`, `_restore_overlay_scene: PackedScene`, `_upgrade_screen_scene: PackedScene`. Connects `MetaManager.shards_changed` and `GlobalSignals.hub_entered` → `_update_visuals()`. On button press: shows restore overlay if not unlocked, upgrade screen if unlocked. Overlay/screen managed via `_overlay_layer: CanvasLayer`.
+- `RestoreTowerOverlay.tscn` + `RestoreTowerOverlay.gd` (`class_name RestoreTowerOverlay extends Control`) — restoration dialog. Signals: `restore_pressed`, `maybe_later_pressed`. Exports: `_restore_button: Button`, `_later_button: Button`. Disables restore button when `not MetaManager.can_spend(cost)`.
+- `MageTowerUpgradeScreen.tscn` + `MageTowerUpgradeScreen.gd` (`class_name MageTowerUpgradeScreen extends Control`) — lists three system unlocks. Signal: `close_pressed`. Exports: `_de_button: Button`, `_de_unlocked_label: Label`, `_rs_button: Button`, `_rs_unlocked_label: Label`, `_bc_button: Button`, `_bc_unlocked_label: Label`, `_close_button: Button`. Connects `MetaManager.shards_changed` → `_update_entries()`. Ownership checks: DE = `is_adventuring_gear_owned`, RS = `is_relic_offers_active`, BC = `is_boss_run_unlocked`.
+
+**MetaState new field**: `mage_tower_unlocked: bool = false` — persisted in `user://meta_save.json`.
+
+**MetaManager additions**:
+- `var is_mage_tower_unlocked: bool` — computed property
+- `purchase_mage_tower() -> bool` — deducts `mage_tower_cost` (200 shards), sets `mage_tower_unlocked = true`
+- `purchase_mage_tower_relic_system() -> bool` — deducts `mage_tower_relic_system_cost` (100 shards), sets `relic_offers_active = true`
+
+**Relic System unlock**: Purchasing "Relic System" in the upgrade screen is the sole path — `MetaManagerImpl.purchase_mage_tower_relic_system()` sets both flags atomically with no intermediate state.
+
+**Costs and display names** — all in `data/meta_config.json`, grouped by building:
+```
+magic_forge.cost                              → forge restoration cost
+magic_forge.upgrades.damage_upgrade.name/cost → Damage Multiplier display name (+ upgrade stats)
+mage_tower.cost                               → tower restoration cost
+mage_tower.upgrades.dungeon_expansion.name/cost
+mage_tower.upgrades.relic_system.name/cost
+mage_tower.upgrades.boss_challenge.name/cost
+```
+Screen scripts read `.get("name", "<technical_key>")` as fallback so missing entries degrade gracefully.
+
+**Removed**: `AdventuringGearShop.gd`, `BossRunShop.gd`, their nodes from `HubRoom.tscn`. `MetaManagerImpl.try_activate_relic_offers()` and `unlock_adventurer_bag()` methods deleted. Flat keys (`mage_tower_cost`, `mage_tower_dungeon_expansion_cost`, etc.) replaced by nested structure.
 
 ---
 

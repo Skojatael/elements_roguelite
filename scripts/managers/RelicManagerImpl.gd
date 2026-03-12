@@ -35,15 +35,19 @@ func build_pool(relics_raw: Dictionary, config_raw: Dictionary) -> void:
 			var r: RelicData = RelicData.from_dict(entry)
 			_relics_by_id[r.id] = r
 			(_all_by_tier[tier_str] as Array).append(r)
-	# build weights — only tiers with relics, normalised
+	# build weights — common/uncommon only (rare reserved for boss offers)
 	var raw_weights: Dictionary = config_raw.get("relic_tier_weights", {})
 	var weight_sum: float = 0.0
 	for tier: Variant in _all_by_tier.keys():
+		if str(tier) == "rare":
+			continue
 		if raw_weights.has(tier):
 			weight_sum += float(raw_weights[tier])
 	for tier: Variant in _all_by_tier.keys():
+		if str(tier) == "rare":
+			continue
 		var w: float = float(raw_weights.get(tier, 0.0))
-		_tier_weights[str(tier)] = w / weight_sum if weight_sum > 0.0 else 1.0 / _all_by_tier.size()
+		_tier_weights[str(tier)] = w / weight_sum if weight_sum > 0.0 else 1.0 / (_all_by_tier.size() - 1)
 	# initialise decks
 	_decks = {}
 	for tier: Variant in _all_by_tier.keys():
