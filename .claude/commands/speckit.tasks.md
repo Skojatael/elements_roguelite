@@ -74,7 +74,14 @@ The tasks.md should be immediately executable - each task must be specific enoug
 
 **CRITICAL**: Tasks MUST be organized by user story to enable independent implementation and testing.
 
-**Tests are OPTIONAL**: Only generate test tasks if explicitly requested in the feature specification or if user requests TDD approach.
+**Tests for pure logic are MANDATORY**: Always generate a GUT unit test task (`tests/unit/test_<subject>.gd`) for every:
+- `*Impl.gd` file in `scripts/managers/` or `scripts/services/` (new or modified)
+- Script that gains or already has `static func` methods testable without autoloads
+- Data model with non-trivial computation methods (non-trivial = more than a field assignment)
+
+The test task must specify: file path, which methods/behaviors to cover, and any stub data needed (inline dicts, no autoloads).
+
+**Tests for UI/scene behavior are OPTIONAL**: scenes requiring the editor, autoload-dependent signal flows, and Node lifecycle tests — only include when explicitly requested.
 
 ### Checklist Format (REQUIRED)
 

@@ -108,7 +108,7 @@
 - **const**: `GRID_SIZE = 13`, `CENTER = Vector2i(6,6)`, `SPACING_X = 2000`, `SPACING_Y = 1200`, `ELITE_START = 2`, `ELITE_STEP = 2`
 - **signals**: `dungeon_layout_ready`
 - **properties**: `rooms_by_id: Dictionary`, `neighbours_by_id: Dictionary`, `start_room_id: String`
-- **methods**: `_generate()`, `_record_room(cell, type_id, occupied, frontier, difficulty_scale)`, `_build_neighbours(occupied)`, `_promote_elite_rooms()`, `_expand_dungeon(occupied, pool, difficulty_scale)`, `_get_expansion_neighbours(cell, occupied, min_depth) -> Array[Vector2i]`, `_get_valid_neighbours(cell, occupied) -> Array[Vector2i]`, `_get_world_pos(cell) -> Vector2`
+- **methods**: `_generate()`, `_generate_with(config: Dictionary, gear_owned: bool)`, `_record_room(cell, type_id, occupied, frontier, difficulty_scale)`, `_build_neighbours(occupied)`, `_promote_elite_rooms()`, `_expand_dungeon(occupied, pool, difficulty_scale)`, `_get_expansion_neighbours(cell, occupied, min_depth) -> Array[Vector2i]`, `_get_valid_neighbours(cell, occupied) -> Array[Vector2i]`, `_get_world_pos(cell) -> Vector2`
 
 ### `scripts/dungeon/RoomFactory.gd` (`class_name RoomFactory extends RefCounted`)
 - **methods**: `spawn_room(room_data: RoomData, room_id: String, context: SpawnContext) -> RoomSpawner`
@@ -243,9 +243,10 @@
 ### `scenes/ui/dev/DevPanel.gd`
 - **signals**: `start_run_pressed`, `end_run_pressed`, `cash_out_pressed`, `start_boss_pressed`, `get_relic_pressed`
 
-### `scenes/ui/hud/ExplorationHUD.gd`
+### `scenes/ui/hud/ExplorationHUD.gd` (`class_name ExplorationHUD extends CanvasLayer`)
 - **signals**: `boss_teleport_pressed`
 - **exports**: `_boss_button: Button`
+- **static methods**: `is_boss_available(cleared_count: int, required: int) -> bool`
 
 ### `scenes/ui/hud/Joystick.gd` (`class_name JoystickControl extends Control`)
 - **exports**: `max_radius: float`, `dead_zone_percentage: float`

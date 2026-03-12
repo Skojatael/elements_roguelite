@@ -138,7 +138,39 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
-10. **Update repo_map.md** (always runs after step 9, even if some tasks were skipped):
+10. **Unit Test Sync** (always runs after step 9, even if some tasks were skipped):
+
+    Automatically create or update GUT unit test files for every `.gd` file created or modified during this run that contains testable pure logic.
+
+    **Which files to test** — check each modified/created file for:
+    - Filename matches `*Impl.gd` in `scripts/managers/` or `scripts/services/`
+    - File contains `static func` declarations
+    - File contains public methods with no autoload calls and no Node/scene dependencies (pure computation)
+
+    **For each qualifying file**:
+    - Derive the test file path: `tests/unit/test_<snake_case_stem>.gd`
+      (e.g., `scripts/managers/MetaManager.gd` → `tests/unit/test_meta_manager.gd`,
+       `scenes/ui/hud/ExplorationHUD.gd` with static funcs → `tests/unit/test_exploration_hud.gd`)
+    - If the test file **already exists**: read it, then add `test_` functions for any new public methods or behaviors not yet covered. Never remove existing test functions.
+    - If the test file **does not exist**: create it following the project test pattern:
+      ```gdscript
+      extends GutTest
+
+      const Subject = preload("res://path/to/Subject.gd")
+
+      func before_each() -> void:
+          # instantiate Subject if stateful
+
+      func test_<behavior>() -> void:
+          # assert one behavior per function
+      ```
+    - Use inline stub dicts for any data dependencies — never call autoloads from test code.
+    - One `test_` function per distinct behavior (not one per method). Cover: happy path, boundary/edge values, and any documented invariants.
+    - If a `class_name` is required for static method calls (see `ExplorationHUD` lesson), verify it is declared in the source file before writing the test.
+
+    **Skip a file** if all its public methods require autoloads, emit signals as their only output, or are Node lifecycle hooks (`_ready`, `_process`, etc.) with no extractable pure logic.
+
+11. **Update repo_map.md** (always runs after step 10, even if some tasks were skipped):
     - Identify every `.gd` file that was **created or modified** during this implementation run.
     - Also identify any `.gd` files that were **deleted** during this run.
     - For each created/modified file, read it and extract:

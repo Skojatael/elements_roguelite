@@ -36,14 +36,6 @@ func get_upgrade_cost(level: int, base_cost: int, scale: float) -> int:
 	return cost
 
 
-func purchase_damage_upgrade(cost: int, save_manager: Node) -> bool:
-	if meta_state.total_shards < cost:
-		return false
-	meta_state.total_shards -= cost
-	meta_state.damage_upgrade_level += 1
-	save_manager.save_meta_state(meta_state)
-	return true
-
 
 func get_damage_multiplier(damage_per_level: float) -> float:
 	return pow(1.0 + damage_per_level, float(meta_state.damage_upgrade_level))
@@ -120,3 +112,25 @@ func purchase_mage_tower_relic_system(cost: int, save_manager: Node) -> bool:
 	meta_state.relic_offers_active = true
 	save_manager.save_meta_state(meta_state)
 	return true
+
+
+## Purchases damage upgrade if under max_levels and affordable. Returns true on success.
+func purchase_damage_upgrade(cost: int, max_levels: int, save_manager: Node) -> bool:
+	if meta_state.damage_upgrade_level >= max_levels:
+		return false
+	if meta_state.total_shards < cost:
+		return false
+	meta_state.total_shards -= cost
+	meta_state.damage_upgrade_level += 1
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
+## Computes shards earned at end of an endless run.
+static func compute_endless_shards(essence: int, divisor: int) -> int:
+	return essence / divisor
+
+
+## Computes shards earned at end of a boss run.
+static func compute_boss_shards(reason_is_cash_out: bool, award: int) -> int:
+	return award if reason_is_cash_out else 0

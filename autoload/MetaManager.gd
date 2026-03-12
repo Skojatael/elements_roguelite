@@ -69,10 +69,8 @@ func get_next_upgrade_cost() -> int:
 
 func purchase_damage_upgrade() -> bool:
 	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("damage_upgrade", {})
-	if meta_state.damage_upgrade_level >= cfg.get("max_levels", 10):
-		return false
 	var cost: int = get_next_upgrade_cost()
-	var success: bool = _impl.purchase_damage_upgrade(cost, SaveManager)
+	var success: bool = _impl.purchase_damage_upgrade(cost, cfg.get("max_levels", 10), SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success
@@ -131,19 +129,20 @@ func _on_room_cleared(room_id: String) -> void:
 
 
 func _on_run_ended(reason: RunManager.EndReason) -> void:
+	var cfg: Dictionary = ResourceManager.get_meta_config()
 	if RunManager.run_mode == "boss":
-		if reason == RunManager.EndReason.CASH_OUT:
-			var award: int = ResourceManager.get_meta_config().get("boss_run_shard_award", 35)
-			add_shards(award)
-			print("[MetaManager] boss run cash out — {n} shards awarded".format({"n": award}))
+		var award: int = cfg.get("boss_run_shard_award", 35)
+		var earned: int = _impl.compute_boss_shards(reason == RunManager.EndReason.CASH_OUT, award)
+		if earned > 0:
+			add_shards(earned)
+			print("[MetaManager] boss run cash out — {n} shards awarded".format({"n": earned}))
 		else:
 			print("[MetaManager] boss run ended — no shards (died)")
 		return
 	var summary := RunManager.run_summary
 	if summary == null:
 		return
-	var divisor: int = ResourceManager.get_meta_config().get("shard_divisor", 3)
-	var earned: int = summary.essence_cashed_out / divisor
+	var earned: int = _impl.compute_endless_shards(summary.essence_cashed_out, cfg.get("shard_divisor", 3))
 	add_shards(earned)
 	print("[MetaManager] {shards} shards earned — total={total}".format({
 		"shards": earned,

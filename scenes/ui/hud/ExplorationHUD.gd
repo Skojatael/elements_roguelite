@@ -1,3 +1,4 @@
+class_name ExplorationHUD
 extends CanvasLayer
 
 # NOTE: This script requires GlobalSignals to be registered as an autoload.
@@ -36,13 +37,17 @@ func _on_gameplay_ended() -> void:
 	visible = false
 
 
+static func is_boss_available(cleared_count: int, required: int) -> bool:
+	return cleared_count >= required
+
+
 func _on_room_cleared_for_boss(room_id: String) -> void:
 	if room_id == BOSS_ROOM_ID:
 		return
 	if _boss_button.visible:
 		return
 	var threshold: int = ResourceManager.get_enemy_rooms_required(BOSS_ENEMY_ID)
-	if RunManager.cleared_rooms.size() < threshold:
+	if not ExplorationHUD.is_boss_available(RunManager.cleared_rooms.size(), threshold):
 		return
 	_boss_button.visible = true
 

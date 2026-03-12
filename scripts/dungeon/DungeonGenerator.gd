@@ -29,17 +29,20 @@ func _on_run_started(_mode: String) -> void:
 
 
 func _generate() -> void:
+	_generate_with(ResourceManager.get_dungeon_config(), MetaManager.is_adventuring_gear_owned)
+
+
+func _generate_with(config: Dictionary, gear_owned: bool) -> void:
 	rooms_by_id.clear()
 	neighbours_by_id.clear()
 	start_room_id = ""
 
-	var raw: Dictionary = ResourceManager.get_dungeon_config()
-	var pool: Array = raw.get("combat_room_pool", [])
+	var pool: Array = config.get("combat_room_pool", [])
 	if pool.is_empty():
 		push_error("DungeonGenerator: combat_room_pool missing or empty in dungeon_config.json")
 		return
-	var difficulty_scale: float = raw.get("difficulty_scale", 0.12)
-	var target_room_count: int = raw.get("base_room_count", 9)
+	var difficulty_scale: float = config.get("difficulty_scale", 0.12)
+	var target_room_count: int = config.get("base_room_count", 9)
 
 	var occupied: Dictionary = {}
 	var frontier: Array = []
@@ -58,7 +61,7 @@ func _generate() -> void:
 
 	_build_neighbours(occupied)
 
-	if MetaManager.is_adventuring_gear_owned:
+	if gear_owned:
 		_expand_dungeon(occupied, pool, difficulty_scale)
 		_build_neighbours(occupied)
 
