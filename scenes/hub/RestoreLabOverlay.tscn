@@ -1,13 +1,13 @@
-[gd_scene format=3 uid="uid://86l658bjcni2"]
+[gd_scene format=3 uid="uid://cbjpvvyl3yjk6"]
 
-[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_7k3ji"]
-[ext_resource type="Script" uid="uid://rrlsib6il01b" path="res://scenes/hub/RestoreTowerOverlay.gd" id="2_7k3ji"]
+[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_mqtfi"]
+[ext_resource type="Script" uid="uid://crusrclitvvl8" path="res://scenes/hub/RestoreLabOverlay.gd" id="3_p046v"]
 
-[node name="RestoreTowerOverlay" type="Control" unique_id=1542253236 node_paths=PackedStringArray("_restore_button", "_later_button")]
+[node name="RestoreLabOverlay" type="Control" unique_id=1542253236 node_paths=PackedStringArray("_restore_button", "_later_button")]
 layout_mode = 3
 anchors_preset = 0
-theme = ExtResource("1_7k3ji")
-script = ExtResource("2_7k3ji")
+theme = ExtResource("1_mqtfi")
+script = ExtResource("3_p046v")
 _restore_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox/Restore")
 _later_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox/Maybe later")
 
@@ -37,8 +37,8 @@ alignment = 1
 
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1366819991]
 layout_mode = 2
-text = "The building is a ruined mage tower. It has collapsed living quarters, a library with no books, and an observatory with a broken telescope.
-You'll need a significant amount of magic to restore it."
+text = "The building is a destroyed alchemy lab. 
+It needs finely-tuned equipment and a lot of magic to start functioning again."
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -46,9 +46,12 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="Restore" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox" unique_id=2020951543]
+[node name="Restore" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox" unique_id=2020951543 node_paths=PackedStringArray("_restore_button", "_later_button")]
 layout_mode = 2
-text = "Restore the tower: 200 shards"
+text = "Restore the lab: 500 shards"
+script = ExtResource("3_p046v")
+_restore_button = NodePath(".")
+_later_button = NodePath("../Maybe later")
 
 [node name="Maybe later" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/hbox" unique_id=341118208]
 layout_mode = 2

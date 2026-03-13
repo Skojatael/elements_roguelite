@@ -1,6 +1,6 @@
 # Repo Map
 
-> Reference this file for project structure and symbol locations. Last updated: 2026-03-07.
+> Reference this file for project structure and symbol locations. Last updated: 2026-03-13.
 
 ---
 
@@ -11,8 +11,8 @@
 
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`
-- **properties**: `meta_state: MetaState`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`
+- **properties**: `meta_state: MetaState`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -65,7 +65,7 @@
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
@@ -206,6 +206,19 @@
 - **state**: `_entries: Array[Dictionary]` — built in `_ready()` by merging JSON upgrade config with runtime refs (`button`, `owned_prop`, `purchase` Callable, optional `gate_prop`/`gate_text`)
 - **methods**: `_update_entries()`, `_apply_entry(cfg: Dictionary)`
 
+### `scenes/hub/AlchemyLab.gd` (`class_name AlchemyLab extends Control`)
+- **exports**: `_ruined_visual: ColorRect`, `_magic_visual: ColorRect`, `_label: Label`, `_button: Button`, `_restore_overlay_scene: PackedScene`, `_upgrade_screen_scene: PackedScene`
+- **methods**: `_update_visuals()`, `_on_lab_pressed()`, `_show_restore_overlay()`, `_show_upgrade_screen()`, `_close_overlay()`, `_on_restore_pressed()`
+
+### `scenes/hub/RestoreLabOverlay.gd` (`class_name RestoreLabOverlay extends Control`)
+- **signals**: `restore_pressed`, `maybe_later_pressed`
+- **exports**: `_restore_button: Button`, `_later_button: Button`
+
+### `scenes/hub/LabUpgradeScreen.gd` (`class_name LabUpgradeScreen extends Control`)
+- **signals**: `close_pressed`
+- **exports**: `_essence_button: Button`, `_close_button: Button`
+- **methods**: `_update_buttons()`
+
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`
 - **exports**: `_button: Button`
@@ -279,7 +292,7 @@
 |------|-------------|
 | `data/dungeon_config.json` | `combat_room_pool`, `spawn_configs` (per room type), `difficulty_scale`, `base_room_count: 9`, `expansion_room_count: 4` |
 | `data/enemies.json` | `enemies` dict with categories `"common"` and `"boss"`, each an Array of enemy entries |
-| `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}) |
+| `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}), `alchemy_lab` (name, cost: 500, upgrades → `essence_gain` {name, base_cost: 0, max_levels: 1, essence_per_level: 0.05}) |
 | `data/relics.json` | `relics` array — 6 relics across 4 stat categories |
 | `data/skills.json` | (stub/TBD) |
 | `data/upgrades.json` | (stub/TBD) |

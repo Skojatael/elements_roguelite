@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://c6cfeer6uwut"]
+
+[ext_resource type="Script" uid="uid://c06y2fq0rl5pk" path="res://scenes/hub/AlchemyLab.gd" id="1_xkjrf"]
+[ext_resource type="PackedScene" uid="uid://cbjpvvyl3yjk6" path="res://scenes/hub/RestoreLabOverlay.tscn" id="2_xkjrf"]
+[ext_resource type="PackedScene" uid="uid://bpv0kgw5us1dk" path="res://scenes/hub/LabUpgradeScreen.tscn" id="3_8s7jb"]
+
+[node name="AlchemyLab" type="Control" unique_id=113241182 node_paths=PackedStringArray("_ruined_visual", "_magic_visual", "_label", "_button")]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_xkjrf")
+_ruined_visual = NodePath("Ruined")
+_magic_visual = NodePath("Restored")
+_label = NodePath("Label")
+_button = NodePath("Button")
+_restore_overlay_scene = ExtResource("2_xkjrf")
+_upgrade_screen_scene = ExtResource("3_8s7jb")
+
+[node name="Ruined" type="ColorRect" parent="." unique_id=1399601183]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.0056611504, 0.0056611514, 0.00566115, 1)
+
+[node name="Restored" type="ColorRect" parent="." unique_id=55421376]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.46034718, 0.46034718, 0.46034712, 1)
+
+[node name="Label" type="Label" parent="." unique_id=401506312]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Button" type="Button" parent="." unique_id=1549327924]
+visibility_layer = 0
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0

@@ -23,6 +23,14 @@ var is_magic_forge_unlocked: bool:
 var is_mage_tower_unlocked: bool:
 	get: return _impl.meta_state.mage_tower_unlocked
 
+var is_alchemy_lab_unlocked: bool:
+	get: return _impl.meta_state.alchemy_lab_unlocked
+
+var essence_gain_multiplier: float:
+	get:
+		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("essence_gain", {})
+		return _impl.get_essence_gain_multiplier(cfg.get("essence_per_level", 0.05))
+
 var endless_boss_kill_count: int:
 	get: return _impl.meta_state.endless_boss_kill_count
 
@@ -103,6 +111,14 @@ func purchase_adventuring_gear() -> bool:
 func purchase_mage_tower() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("mage_tower", {}).get("cost", 200)
 	var success: bool = _impl.purchase_mage_tower(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_alchemy_lab() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("cost", 500)
+	var success: bool = _impl.purchase_alchemy_lab(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success

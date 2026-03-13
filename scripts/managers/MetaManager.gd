@@ -126,6 +126,22 @@ func purchase_damage_upgrade(cost: int, max_levels: int, save_manager: Node) -> 
 	return true
 
 
+func get_essence_gain_multiplier(essence_per_level: float) -> float:
+	return 1.0 + float(meta_state.essence_gain_level) * essence_per_level
+
+
+## Purchases Alchemy Lab restoration if affordable and not already unlocked. Returns true on success.
+func purchase_alchemy_lab(cost: int, save_manager: Node) -> bool:
+	if meta_state.alchemy_lab_unlocked:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.alchemy_lab_unlocked = true
+	save_manager.save_meta_state(meta_state)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

@@ -15,6 +15,8 @@ func save_meta_state(state: MetaState) -> void:
 		"boss_run_unlocked": state.boss_run_unlocked,
 		"magic_forge_unlocked": state.magic_forge_unlocked,
 		"mage_tower_unlocked": state.mage_tower_unlocked,
+		"alchemy_lab_unlocked": state.alchemy_lab_unlocked,
+		"essence_gain_level": state.essence_gain_level,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -44,4 +46,6 @@ func load_meta_state() -> MetaState:
 		state.boss_run_unlocked = bool((parsed as Dictionary).get("boss_run_unlocked", false))
 		state.magic_forge_unlocked = bool((parsed as Dictionary).get("magic_forge_unlocked", false))
 		state.mage_tower_unlocked = bool((parsed as Dictionary).get("mage_tower_unlocked", false))
+		state.alchemy_lab_unlocked = bool((parsed as Dictionary).get("alchemy_lab_unlocked", false))
+		state.essence_gain_level = int((parsed as Dictionary).get("essence_gain_level", 0))
 	return state

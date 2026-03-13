@@ -10,6 +10,7 @@ const STUB_CONFIG: Dictionary = {
 }
 
 
+
 func _all_reachable(gen: DungeonGenerator) -> bool:
 	var visited: Dictionary = {}
 	var queue: Array = [gen.start_room_id]
@@ -24,9 +25,17 @@ func _all_reachable(gen: DungeonGenerator) -> bool:
 
 
 func test_room_count_base() -> void:
+	var expansion: bool = false
 	var gen: DungeonGenerator = add_child_autofree(DungeonGeneratorClass.new())
-	gen._generate_with(STUB_CONFIG, false)
+	gen._generate_with(STUB_CONFIG, expansion)
 	assert_eq(gen.rooms_by_id.size(), 9, "base layout must contain exactly 9 rooms")
+
+
+func test_room_count_with_expansion() -> void:
+	var expansion: bool = true
+	var gen: DungeonGenerator = add_child_autofree(DungeonGeneratorClass.new())
+	gen._generate_with(STUB_CONFIG, expansion)
+	assert_eq(gen.rooms_by_id.size(), 13, "expanded layout must contain exactly 13 rooms")
 
 
 func test_start_room_always_in_rooms_by_id() -> void:

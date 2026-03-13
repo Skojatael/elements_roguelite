@@ -153,7 +153,7 @@ func _on_enemy_defeated(enemy_type_id: String) -> void:
 	var base_essence: float = ResourceManager.get_enemy_base_essence(enemy_type_id)
 	var essence_depth_scale: float = ResourceManager.get_dungeon_config().get("essence_depth_scale", 0.10)
 	var room_essence_mult: float = (current_room as RoomSpawner).essence_mult if current_room != null else 1.0
-	var essence: int = floori(base_essence * (1.0 + essence_depth_scale * float(current_room_depth - 1)) * room_essence_mult)
+	var essence: int = floori(base_essence * (1.0 + essence_depth_scale * float(current_room_depth - 1)) * room_essence_mult * MetaManager.essence_gain_multiplier)
 	if essence > 0:
 		add_currency(float(essence))
 

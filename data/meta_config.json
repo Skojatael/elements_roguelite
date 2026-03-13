@@ -30,5 +30,17 @@
 			"relic_system":      { "name": "Relic System",      "cost": 100 },
 			"boss_challenge":    { "name": "Boss Challenge Mode", "cost": 200, "gate_text": "Major essence required" }
 		}
+	},
+	"alchemy_lab": {
+		"name": "Alchemy Lab",
+		"cost": 500,
+		"upgrades": {
+			"essence_gain": {
+				"name": "Essence Gain",
+				"base_cost": 0,
+				"max_levels": 1,
+				"essence_per_level": 0.05
+			}
+		}
 	}
 }
