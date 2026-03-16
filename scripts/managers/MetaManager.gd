@@ -8,11 +8,16 @@ func load(save_manager: Node) -> void:
 	meta_state = save_manager.load_meta_state()
 
 
+func _save(save_manager: Node) -> void:
+	meta_state.gold_last_saved_timestamp = int(Time.get_unix_time_from_system())
+	save_manager.save_meta_state(meta_state)
+
+
 func add_shards(amount: int, save_manager: Node) -> void:
 	if amount <= 0:
 		return
 	meta_state.total_shards += amount
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 
 
 func can_spend(cost: int) -> bool:
@@ -25,7 +30,7 @@ func spend(cost: int, save_manager: Node) -> bool:
 	if not can_spend(cost):
 		return false
 	meta_state.total_shards -= cost
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -46,24 +51,26 @@ func record_boss_kill(save_manager: Node) -> bool:
 	if meta_state.first_boss_killed:
 		return false
 	meta_state.first_boss_killed = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
-## Purchases Adventuring Gear if affordable. Returns true on success.
+## Purchases Adventuring Gear if affordable and not already owned. Returns true on success.
 func purchase_adventuring_gear(cost: int, save_manager: Node) -> bool:
+	if meta_state.adventuring_gear_owned:
+		return false
 	if not can_spend(cost):
 		return false
 	meta_state.total_shards -= cost
 	meta_state.adventuring_gear_owned = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
 ## Increments the endless-mode boss kill counter and saves.
 func increment_endless_boss_kills(save_manager: Node) -> void:
 	meta_state.endless_boss_kill_count += 1
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 
 
 ## Purchases the Boss Run unlock if affordable and not already unlocked. Returns true on success.
@@ -74,7 +81,7 @@ func purchase_boss_run(cost: int, save_manager: Node) -> bool:
 		return false
 	meta_state.total_shards -= cost
 	meta_state.boss_run_unlocked = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -86,7 +93,7 @@ func purchase_magic_forge(cost: int, save_manager: Node) -> bool:
 		return false
 	meta_state.total_shards -= cost
 	meta_state.magic_forge_unlocked = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -98,7 +105,7 @@ func purchase_mage_tower(cost: int, save_manager: Node) -> bool:
 		return false
 	meta_state.total_shards -= cost
 	meta_state.mage_tower_unlocked = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -110,7 +117,7 @@ func purchase_mage_tower_relic_system(cost: int, save_manager: Node) -> bool:
 		return false
 	meta_state.total_shards -= cost
 	meta_state.relic_offers_active = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -122,7 +129,7 @@ func purchase_damage_upgrade(cost: int, max_levels: int, save_manager: Node) -> 
 		return false
 	meta_state.total_shards -= cost
 	meta_state.damage_upgrade_level += 1
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
 
 
@@ -138,8 +145,62 @@ func purchase_alchemy_lab(cost: int, save_manager: Node) -> bool:
 		return false
 	meta_state.total_shards -= cost
 	meta_state.alchemy_lab_unlocked = true
-	save_manager.save_meta_state(meta_state)
+	_save(save_manager)
 	return true
+
+
+## Purchases the Transmuter (gold generator) if affordable and not already owned. Returns true on success.
+func purchase_gold_generator(cost: int, save_manager: Node) -> bool:
+	if meta_state.gold_generator_owned:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.gold_generator_owned = true
+	_save(save_manager)
+	return true
+
+
+## Credits gold earned while the game was closed, capped by cap_seconds.
+## On first boot (timestamp==0) initialises the timestamp without crediting gold.
+## Does not update timestamp on clock rollback (elapsed <= 0).
+func apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void:
+	if not meta_state.gold_generator_owned:
+		return
+	if meta_state.gold_last_saved_timestamp == 0:
+		_save(save_manager)
+		return
+	var elapsed: int = now_unix - meta_state.gold_last_saved_timestamp
+	if elapsed <= 0:
+		return
+	var capped_elapsed: int = mini(elapsed, cap_seconds)
+	meta_state.total_gold += float(capped_elapsed) * rate_per_hour / 3600.0
+	_save(save_manager)
+
+
+## Returns the current storage cap in seconds based on upgrade level.
+func get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int:
+	return (base_hours + hours_per_level * meta_state.gold_storage_cap_level) * 3600
+
+
+## Purchases a storage cap upgrade level if affordable and not yet at max. Returns true on success.
+func purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool:
+	if meta_state.gold_storage_cap_level >= max_levels:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.gold_storage_cap_level += 1
+	_save(save_manager)
+	return true
+
+
+## Accumulates fractional gold for one frame. Returns the current integer floor.
+func tick_gold(delta: float, rate_per_hour: float) -> int:
+	if not meta_state.gold_generator_owned:
+		return floori(meta_state.total_gold)
+	meta_state.total_gold += delta * rate_per_hour / 3600.0
+	return floori(meta_state.total_gold)
 
 
 ## Computes shards earned at end of an endless run.

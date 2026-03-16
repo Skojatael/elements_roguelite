@@ -19,3 +19,17 @@ func test_small_values():
 	assert_eq(MetaManager.compute_endless_shards(1,base_divisor), 0)
 	assert_eq(MetaManager.compute_endless_shards(2,base_divisor), 0)
 	assert_eq(MetaManager.compute_endless_shards(3,base_divisor), 1)
+
+
+# --- compute_boss_shards ---
+
+func test_boss_shards_cash_out() -> void:
+	assert_eq(MetaManager.compute_boss_shards(true, 35), 35, "cash out returns the full award")
+
+
+func test_boss_shards_died() -> void:
+	assert_eq(MetaManager.compute_boss_shards(false, 35), 0, "died returns 0 shards regardless of award")
+
+
+func test_boss_shards_cash_out_zero_award() -> void:
+	assert_eq(MetaManager.compute_boss_shards(true, 0), 0, "cash out with 0 award returns 0")

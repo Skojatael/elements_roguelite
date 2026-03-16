@@ -17,6 +17,10 @@ func save_meta_state(state: MetaState) -> void:
 		"mage_tower_unlocked": state.mage_tower_unlocked,
 		"alchemy_lab_unlocked": state.alchemy_lab_unlocked,
 		"essence_gain_level": state.essence_gain_level,
+		"gold_generator_owned": state.gold_generator_owned,
+		"gold_storage_cap_level": state.gold_storage_cap_level,
+		"total_gold": state.total_gold,
+		"gold_last_saved_timestamp": state.gold_last_saved_timestamp,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -48,4 +52,8 @@ func load_meta_state() -> MetaState:
 		state.mage_tower_unlocked = bool((parsed as Dictionary).get("mage_tower_unlocked", false))
 		state.alchemy_lab_unlocked = bool((parsed as Dictionary).get("alchemy_lab_unlocked", false))
 		state.essence_gain_level = int((parsed as Dictionary).get("essence_gain_level", 0))
+		state.gold_generator_owned = bool((parsed as Dictionary).get("gold_generator_owned", false))
+		state.gold_storage_cap_level = int((parsed as Dictionary).get("gold_storage_cap_level", 0))
+		state.total_gold = float((parsed as Dictionary).get("total_gold", 0.0))
+		state.gold_last_saved_timestamp = int((parsed as Dictionary).get("gold_last_saved_timestamp", 0))
 	return state

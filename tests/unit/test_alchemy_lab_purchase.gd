@@ -40,6 +40,7 @@ func test_insufficient_shards_returns_false() -> void:
 	assert_false(result)
 	assert_false(_impl.meta_state.alchemy_lab_unlocked)
 	assert_eq(_impl.meta_state.total_shards, 499)
+	assert_false(_save.saved)
 
 
 func test_already_unlocked_returns_false() -> void:
@@ -47,6 +48,15 @@ func test_already_unlocked_returns_false() -> void:
 	var result: bool = _impl.purchase_alchemy_lab(500, _save)
 	assert_false(result)
 	assert_eq(_impl.meta_state.total_shards, 1000)
+	assert_false(_save.saved)
+
+
+func test_exact_balance_succeeds() -> void:
+	_impl.meta_state.total_shards = 500
+	var result: bool = _impl.purchase_alchemy_lab(500, _save)
+	assert_true(result)
+	assert_eq(_impl.meta_state.total_shards, 0)
+	assert_true(_impl.meta_state.alchemy_lab_unlocked)
 
 
 func test_idempotent_second_call_returns_false() -> void:

@@ -39,3 +39,8 @@ func test_cost_at_level_0_any_base() -> void:
 
 func test_cost_zero_base_always_zero() -> void:
 	assert_eq(_impl.get_upgrade_cost(5, 0, 1.2), 0, "base_cost=0 produces 0 at any level")
+
+
+func test_cost_scale_one_never_grows() -> void:
+	assert_eq(_impl.get_upgrade_cost(0, 50, 1.0), 50, "scale=1.0 at level 0 returns base cost")
+	assert_eq(_impl.get_upgrade_cost(5, 50, 1.0), 50, "scale=1.0 at level 5 still returns base cost unchanged")

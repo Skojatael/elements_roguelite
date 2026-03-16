@@ -1,6 +1,6 @@
 # Repo Map
 
-> Reference this file for project structure and symbol locations. Last updated: 2026-03-13.
+> Reference this file for project structure and symbol locations. Last updated: 2026-03-16.
 
 ---
 
@@ -10,9 +10,9 @@
 - **signals**: `gameplay_started`, `gameplay_ended`, `hub_entered`
 
 ### `autoload/MetaManager.gd`
-- **signals**: `shards_changed(new_total: int)`
-- **properties**: `meta_state: MetaState`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`
+- **signals**: `shards_changed(new_total: int)`, `gold_changed(new_floor: int)`
+- **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -65,7 +65,7 @@
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`, `gold_generator_owned: bool`, `gold_storage_cap_level: int`, `total_gold: float`, `gold_last_saved_timestamp: int`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
@@ -216,8 +216,8 @@
 
 ### `scenes/hub/LabUpgradeScreen.gd` (`class_name LabUpgradeScreen extends Control`)
 - **signals**: `close_pressed`
-- **exports**: `_essence_button: Button`, `_close_button: Button`
-- **methods**: `_update_buttons()`
+- **exports**: `_essence_button: Button`, `_transmuter_button: Button`, `_storage_cap_button: Button`, `_close_button: Button`
+- **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`
 
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`
@@ -227,6 +227,10 @@
 ### `scenes/hub/HubRoom.gd`
 - **signals**: `hub_exited`, `hub_boss_run_pressed`
 - **exports**: `teleport_door: TeleportDoor`, `_boss_run_button: BossRunButton`
+
+### `scenes/hub/GoldDisplay.gd`
+- **exports**: `_label: Label`, `_cap_label: Label`
+- Connects to `MetaManager.gold_changed` and `MetaManager.shards_changed`; displays gold and offline storage cap hours
 
 ### `scenes/hub/ShardDisplay.gd`
 - **exports**: `_label: Label`
@@ -292,7 +296,7 @@
 |------|-------------|
 | `data/dungeon_config.json` | `combat_room_pool`, `spawn_configs` (per room type), `difficulty_scale`, `base_room_count: 9`, `expansion_room_count: 4` |
 | `data/enemies.json` | `enemies` dict with categories `"common"` and `"boss"`, each an Array of enemy entries |
-| `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}), `alchemy_lab` (name, cost: 500, upgrades → `essence_gain` {name, base_cost: 0, max_levels: 1, essence_per_level: 0.05}) |
+| `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `gold_rate_per_hour: 100`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}), `alchemy_lab` (name, cost: 500, upgrades → `essence_gain` {name, base_cost: 0, max_levels: 1, essence_per_level: 0.05}, `gold_generator` {name: "Transmuter", cost: 50}, `gold_storage_cap` {name: "Gold Storage", base_hours: 4, hours_per_level: 4, base_cost: 100, cost_scale: 1.5, max_levels: 2}) |
 | `data/relics.json` | `relics` array — 6 relics across 4 stat categories |
 | `data/skills.json` | (stub/TBD) |
 | `data/upgrades.json` | (stub/TBD) |

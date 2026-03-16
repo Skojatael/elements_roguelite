@@ -1,5 +1,6 @@
 {
 	"shard_divisor": 3,
+	"gold_rate_per_hour": 100,
 	"boss_run_shard_award": 35,
 	"relic_tier_weights": {
 		"common": 0.6,
@@ -40,6 +41,18 @@
 				"base_cost": 0,
 				"max_levels": 1,
 				"essence_per_level": 0.05
+			},
+			"gold_generator": {
+				"name": "Transmuter",
+				"cost": 50
+			},
+			"gold_storage_cap": {
+				"name": "Gold Storage",
+				"base_hours": 4,
+				"hours_per_level": 4,
+				"base_cost": 100,
+				"cost_scale": 1.5,
+				"max_levels": 2
 			}
 		}
 	}

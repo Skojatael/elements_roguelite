@@ -12,3 +12,7 @@ var magic_forge_unlocked: bool = false
 var mage_tower_unlocked: bool = false
 var alchemy_lab_unlocked: bool = false
 var essence_gain_level: int = 0
+var gold_generator_owned: bool = false
+var gold_storage_cap_level: int = 0
+var total_gold: float = 0.0
+var gold_last_saved_timestamp: int = 0

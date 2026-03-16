@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://c131oe5877w1y"]
+
+[ext_resource type="Script" uid="uid://c6aggrynuvfi7" path="res://scenes/hub/GoldDisplay.gd" id="1_bidh7"]
+
+[node name="GoldDisplay" type="Control" unique_id=1475495957 node_paths=PackedStringArray("_label", "_cap_label")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_bidh7")
+_label = NodePath("VBoxContainer/Label")
+_cap_label = NodePath("VBoxContainer/Cap")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=905663131]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=1839467704]
+layout_mode = 2
+
+[node name="Cap" type="Label" parent="VBoxContainer" unique_id=533757944]
+layout_mode = 2

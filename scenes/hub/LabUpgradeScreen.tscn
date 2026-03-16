@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_usota"]
 [ext_resource type="Script" uid="uid://nscbgrhaexij" path="res://scenes/hub/LabUpgradeScreen.gd" id="2_usota"]
 
-[node name="LabUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_essence_button", "_close_button")]
+[node name="LabUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_essence_button", "_transmuter_button", "_storage_cap_button", "_close_button")]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -19,6 +19,8 @@ grow_vertical = 2
 theme = ExtResource("1_usota")
 script = ExtResource("2_usota")
 _essence_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Essence")
+_transmuter_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/GoldGenerator")
+_storage_cap_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/StorageCap")
 _close_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Close")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=2095778666]
@@ -37,12 +39,15 @@ layout_mode = 2
 layout_mode = 2
 alignment = 1
 
+[node name="GoldGenerator" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1664236425]
+layout_mode = 2
+
 [node name="Essence" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1228518805]
 layout_mode = 2
 
-[node name="Close" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2127859287 node_paths=PackedStringArray("_essence_button", "_close_button")]
+[node name="StorageCap" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=835638091]
+layout_mode = 2
+
+[node name="Close" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2127859287]
 layout_mode = 2
 text = "Close"
-script = ExtResource("2_usota")
-_essence_button = NodePath("../Essence")
-_close_button = NodePath(".")

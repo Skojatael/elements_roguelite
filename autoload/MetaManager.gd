@@ -1,9 +1,15 @@
 extends Node
 
 signal shards_changed(new_total: int)
+signal gold_changed(new_floor: int)
 
 var meta_state: MetaState:
 	get: return _impl.meta_state
+
+var total_gold: float:
+	get: return _impl.meta_state.total_gold
+
+var _last_gold_floor: int = 0
 
 var is_relic_offers_active: bool:
 	get: return _impl.meta_state.relic_offers_active
@@ -26,6 +32,14 @@ var is_mage_tower_unlocked: bool:
 var is_alchemy_lab_unlocked: bool:
 	get: return _impl.meta_state.alchemy_lab_unlocked
 
+var is_gold_generator_owned: bool:
+	get: return _impl.meta_state.gold_generator_owned
+
+var gold_storage_cap_hours: int:
+	get:
+		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
+		return _impl.get_gold_storage_cap_seconds(cfg.get("base_hours", 4), cfg.get("hours_per_level", 4)) / 3600
+
 var essence_gain_multiplier: float:
 	get:
 		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("essence_gain", {})
@@ -39,8 +53,23 @@ var _impl: MetaManagerImpl = MetaManagerImpl.new()
 
 func _ready() -> void:
 	_impl.load(SaveManager)
+	var rate: float = ResourceManager.get_meta_config().get("gold_rate_per_hour", 100.0)
+	var cap_cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
+	var cap_seconds: int = _impl.get_gold_storage_cap_seconds(cap_cfg.get("base_hours", 4), cap_cfg.get("hours_per_level", 4))
+	_impl.apply_offline_gold(int(Time.get_unix_time_from_system()), rate, cap_seconds, SaveManager)
+	_last_gold_floor = floori(meta_state.total_gold)
+	gold_changed.emit(_last_gold_floor)
 	RunManager.run_ended.connect(func(r: RunManager.EndReason) -> void: _on_run_ended(r))
 	RunManager.room_cleared.connect(_on_room_cleared)
+
+
+func _process(delta: float) -> void:
+	var rate: float = ResourceManager.get_meta_config().get("gold_rate_per_hour", 100.0)
+	var new_floor: int = _impl.tick_gold(delta, rate)
+	if new_floor == _last_gold_floor:
+		return
+	_last_gold_floor = new_floor
+	gold_changed.emit(new_floor)
 
 
 func can_spend(cost: int) -> bool:
@@ -119,6 +148,23 @@ func purchase_mage_tower() -> bool:
 func purchase_alchemy_lab() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("cost", 500)
 	var success: bool = _impl.purchase_alchemy_lab(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_gold_storage_cap() -> bool:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
+	var cost: int = _impl.get_upgrade_cost(meta_state.gold_storage_cap_level, cfg.get("base_cost", 100), cfg.get("cost_scale", 1.5))
+	var success: bool = _impl.purchase_gold_storage_cap(cost, cfg.get("max_levels", 2), SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_gold_generator() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_generator", {}).get("cost", 50)
+	var success: bool = _impl.purchase_gold_generator(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success
