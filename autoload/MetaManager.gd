@@ -162,6 +162,36 @@ func purchase_gold_storage_cap() -> bool:
 	return success
 
 
+func can_spend_gold(cost: float) -> bool:
+	return _impl.can_spend_gold(cost)
+
+
+func spend_gold(cost: float) -> bool:
+	var success: bool = _impl.spend_gold(cost, SaveManager)
+	if success:
+		gold_changed.emit(floori(meta_state.total_gold))
+	return success
+
+
+func get_next_essence_gain_cost() -> int:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("essence_gain", {})
+	var max_levels: int = cfg.get("max_levels", 5)
+	var level: int = meta_state.essence_gain_level
+	if level >= max_levels:
+		return 0
+	return cfg.get("base_cost", 50) + level * cfg.get("cost_step", 50)
+
+
+func purchase_essence_gain() -> bool:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("essence_gain", {})
+	var success: bool = _impl.purchase_essence_gain(
+		cfg.get("base_cost", 50), cfg.get("cost_step", 50), cfg.get("max_levels", 5), SaveManager
+	)
+	if success:
+		gold_changed.emit(floori(meta_state.total_gold))
+	return success
+
+
 func purchase_gold_generator() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_generator", {}).get("cost", 50)
 	var success: bool = _impl.purchase_gold_generator(cost, SaveManager)

@@ -134,7 +134,31 @@ func purchase_damage_upgrade(cost: int, max_levels: int, save_manager: Node) -> 
 
 
 func get_essence_gain_multiplier(essence_per_level: float) -> float:
-	return 1.0 + float(meta_state.essence_gain_level) * essence_per_level
+	return pow(1.0 + essence_per_level, meta_state.essence_gain_level)
+
+
+func can_spend_gold(cost: float) -> bool:
+	return cost >= 0.0 and meta_state.total_gold >= cost
+
+
+func spend_gold(cost: float, save_manager: Node) -> bool:
+	if cost < 0.0 or meta_state.total_gold < cost:
+		return false
+	meta_state.total_gold -= cost
+	_save(save_manager)
+	return true
+
+
+## Purchases one level of essence gain upgrade if affordable and under max_levels. Returns true on success.
+func purchase_essence_gain(base_cost: int, cost_step: int, max_levels: int, save_manager: Node) -> bool:
+	if meta_state.essence_gain_level >= max_levels:
+		return false
+	var cost: float = float(base_cost + meta_state.essence_gain_level * cost_step)
+	if not spend_gold(cost, save_manager):
+		return false
+	meta_state.essence_gain_level += 1
+	_save(save_manager)
+	return true
 
 
 ## Purchases Alchemy Lab restoration if affordable and not already unlocked. Returns true on success.

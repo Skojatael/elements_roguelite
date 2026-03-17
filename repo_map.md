@@ -12,7 +12,7 @@
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`, `gold_changed(new_floor: int)`
 - **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float) -> bool`, `get_next_essence_gain_cost() -> int`, `purchase_essence_gain() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float, save_manager: Node) -> bool`, `purchase_essence_gain(costs: Array, max_levels: int, save_manager: Node) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -217,7 +217,7 @@
 ### `scenes/hub/LabUpgradeScreen.gd` (`class_name LabUpgradeScreen extends Control`)
 - **signals**: `close_pressed`
 - **exports**: `_essence_button: Button`, `_transmuter_button: Button`, `_storage_cap_button: Button`, `_close_button: Button`
-- **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`
+- **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`, `_on_essence_pressed()`, `_on_transmuter_pressed()`, `_on_storage_cap_pressed()`
 
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`

@@ -11,9 +11,11 @@ signal close_pressed
 
 func _ready() -> void:
 	_close_button.pressed.connect(func() -> void: close_pressed.emit())
+	_essence_button.pressed.connect(_on_essence_pressed)
 	_transmuter_button.pressed.connect(_on_transmuter_pressed)
 	_storage_cap_button.pressed.connect(_on_storage_cap_pressed)
 	MetaManager.shards_changed.connect(func(_n: int) -> void: _update_buttons())
+	MetaManager.gold_changed.connect(func(_n: int) -> void: _update_buttons())
 	_update_buttons()
 
 
@@ -26,20 +28,22 @@ func _update_buttons() -> void:
 func _update_essence_button() -> void:
 	var upgrade: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("essence_gain", {})
 	var upgrade_name: String = upgrade.get("name", "essence_gain")
-	var max_levels: int = upgrade.get("max_levels", 1)
+	var max_levels: int = upgrade.get("max_levels", 5)
+	var essence_per_level: float = upgrade.get("essence_per_level", 0.05)
 	var level: int = MetaManager.meta_state.essence_gain_level
 	if level >= max_levels:
 		_essence_button.text = "{n} — MAX".format({"n": upgrade_name})
 		_essence_button.disabled = true
 		return
-	var base_cost: int = upgrade.get("base_cost", 0)
-	var pct: int = int(float(level + 1) * upgrade.get("essence_per_level", 0.05) * 100.0)
-	_essence_button.text = "{n} +{pct}% (Lv{lv})".format({
+	var cost: int = upgrade.get("base_cost", 50) + level * upgrade.get("cost_step", 50)
+	var pct: int = roundi(pow(1.0 + essence_per_level, level + 1) * 100.0) - 100
+	_essence_button.text = "{n} +{pct}% (Lv{lv}) — {cost} gold".format({
 		"n": upgrade_name,
 		"pct": pct,
 		"lv": level + 1,
+		"cost": cost,
 	})
-	_essence_button.disabled = base_cost == 0 or not MetaManager.can_spend(base_cost)
+	_essence_button.disabled = not MetaManager.can_spend_gold(float(cost))
 
 
 func _update_transmuter_button() -> void:
@@ -85,6 +89,11 @@ func _get_storage_cap_cost(upgrade: Dictionary) -> int:
 	for _i: int in level:
 		cost = floori(float(cost) * cost_scale)
 	return cost
+
+
+func _on_essence_pressed() -> void:
+	MetaManager.purchase_essence_gain()
+	_update_buttons()
 
 
 func _on_transmuter_pressed() -> void:
