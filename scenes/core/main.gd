@@ -16,6 +16,7 @@ const BOSS_PLAYER_SPAWN_OFFSET: Vector2 = Vector2(0.0, 400.0)
 @onready var _player: Node2D = $Player
 @onready var _movement: MovementComponent = $Player/MovementComponent
 @onready var _stats: StatsComponent = $Player/StatsComponent
+@onready var _skill_component: SkillComponent = $Player/SkillComponent
 @onready var _camera: Camera2D = $Camera2D
 @onready var _dungeon_gen: DungeonGenerator = $DungeonGenerator
 @onready var _room_loader: RoomLoader = $RoomLoader
@@ -44,6 +45,8 @@ func _ready() -> void:
 		panel.start_boss_pressed.connect(_on_dev_start_boss)
 		panel.get_relic_pressed.connect(_on_dev_get_relic)
 	_movement.set_joystick(_joystick)
+	(_exploration_hud as ExplorationHUD).setup_hp_bar(_stats)
+	(_exploration_hud as ExplorationHUD).setup_skill(_skill_component)
 	_stats.died.connect(_on_player_died)
 	RunManager.run_started.connect(func(_m: String) -> void: _on_run_started())
 	RunManager.run_ended.connect(_on_run_ended)

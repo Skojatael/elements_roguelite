@@ -1,0 +1,12 @@
+{
+  "combat": {
+	"attack_damage": 20.0,
+	"attack_interval": 0.5
+  },
+  "stats": {
+	"max_health": 100.0
+  },
+  "movement": {
+	"move_speed": 200.0
+  }
+}

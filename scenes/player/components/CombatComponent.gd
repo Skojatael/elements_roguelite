@@ -1,6 +1,8 @@
 class_name CombatComponent
 extends Node
 
+signal melee_hit_landed
+
 ## Damage dealt to one enemy per attack hit.
 @export var attack_damage: float = 1.0
 
@@ -17,12 +19,13 @@ var _base_attack_interval: float = 0.0
 
 
 func _ready() -> void:
-	assert(attack_damage > 0.0,
+	var combat: Dictionary = ResourceManager.get_player_config().get("combat", {})
+	_base_attack_damage = float(combat.get("attack_damage", attack_damage))
+	_base_attack_interval = float(combat.get("attack_interval", attack_interval))
+	assert(_base_attack_damage > 0.0,
 		"CombatComponent: attack_damage must be greater than 0")
-	assert(attack_interval > 0.0,
+	assert(_base_attack_interval > 0.0,
 		"CombatComponent: attack_interval must be greater than 0")
-	_base_attack_damage = attack_damage
-	_base_attack_interval = attack_interval
 	RunManager.run_started.connect(func(_m: String) -> void: _recompute_stats())
 	RelicManager.relic_applied.connect(func(_id: String) -> void: _recompute_stats())
 	RelicManager.relics_cleared.connect(func() -> void: _recompute_stats())
@@ -61,4 +64,5 @@ func _physics_process(delta: float) -> void:
 			var dmg: float = attack_damage \
 				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio)
 			target.take_damage(dmg)
+		melee_hit_landed.emit()
 		_attack_timer = attack_interval

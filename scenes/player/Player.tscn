@@ -13,7 +13,7 @@ radius = 30.0
 radius = 90.0
 
 [node name="Player" type="CharacterBody2D" unique_id=1724136209 groups=["player"]]
-collision_mask = 0
+collision_mask = 6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1682292632]
 shape = SubResource("CircleShape2D_pn6s4")
@@ -41,12 +41,14 @@ metadata/_custom_type_script = "uid://bbdf1e7rpl2ql"
 script = ExtResource("2_tpg5x")
 metadata/_custom_type_script = "uid://f81o7gwiv4rg"
 
-[node name="SkillComponent" type="Node" parent="." unique_id=1446834898]
+[node name="SkillComponent" type="Node" parent="." unique_id=1446834898 node_paths=PackedStringArray("_combat_component")]
 script = ExtResource("3_c3xxp")
+_combat_component = NodePath("../CombatComponent")
 
 [node name="StatsComponent" type="Node" parent="." unique_id=1521250955]
 script = ExtResource("4_npwbq")
 max_health = 50.0
+is_player = true
 metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
 
 [node name="DodgeComponent" type="Node" parent="." unique_id=2089021027]

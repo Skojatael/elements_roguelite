@@ -1,1 +1,10 @@
-{}
+{
+  "skills": [
+	{
+	  "id": "magic_missile",
+	  "speed": 600.0,
+	  "max_distance": 2200.0,
+	  "max_charges": 3
+	}
+  ]
+}

@@ -29,3 +29,11 @@ func get_relics() -> Dictionary:
 
 func get_enemy_rooms_required(id: String) -> int:
 	return _impl.get_enemy_rooms_required(id)
+
+
+func get_player_config() -> Dictionary:
+	return _impl.get_player_config()
+
+
+func get_skills() -> Array:
+	return _impl.get_skills()

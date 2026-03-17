@@ -1,3 +1,4 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://ft4yse5mkvc5"]
 
-[node name="SkillButton" type="Button"]
+[node name="SkillButton" type="Button" unique_id=1895358481]
+custom_minimum_size = Vector2(100, 100)

@@ -21,6 +21,8 @@ func save_meta_state(state: MetaState) -> void:
 		"gold_storage_cap_level": state.gold_storage_cap_level,
 		"total_gold": state.total_gold,
 		"gold_last_saved_timestamp": state.gold_last_saved_timestamp,
+		"shard_generator_level": state.shard_generator_level,
+		"shard_accumulator": state.shard_accumulator,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -56,4 +58,6 @@ func load_meta_state() -> MetaState:
 		state.gold_storage_cap_level = int((parsed as Dictionary).get("gold_storage_cap_level", 0))
 		state.total_gold = float((parsed as Dictionary).get("total_gold", 0.0))
 		state.gold_last_saved_timestamp = int((parsed as Dictionary).get("gold_last_saved_timestamp", 0))
+		state.shard_generator_level = int((parsed as Dictionary).get("shard_generator_level", 0))
+		state.shard_accumulator = float((parsed as Dictionary).get("shard_accumulator", 0.0))
 	return state

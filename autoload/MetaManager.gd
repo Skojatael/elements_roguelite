@@ -48,15 +48,25 @@ var essence_gain_multiplier: float:
 var endless_boss_kill_count: int:
 	get: return _impl.meta_state.endless_boss_kill_count
 
+var shard_generator_rate: float:
+	get:
+		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+		return _impl.get_shard_rate_per_hour(cfg.get("rates_per_hour", []))
+
 var _impl: MetaManagerImpl = MetaManagerImpl.new()
 
 
 func _ready() -> void:
 	_impl.load(SaveManager)
-	var rate: float = ResourceManager.get_meta_config().get("gold_rate_per_hour", 100.0)
+	var now: int = int(Time.get_unix_time_from_system())
+	var gold_rate: float = ResourceManager.get_meta_config().get("gold_rate_per_hour", 100.0)
 	var cap_cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
 	var cap_seconds: int = _impl.get_gold_storage_cap_seconds(cap_cfg.get("base_hours", 4), cap_cfg.get("hours_per_level", 4))
-	_impl.apply_offline_gold(int(Time.get_unix_time_from_system()), rate, cap_seconds, SaveManager)
+	var shard_cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+	var offline_shards: int = _impl.apply_offline_shards(now, shard_cfg.get("rates_per_hour", []), cap_seconds, SaveManager)
+	if offline_shards > 0:
+		shards_changed.emit(meta_state.total_shards)
+	_impl.apply_offline_gold(now, gold_rate, cap_seconds, SaveManager)
 	_last_gold_floor = floori(meta_state.total_gold)
 	gold_changed.emit(_last_gold_floor)
 	RunManager.run_ended.connect(func(r: RunManager.EndReason) -> void: _on_run_ended(r))
@@ -66,10 +76,14 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var rate: float = ResourceManager.get_meta_config().get("gold_rate_per_hour", 100.0)
 	var new_floor: int = _impl.tick_gold(delta, rate)
-	if new_floor == _last_gold_floor:
-		return
-	_last_gold_floor = new_floor
-	gold_changed.emit(new_floor)
+	if new_floor != _last_gold_floor:
+		_last_gold_floor = new_floor
+		gold_changed.emit(new_floor)
+	var shard_cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+	var earned: int = _impl.tick_shard_generator(delta, shard_cfg.get("rates_per_hour", []))
+	if earned > 0:
+		_impl.add_shards(earned, SaveManager)
+		shards_changed.emit(meta_state.total_shards)
 
 
 func can_spend(cost: int) -> bool:
@@ -158,6 +172,24 @@ func purchase_gold_storage_cap() -> bool:
 	var cost: int = _impl.get_upgrade_cost(meta_state.gold_storage_cap_level, cfg.get("base_cost", 100), cfg.get("cost_scale", 1.5))
 	var success: bool = _impl.purchase_gold_storage_cap(cost, cfg.get("max_levels", 2), SaveManager)
 	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func get_next_shard_generator_cost() -> int:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+	var max_levels: int = cfg.get("max_levels", 3)
+	if meta_state.shard_generator_level >= max_levels:
+		return 0
+	return _impl.get_upgrade_cost(meta_state.shard_generator_level, cfg.get("base_cost", 600), cfg.get("cost_scale", 2.0))
+
+
+func purchase_shard_generator() -> bool:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+	var cost: int = get_next_shard_generator_cost()
+	var success: bool = _impl.purchase_shard_generator(cost, cfg.get("max_levels", 3), SaveManager)
+	if success:
+		gold_changed.emit(floori(meta_state.total_gold))
 		shards_changed.emit(meta_state.total_shards)
 	return success
 

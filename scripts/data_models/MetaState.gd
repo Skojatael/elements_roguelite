@@ -16,3 +16,5 @@ var gold_generator_owned: bool = false
 var gold_storage_cap_level: int = 0
 var total_gold: float = 0.0
 var gold_last_saved_timestamp: int = 0
+var shard_generator_level: int = 0
+var shard_accumulator: float = 0.0

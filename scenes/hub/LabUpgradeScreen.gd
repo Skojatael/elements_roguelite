@@ -4,6 +4,7 @@ extends Control
 signal close_pressed
 
 @export var _essence_button: Button
+@export var _shard_gen_button: Button
 @export var _transmuter_button: Button
 @export var _storage_cap_button: Button
 @export var _close_button: Button
@@ -12,6 +13,7 @@ signal close_pressed
 func _ready() -> void:
 	_close_button.pressed.connect(func() -> void: close_pressed.emit())
 	_essence_button.pressed.connect(_on_essence_pressed)
+	_shard_gen_button.pressed.connect(_on_shard_gen_pressed)
 	_transmuter_button.pressed.connect(_on_transmuter_pressed)
 	_storage_cap_button.pressed.connect(_on_storage_cap_pressed)
 	MetaManager.shards_changed.connect(func(_n: int) -> void: _update_buttons())
@@ -21,6 +23,7 @@ func _ready() -> void:
 
 func _update_buttons() -> void:
 	_update_essence_button()
+	_update_shard_gen_button()
 	_update_transmuter_button()
 	_update_storage_cap_button()
 
@@ -89,6 +92,32 @@ func _get_storage_cap_cost(upgrade: Dictionary) -> int:
 	for _i: int in level:
 		cost = floori(float(cost) * cost_scale)
 	return cost
+
+
+func _update_shard_gen_button() -> void:
+	var upgrade: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("shard_generator", {})
+	var upgrade_name: String = upgrade.get("name", "shard_generator")
+	var max_levels: int = upgrade.get("max_levels", 3)
+	var rates: Array = upgrade.get("rates_per_hour", [])
+	var level: int = MetaManager.meta_state.shard_generator_level
+	if level >= max_levels:
+		_shard_gen_button.text = "{n} — MAX".format({"n": upgrade_name})
+		_shard_gen_button.disabled = true
+		return
+	var cost: int = MetaManager.get_next_shard_generator_cost()
+	var rate: int = int(rates[level]) if level < rates.size() else 0
+	_shard_gen_button.text = "{n} {rate}/hr (Lv{lv}) — {cost} gold".format({
+		"n": upgrade_name,
+		"rate": rate,
+		"lv": level + 1,
+		"cost": cost,
+	})
+	_shard_gen_button.disabled = not MetaManager.can_spend_gold(float(cost))
+
+
+func _on_shard_gen_pressed() -> void:
+	MetaManager.purchase_shard_generator()
+	_update_buttons()
 
 
 func _on_essence_pressed() -> void:

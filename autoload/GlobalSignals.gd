@@ -14,3 +14,8 @@ signal gameplay_ended()
 ## Fires at game start and each time the player returns from a run.
 @warning_ignore("unused_signal")
 signal hub_entered()
+
+## Emitted by ExplorationHUD when the player presses the skill button.
+## SkillComponent connects to this to fire the homing projectile.
+@warning_ignore("unused_signal")
+signal skill_button_pressed()

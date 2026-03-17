@@ -47,6 +47,13 @@
 				"name": "Transmuter",
 				"cost": 50
 			},
+			"shard_generator": {
+				"name": "Essence Condenser",
+				"base_cost": 600,
+				"cost_scale": 2.0,
+				"max_levels": 3,
+				"rates_per_hour": [2, 3, 5]
+			},
 			"gold_storage_cap": {
 				"name": "Gold Storage",
 				"base_hours": 4,

@@ -13,7 +13,16 @@ const BOSS_ROOM_ID: String = "boss_room"
 ## Main.gd connects to this signal to handle the teleportation.
 signal boss_teleport_pressed
 
+const CHARGE_ACTIVE_COLOR: Color = Color(0.9, 0.6, 0.1)
+const CHARGE_SPENT_COLOR: Color = Color(0.2, 0.2, 0.2)
+
 @export var _boss_button: Button
+@export var _skill_button: Button
+@export var _hp_bar: HPBar
+@export var _charge_pips_container: Control
+@export var _charge_pip_gap: float = 4.0
+
+var _charge_pips: Array[ColorRect] = []
 
 
 func _ready() -> void:
@@ -23,6 +32,7 @@ func _ready() -> void:
 	RunManager.run_ended.connect(func(_r: RunManager.EndReason) -> void: _on_gameplay_ended())
 	_boss_button.visible = false
 	_boss_button.pressed.connect(_on_boss_button_pressed)
+	_skill_button.pressed.connect(_on_skill_button_pressed)
 	RunManager.room_cleared.connect(_on_room_cleared_for_boss)
 	RunManager.run_started.connect(func(_m: String) -> void: _boss_button.visible = false)
 	# Hide by default; shown when a run starts.
@@ -55,3 +65,38 @@ func _on_room_cleared_for_boss(room_id: String) -> void:
 func _on_boss_button_pressed() -> void:
 	_boss_button.visible = false
 	boss_teleport_pressed.emit()
+
+
+func setup_hp_bar(stats: StatsComponent) -> void:
+	_hp_bar.setup(stats)
+
+
+func setup_skill(skill: SkillComponent) -> void:
+	_build_charge_pips(skill._max_charges)
+	skill.charges_changed.connect(_on_charges_changed)
+	_on_charges_changed(skill._current_charges, skill._max_charges)
+
+
+func _build_charge_pips(count: int) -> void:
+	for child: Node in _charge_pips_container.get_children():
+		child.free()
+	_charge_pips.clear()
+	const PIP_SIZE: float = 20.0
+	for i: int in count:
+		var pip := ColorRect.new()
+		pip.size = Vector2(PIP_SIZE, PIP_SIZE)
+		pip.position = Vector2(i * (PIP_SIZE + _charge_pip_gap), 0.0)
+		_charge_pips_container.add_child(pip)
+		_charge_pips.append(pip)
+	_charge_pips_container.custom_minimum_size = Vector2(
+		count * PIP_SIZE + (count - 1) * _charge_pip_gap, PIP_SIZE
+	)
+
+
+func _on_charges_changed(current: int, _maximum: int) -> void:
+	for i: int in _charge_pips.size():
+		_charge_pips[i].color = CHARGE_ACTIVE_COLOR if i < current else CHARGE_SPENT_COLOR
+
+
+func _on_skill_button_pressed() -> void:
+	GlobalSignals.skill_button_pressed.emit()

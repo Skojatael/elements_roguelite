@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c1my5pab4mbm6"]
+
+[ext_resource type="Script" uid="uid://c7120gw2eh1c6" path="res://scenes/combat/projectiles/Projectile.gd" id="1_57wxl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g7r2h"]
+size = Vector2(12, 12)
+
+[node name="Projectile" type="Node2D" unique_id=1289484598 node_paths=PackedStringArray("_hit_area")]
+script = ExtResource("1_57wxl")
+_hit_area = NodePath("HitArea")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=15168829]
+offset_right = 12.0
+offset_bottom = 12.0
+color = Color(1, 1, 0.015686275, 1)
+
+[node name="HitArea" type="Area2D" parent="." unique_id=473094883]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=1977306403]
+position = Vector2(6, 6)
+shape = SubResource("RectangleShape2D_g7r2h")

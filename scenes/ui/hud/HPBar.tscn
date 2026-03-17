@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cx3jol2y8qnra"]
+
+[ext_resource type="Script" uid="uid://daveodbbqhu51" path="res://scenes/ui/hud/HPBar.gd" id="1_ub4e1"]
+
+[node name="HpBar" type="Control" unique_id=665215584 node_paths=PackedStringArray("_bg", "_fill", "_label")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_ub4e1")
+_bg = NodePath("Bg")
+_fill = NodePath("Bar")
+_label = NodePath("CenterContainer/Label")
+
+[node name="Bg" type="ColorRect" parent="." unique_id=939911265]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 30.0
+color = Color(0.04073602, 0.040736012, 0.040736005, 1)
+
+[node name="Bar" type="ColorRect" parent="." unique_id=1923228320]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 30.0
+color = Color(0.8845123, 0, 0.12041021, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=2061885844]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 30.0
+
+[node name="Label" type="Label" parent="CenterContainer" unique_id=1983700797]
+layout_mode = 2

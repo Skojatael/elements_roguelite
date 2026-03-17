@@ -2,6 +2,7 @@ class_name StatsComponent
 extends Node
 
 @export var max_health: float = 10.0
+@export var is_player: bool = false
 
 var current_health: float
 var _base_max_health: float = 0.0
@@ -11,11 +12,16 @@ signal died
 
 
 func _ready() -> void:
+	if is_player:
+		var stats: Dictionary = ResourceManager.get_player_config().get("stats", {})
+		_base_max_health = float(stats.get("max_health", max_health))
+		max_health = _base_max_health
+		RelicManager.relic_applied.connect(_on_relic_applied)
+		RelicManager.relics_cleared.connect(func() -> void: _on_relic_applied(""))
+	else:
+		_base_max_health = max_health
 	assert(max_health > 0.0, "StatsComponent: max_health must be greater than 0")
-	_base_max_health = max_health
 	current_health = max_health
-	RelicManager.relic_applied.connect(_on_relic_applied)
-	RelicManager.relics_cleared.connect(func() -> void: _on_relic_applied(""))
 
 
 func take_damage(amount: float) -> void:

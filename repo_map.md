@@ -7,12 +7,12 @@
 ## Autoloads (`autoload/`)
 
 ### `autoload/GlobalSignals.gd`
-- **signals**: `gameplay_started`, `gameplay_ended`, `hub_entered`
+- **signals**: `gameplay_started`, `gameplay_ended`, `hub_entered`, `skill_button_pressed`
 
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`, `gold_changed(new_floor: int)`
-- **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float) -> bool`, `get_next_essence_gain_cost() -> int`, `purchase_essence_gain() -> bool`
+- **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`, `shard_generator_rate: float`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float) -> bool`, `get_next_essence_gain_cost() -> int`, `purchase_essence_gain() -> bool`, `get_next_shard_generator_cost() -> int`, `purchase_shard_generator() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
@@ -21,7 +21,7 @@
 
 ### `autoload/ResourceManager.gd`
 - Thin wrapper over `ResourceManagerImpl`
-- **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_enemy_base_essence(id: String) -> float`, `get_enemy_rooms_required(id: String) -> int`, `enemy_id_exists(id: String) -> bool`
+- **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_skills() -> Array`, `get_enemy_base_essence(id: String) -> float`, `get_enemy_rooms_required(id: String) -> int`, `enemy_id_exists(id: String) -> bool`
 
 ### `autoload/RunManager.gd`
 - Extends `scripts/managers/RunManager.gd` (thin wrapper, no added logic)
@@ -35,7 +35,7 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float, save_manager: Node) -> bool`, `purchase_essence_gain(costs: Array, max_levels: int, save_manager: Node) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float, save_manager: Node) -> bool`, `purchase_essence_gain(base_cost: int, cost_step: int, max_levels: int, save_manager: Node) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`, `get_shard_rate_per_hour(rates: Array) -> float`, `tick_shard_generator(delta: float, rates: Array) -> int`, `apply_offline_shards(now_unix: int, rates: Array, cap_seconds: int, save_manager: Node) -> int`, `purchase_shard_generator(cost: int, max_levels: int, save_manager: Node) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
@@ -43,7 +43,7 @@
 - **methods**: `reset()`, `build_pool(relics_dict) -> Array[RelicData]`, `draw_offer(pool) -> Array[RelicData]`, `draw_boss_offer() -> Array[RelicData]`, `pick_relic(id, pool)`, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat, pool) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`
 
 ### `scripts/managers/ResourceManager.gd` (`class_name ResourceManagerImpl`)
-- **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_enemy_base_essence(id) -> float`, `get_enemy_rooms_required(id) -> int`, `enemy_id_exists(id) -> bool`
+- **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_skills() -> Array`, `get_enemy_base_essence(id) -> float`, `get_enemy_rooms_required(id) -> int`, `enemy_id_exists(id) -> bool`
 
 ### `scripts/managers/RunManager.gd` (`class_name RunManager`)
 - **enum**: `EndReason { DIED, CASH_OUT }`
@@ -65,7 +65,7 @@
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`, `gold_generator_owned: bool`, `gold_storage_cap_level: int`, `total_gold: float`, `gold_last_saved_timestamp: int`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`, `gold_generator_owned: bool`, `gold_storage_cap_level: int`, `total_gold: float`, `gold_last_saved_timestamp: int`, `shard_generator_level: int`, `shard_accumulator: float`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
@@ -148,7 +148,7 @@
 
 ### `scenes/core/Main.gd`
 - **const**: `BOSS_ROOM_WORLD_POS = Vector2(0, -3000)`
-- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`
+- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_movement: MovementComponent`, `_stats: StatsComponent`, `_skill_component: SkillComponent`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`
 - **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
 
 ---
@@ -156,6 +156,7 @@
 ## Scenes — Player (`scenes/player/`)
 
 ### `scenes/player/components/CombatComponent.gd`
+- **signals**: `melee_hit_landed`
 - **exports**: `attack_damage: float`, `attack_interval: float`, `_stats_component: StatsComponent`
 
 ### `scenes/player/components/DodgeComponent.gd` — stub
@@ -164,7 +165,12 @@
 - **exports**: `move_speed: float`
 - **methods**: `set_joystick(joystick: JoystickControl)`
 
-### `scenes/player/components/SkillComponent.gd` — stub
+### `scenes/player/components/SkillComponent.gd` (`class_name SkillComponent extends Node`)
+- **signals**: `charges_changed(current: int, maximum: int)`
+- **const**: `SKILL_ID = "magic_missile"`
+- **exports**: `_combat_component: CombatComponent`
+- **properties**: `_max_charges: int`, `_current_charges: int`
+- **methods**: `_on_skill_button_pressed()` — spends 1 charge, finds closest enemy, spawns homing Projectile; `_on_melee_hit_landed()` — restores 1 charge (capped at max); `_reset_charges()` — sets current to max, emits charges_changed
 
 ### `scenes/player/components/StatsComponent.gd`
 - **exports**: `max_health: float`
@@ -174,6 +180,10 @@
 ---
 
 ## Scenes — Combat (`scenes/combat/`)
+
+### `scenes/combat/projectiles/Projectile.gd` (`class_name Projectile extends Node2D`)
+- **exports**: `_hit_area: Area2D`
+- **methods**: `setup(target: Enemy, damage: float, speed: float, max_distance: float)` — initialises homing target, damage, speed, max travel distance and connects hit collision
 
 ### `scenes/combat/enemies/Enemy.gd`
 - **exports**: `enemy_type_id: String`
@@ -216,8 +226,8 @@
 
 ### `scenes/hub/LabUpgradeScreen.gd` (`class_name LabUpgradeScreen extends Control`)
 - **signals**: `close_pressed`
-- **exports**: `_essence_button: Button`, `_transmuter_button: Button`, `_storage_cap_button: Button`, `_close_button: Button`
-- **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`, `_on_essence_pressed()`, `_on_transmuter_pressed()`, `_on_storage_cap_pressed()`
+- **exports**: `_essence_button: Button`, `_shard_gen_button: Button`, `_transmuter_button: Button`, `_storage_cap_button: Button`, `_close_button: Button`
+- **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_shard_gen_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`, `_on_essence_pressed()`, `_on_shard_gen_pressed()`, `_on_transmuter_pressed()`, `_on_storage_cap_pressed()`
 
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`
@@ -262,8 +272,14 @@
 
 ### `scenes/ui/hud/ExplorationHUD.gd` (`class_name ExplorationHUD extends CanvasLayer`)
 - **signals**: `boss_teleport_pressed`
-- **exports**: `_boss_button: Button`
+- **const**: `CHARGE_ACTIVE_COLOR`, `CHARGE_SPENT_COLOR`
+- **exports**: `_boss_button: Button`, `_skill_button: Button`, `_hp_bar: HPBar`, `_charge_pips_container: Control`
+- **methods**: `setup_hp_bar(stats: StatsComponent) -> void`, `setup_skill(skill: SkillComponent) -> void`, `_build_charge_pips(count: int) -> void`
 - **static methods**: `is_boss_available(cleared_count: int, required: int) -> bool`
+
+### `scenes/ui/hud/HPBar.gd` (`class_name HPBar extends Control`)
+- **exports**: `_bg: ColorRect`, `_fill: ColorRect`, `_label: Label`
+- **methods**: `setup(stats: StatsComponent) -> void`
 
 ### `scenes/ui/hud/Joystick.gd` (`class_name JoystickControl extends Control`)
 - **exports**: `max_radius: float`, `dead_zone_percentage: float`
@@ -298,6 +314,6 @@
 | `data/enemies.json` | `enemies` dict with categories `"common"` and `"boss"`, each an Array of enemy entries |
 | `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `gold_rate_per_hour: 100`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}), `alchemy_lab` (name, cost: 500, upgrades → `essence_gain` {name, base_cost: 0, max_levels: 1, essence_per_level: 0.05}, `gold_generator` {name: "Transmuter", cost: 50}, `gold_storage_cap` {name: "Gold Storage", base_hours: 4, hours_per_level: 4, base_cost: 100, cost_scale: 1.5, max_levels: 2}) |
 | `data/relics.json` | `relics` array — 6 relics across 4 stat categories |
-| `data/skills.json` | (stub/TBD) |
+| `data/skills.json` | `skills` array — `magic_missile` skill: `speed`, `max_distance`, `max_charges: 3` |
 | `data/upgrades.json` | (stub/TBD) |
 | `data/rooms/*.tres` | RoomData resources: `CombatRoom01`, `CombatRoom02`, `EliteRoom01`, `BossRoom01`, `StartRoom01` |

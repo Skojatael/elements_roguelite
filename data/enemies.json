@@ -4,8 +4,8 @@
 			{
 				"id": "slime",
 				"display_name": "Slime",
-				"max_health": 10.0,
-				"damage": 1.0,
+				"max_health": 42.0,
+				"damage": 8.0,
 				"move_speed": 60.0,
 				"detection_range": 200.0,
 				"damage_cooldown": 0.5,
@@ -14,8 +14,8 @@
 			{
 				"id": "skeleton",
 				"display_name": "Skeleton",
-				"max_health": 8.0,
-				"damage": 2.0,
+				"max_health": 70.0,
+				"damage": 12.0,
 				"move_speed": 80.0,
 				"detection_range": 250.0,
 				"damage_cooldown": 1.0,

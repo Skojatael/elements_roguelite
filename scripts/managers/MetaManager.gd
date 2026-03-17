@@ -227,6 +227,51 @@ func tick_gold(delta: float, rate_per_hour: float) -> int:
 	return floori(meta_state.total_gold)
 
 
+## Returns the shard generation rate per hour for the current level. Returns 0.0 at level 0.
+func get_shard_rate_per_hour(rates: Array) -> float:
+	if meta_state.shard_generator_level <= 0:
+		return 0.0
+	return float(rates[meta_state.shard_generator_level - 1])
+
+
+## Accumulates fractional shards for one frame. Returns whole shards earned this tick.
+func tick_shard_generator(delta: float, rates: Array) -> int:
+	if meta_state.shard_generator_level <= 0:
+		return 0
+	meta_state.shard_accumulator += delta * get_shard_rate_per_hour(rates) / 3600.0
+	var earned: int = floori(meta_state.shard_accumulator)
+	meta_state.shard_accumulator -= float(earned)
+	return earned
+
+
+## Credits shards earned while offline, capped by cap_seconds. Returns shards earned.
+## Must be called BEFORE apply_offline_gold to share the same gold_last_saved_timestamp.
+func apply_offline_shards(now_unix: int, rates: Array, cap_seconds: int, save_manager: Node) -> int:
+	if meta_state.shard_generator_level <= 0:
+		return 0
+	if meta_state.gold_last_saved_timestamp == 0:
+		return 0
+	var elapsed: int = now_unix - meta_state.gold_last_saved_timestamp
+	if elapsed <= 0:
+		return 0
+	var capped: int = mini(elapsed, cap_seconds)
+	var earned: int = floori(float(capped) * get_shard_rate_per_hour(rates) / 3600.0)
+	if earned > 0:
+		add_shards(earned, save_manager)
+	return earned
+
+
+## Purchases one level of shard generator if affordable and under max_levels. Returns true on success.
+func purchase_shard_generator(cost: int, max_levels: int, save_manager: Node) -> bool:
+	if meta_state.shard_generator_level >= max_levels:
+		return false
+	if not spend_gold(float(cost), save_manager):
+		return false
+	meta_state.shard_generator_level += 1
+	_save(save_manager)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

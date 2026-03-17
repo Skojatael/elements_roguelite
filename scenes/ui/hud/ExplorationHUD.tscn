@@ -2,10 +2,16 @@
 
 [ext_resource type="Script" uid="uid://bsibqyqgiawg7" path="res://scenes/ui/hud/ExplorationHUD.gd" id="1_xrock"]
 [ext_resource type="PackedScene" uid="uid://xq5xl8vwj6r1" path="res://scenes/ui/hud/Joystick.tscn" id="2_4b0pi"]
+[ext_resource type="PackedScene" uid="uid://ft4yse5mkvc5" path="res://scenes/ui/hud/SkillButton.tscn" id="3_4b0pi"]
+[ext_resource type="PackedScene" uid="uid://cx3jol2y8qnra" path="res://scenes/ui/hud/HPBar.tscn" id="4_winm4"]
 
-[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444 node_paths=PackedStringArray("_boss_button")]
+[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444 node_paths=PackedStringArray("_boss_button", "_skill_button", "_hp_bar", "_charge_pips_container")]
 script = ExtResource("1_xrock")
 _boss_button = NodePath("BossButton")
+_skill_button = NodePath("SkillButton")
+_hp_bar = NodePath("HpBar")
+_charge_pips_container = NodePath("ChargeContainer")
+_charge_pip_gap = 10.0
 
 [node name="Joystick" parent="." unique_id=1344280826 instance=ExtResource("2_4b0pi")]
 anchors_preset = 2
@@ -20,3 +26,23 @@ offset_top = 568.0
 offset_right = 1825.0
 offset_bottom = 599.0
 text = "Teleport to boss"
+
+[node name="SkillButton" parent="." unique_id=1500347542 instance=ExtResource("3_4b0pi")]
+offset_left = 1646.0
+offset_top = 814.0
+offset_right = 1746.0
+offset_bottom = 914.0
+
+[node name="HpBar" parent="." unique_id=994286888 instance=ExtResource("4_winm4")]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 120.0
+offset_bottom = 40.0
+
+[node name="ChargeContainer" type="Control" parent="." unique_id=598512615]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 170.0
+offset_bottom = 105.0

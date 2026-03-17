@@ -8,9 +8,10 @@ var _joystick: Node = null
 var _base_move_speed: float = 0.0
 
 func _ready() -> void:
-	assert(move_speed > 0.0,
+	var movement: Dictionary = ResourceManager.get_player_config().get("movement", {})
+	_base_move_speed = float(movement.get("move_speed", move_speed))
+	assert(_base_move_speed > 0.0,
 		"MovementComponent: move_speed must be greater than 0")
-	_base_move_speed = move_speed
 	RelicManager.relic_applied.connect(func(_id: String) -> void: _recompute_stats())
 	RelicManager.relics_cleared.connect(func() -> void: _recompute_stats())
 
