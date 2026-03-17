@@ -7,7 +7,7 @@
 				"max_health": 42.0,
 				"damage": 8.0,
 				"move_speed": 60.0,
-				"detection_range": 200.0,
+				"detection_range": 800.0,
 				"damage_cooldown": 0.5,
 				"base_essence": 10
 			},
@@ -17,7 +17,7 @@
 				"max_health": 70.0,
 				"damage": 12.0,
 				"move_speed": 80.0,
-				"detection_range": 250.0,
+				"detection_range": 800.0,
 				"damage_cooldown": 1.0,
 				"base_essence": 15
 			}
@@ -26,10 +26,10 @@
 			{
 				"id": "boss",
 				"display_name": "Boss",
-				"max_health": 40.0,
-				"damage": 5.0,
+				"max_health": 200.0,
+				"damage": 20.0,
 				"move_speed": 60.0,
-				"detection_range": 300.0,
+				"detection_range": 800.0,
 				"damage_cooldown": 2.0,
 				"base_essence": 80,
 				"rooms_required": 6

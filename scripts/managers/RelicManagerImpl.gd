@@ -120,6 +120,20 @@ func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> fl
 	return mult
 
 
+## Returns the combined additive bonus for all held relics with effect_stat == stat.
+## Returns 0.0 if no held relics match the stat.
+func compute_stat_addend(stat: String) -> float:
+	var total: float = 0.0
+	for relic_id: String in active_relic_ids:
+		var relic: Variant = _relics_by_id.get(relic_id)
+		if not relic is RelicData:
+			continue
+		if (relic as RelicData).effect_stat != stat:
+			continue
+		total += (relic as RelicData).effect_mult
+	return total
+
+
 ## Returns the combined multiplicative effect_mult for all held relics with effect_stat == stat.
 ## Returns 1.0 if no held relics match the stat.
 func compute_stat_mult(stat: String) -> float:
@@ -143,6 +157,18 @@ func draw_boss_offer() -> Array[RelicData]:
 			available.append(r)
 	available.shuffle()
 	return available.slice(0, mini(3, available.size()))
+
+
+## Returns true if the chaining_stone relic is active this run.
+## Pure query — no side effects.
+func has_chain_relic() -> bool:
+	return active_relic_ids.has("chaining_stone")
+
+
+## Returns true if the burn relic is active this run.
+## Pure query — no side effects.
+func has_burn_relic() -> bool:
+	return active_relic_ids.has("burn")
 
 
 ## Returns true if a relic offer should trigger for the given room type.

@@ -17,7 +17,7 @@
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
 - **properties**: `active_relic_ids: Array[String]`
-- **methods**: `pick_relic(id: String)`, `get_stat_mult(stat: String) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, `trigger_boss_offer() -> bool`, `trigger_offer(room_type_id: String)`
+- **methods**: `pick_relic(id: String)`, `get_stat_mult(stat: String) -> float`, `get_stat_addend(stat: String) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`, `trigger_boss_offer() -> bool`, `trigger_offer(room_type_id: String)`
 
 ### `autoload/ResourceManager.gd`
 - Thin wrapper over `ResourceManagerImpl`
@@ -40,7 +40,7 @@
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
 - **state**: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`
-- **methods**: `reset()`, `build_pool(relics_dict) -> Array[RelicData]`, `draw_offer(pool) -> Array[RelicData]`, `draw_boss_offer() -> Array[RelicData]`, `pick_relic(id, pool)`, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat, pool) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`
+- **methods**: `reset()`, `build_pool(relics_dict) -> Array[RelicData]`, `draw_offer(pool) -> Array[RelicData]`, `draw_boss_offer() -> Array[RelicData]`, `pick_relic(id, pool)`, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat) -> float`, `compute_stat_addend(stat) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`
 
 ### `scripts/managers/ResourceManager.gd` (`class_name ResourceManagerImpl`)
 - **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_skills() -> Array`, `get_enemy_base_essence(id) -> float`, `get_enemy_rooms_required(id) -> int`, `enemy_id_exists(id) -> bool`
@@ -95,6 +95,10 @@
 ### `scripts/data_models/SpawnPointData.gd` (`class_name SpawnPointData extends Resource`)
 - **fields**: `enemy_id: String`, `position: Vector2`, `radius: float`
 - **factory**: `static func from_dict(data) -> SpawnPointData`
+
+### `scripts/data_models/BurnEffect.gd` (`class_name BurnEffect extends RefCounted`)
+- **fields**: `remaining_duration: float`, `tick_damage: float`, `_seconds_until_next_tick: float`
+- **methods**: `apply(p_tick_damage: float, duration: float)`, `extend(seconds: float)`, `process(delta: float) -> float`, `is_active() -> bool`
 
 ### `scripts/data_models/SkillData.gd` — stub (no class_name, no logic)
 
@@ -158,6 +162,8 @@
 ### `scenes/player/components/CombatComponent.gd`
 - **signals**: `melee_hit_landed`
 - **exports**: `attack_damage: float`, `attack_interval: float`, `_stats_component: StatsComponent`
+- **properties**: `_base_crit_chance: float`, `_base_crit_multiplier: float`, `_crit_chance: float` (effective), `_crit_multiplier: float` (effective)
+- **methods**: `_recompute_stats()` — recalculates `attack_damage`, `attack_interval`, `_crit_chance`, `_crit_multiplier` from base values and active relic addends/mults; called on `run_started`, `relic_applied`, `relics_cleared`
 
 ### `scenes/player/components/DodgeComponent.gd` — stub
 
@@ -166,11 +172,11 @@
 - **methods**: `set_joystick(joystick: JoystickControl)`
 
 ### `scenes/player/components/SkillComponent.gd` (`class_name SkillComponent extends Node`)
-- **signals**: `charges_changed(current: int, maximum: int)`
+- **signals**: `charges_changed(current: int, maximum: int)`, `cooldown_changed(remaining: float, total: float)`
 - **const**: `SKILL_ID = "magic_missile"`
 - **exports**: `_combat_component: CombatComponent`
-- **properties**: `_max_charges: int`, `_current_charges: int`
-- **methods**: `_on_skill_button_pressed()` — spends 1 charge, finds closest enemy, spawns homing Projectile; `_on_melee_hit_landed()` — restores 1 charge (capped at max); `_reset_charges()` — sets current to max, emits charges_changed
+- **properties**: `_max_charges: int`, `_current_charges: int`, `_chain_damage_mult: float`, `_burn_damage_per_tick: float`, `_burn_duration: float`, `_burn_extend_seconds: float`, `_cooldown_duration: float`, `_cooldown_remaining: float`, `_base_crit_chance: float`, `_base_crit_multiplier: float`, `_crit_chance: float` (effective), `_crit_multiplier: float` (effective)
+- **methods**: `_recompute_crit_stats()` — recalculates `_crit_chance` and `_crit_multiplier` from base values and active relic addends; called on `run_started`, `relic_applied`, `relics_cleared`; `_on_skill_button_pressed()` — guarded by cooldown + charge gates; spends 1 charge, finds closest enemy, applies crit roll, spawns homing Projectile with `_chain_damage_mult`, starts cooldown; `_on_melee_hit_landed()` — restores 1 charge (capped at max); `_reset_charges()` — sets current to max, clears cooldown, emits both signals; `_process(delta)` — counts down cooldown, emits cooldown_changed each frame while active
 
 ### `scenes/player/components/StatsComponent.gd`
 - **exports**: `max_health: float`
@@ -183,12 +189,13 @@
 
 ### `scenes/combat/projectiles/Projectile.gd` (`class_name Projectile extends Node2D`)
 - **exports**: `_hit_area: Area2D`
-- **methods**: `setup(target: Enemy, damage: float, speed: float, max_distance: float)` — initialises homing target, damage, speed, max travel distance and connects hit collision
+- **methods**: `setup(target: Enemy, damage: float, speed: float, max_distance: float, chain_damage_mult: float, burn_damage_per_tick: float, burn_duration: float, burn_extend_seconds: float)` — initialises homing target, damage, speed, max travel distance, chain multiplier, burn params and connects hit collision; `_try_chain(primary_target: Enemy)` — if `chaining_stone` relic held, applies `_damage * _chain_damage_mult` to closest other living enemy; if `burn` relic held, also calls `on_burn_hit()` on chain target
 
 ### `scenes/combat/enemies/Enemy.gd`
+- **const**: `DETECTION_RANGE_FALLBACK = 300.0`
 - **exports**: `enemy_type_id: String`
 - **signals**: `defeated`
-- **methods**: `initialize(data: EnemyData)`, `apply_difficulty(mult: float)`, `get_hp_ratio() -> float`, `take_damage(amount: float)`
+- **methods**: `initialize(data: EnemyData)`, `apply_difficulty(mult: float)`, `get_hp_ratio() -> float`, `take_damage(amount: float)`, `on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float)`
 
 ---
 
@@ -272,9 +279,9 @@
 
 ### `scenes/ui/hud/ExplorationHUD.gd` (`class_name ExplorationHUD extends CanvasLayer`)
 - **signals**: `boss_teleport_pressed`
-- **const**: `CHARGE_ACTIVE_COLOR`, `CHARGE_SPENT_COLOR`
+- **const**: `CHARGE_ACTIVE_COLOR`, `CHARGE_SPENT_COLOR`, `SKILL_READY_MODULATE`, `SKILL_COOLDOWN_MODULATE`
 - **exports**: `_boss_button: Button`, `_skill_button: Button`, `_hp_bar: HPBar`, `_charge_pips_container: Control`
-- **methods**: `setup_hp_bar(stats: StatsComponent) -> void`, `setup_skill(skill: SkillComponent) -> void`, `_build_charge_pips(count: int) -> void`
+- **methods**: `setup_hp_bar(stats: StatsComponent) -> void`, `setup_skill(skill: SkillComponent) -> void`, `_build_charge_pips(count: int) -> void`, `_on_cooldown_changed(remaining: float, _total: float) -> void`
 - **static methods**: `is_boss_available(cleared_count: int, required: int) -> bool`
 
 ### `scenes/ui/hud/HPBar.gd` (`class_name HPBar extends Control`)
@@ -313,7 +320,7 @@
 | `data/dungeon_config.json` | `combat_room_pool`, `spawn_configs` (per room type), `difficulty_scale`, `base_room_count: 9`, `expansion_room_count: 4` |
 | `data/enemies.json` | `enemies` dict with categories `"common"` and `"boss"`, each an Array of enemy entries |
 | `data/meta_config.json` | `shard_divisor: 3`, `boss_run_shard_award: 35`, `relic_tier_weights`, `gold_rate_per_hour: 100`, `magic_forge` (name, cost, upgrades → `damage_upgrade` {name, base_cost, cost_scale, max_levels, damage_per_level}), `mage_tower` (name, cost, upgrades → `dungeon_expansion` {name, cost}, `relic_system` {name, cost}, `boss_challenge` {name, cost}), `alchemy_lab` (name, cost: 500, upgrades → `essence_gain` {name, base_cost: 0, max_levels: 1, essence_per_level: 0.05}, `gold_generator` {name: "Transmuter", cost: 50}, `gold_storage_cap` {name: "Gold Storage", base_hours: 4, hours_per_level: 4, base_cost: 100, cost_scale: 1.5, max_levels: 2}) |
-| `data/relics.json` | `relics` array — 6 relics across 4 stat categories |
-| `data/skills.json` | `skills` array — `magic_missile` skill: `speed`, `max_distance`, `max_charges: 3` |
+| `data/relics.json` | `relics` dict — 8 relics across 4 stat categories; uncommon includes `chaining_stone` and `burn` ("Living Ember") (both conditional, `effect_stat: ""`) |
+| `data/skills.json` | `skills` array — `magic_missile` skill: `speed`, `max_distance`, `max_charges: 3`, `cooldown: 1.0`, `chain_damage_mult: 0.5`, `burn_damage_per_tick: 0.10`, `burn_duration: 2.0`, `burn_extend_seconds: 2.0` |
 | `data/upgrades.json` | (stub/TBD) |
 | `data/rooms/*.tres` | RoomData resources: `CombatRoom01`, `CombatRoom02`, `EliteRoom01`, `BossRoom01`, `StartRoom01` |

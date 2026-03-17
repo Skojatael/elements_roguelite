@@ -1,6 +1,8 @@
 class_name Enemy
 extends CharacterBody2D
 
+const DETECTION_RANGE_FALLBACK: float = 300.0
+
 ## Enemy type to load from data/enemies.json. Set in the Inspector.
 @export var enemy_type_id: String = "slime"
 
@@ -12,6 +14,8 @@ signal defeated
 
 ## --- Contact damage (US2) ---
 @onready var _contact_area: Area2D = $ContactArea
+
+var _burn: BurnEffect = null
 
 var _player_stats: StatsComponent = null
 var _in_contact: bool = false
@@ -69,6 +73,18 @@ func initialize(data: EnemyData) -> void:
 	_data = data
 	_stats.max_health = data.max_health
 	_stats.current_health = data.max_health
+	_apply_detection_range(data.detection_range)
+
+
+func _apply_detection_range(range_px: float) -> void:
+	var effective: float = range_px
+	if effective <= 0.0:
+		push_warning("Enemy: invalid detection_range={r} for id={id} — using fallback {f}".format({
+			"r": range_px, "id": _data.id, "f": DETECTION_RANGE_FALLBACK,
+		}))
+		effective = DETECTION_RANGE_FALLBACK
+	var shape_node := _detection_area.get_node("CollisionShape2D") as CollisionShape2D
+	(shape_node.shape as CircleShape2D).radius = effective
 
 
 func apply_difficulty(mult: float) -> void:
@@ -86,7 +102,22 @@ func take_damage(amount: float) -> void:
 	_stats.take_damage(amount)
 
 
+## Applies burn if none active, or extends existing active burn duration.
+func on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float) -> void:
+	if _burn != null and _burn.is_active():
+		_burn.extend(extend_seconds)
+		return
+	_burn = BurnEffect.new()
+	_burn.apply(tick_dmg, base_duration)
+
+
 func _physics_process(delta: float) -> void:
+	# Burn damage tick.
+	if _burn != null and _burn.is_active():
+		var burn_dmg: float = _burn.process(delta)
+		if burn_dmg > 0.0:
+			take_damage(burn_dmg)
+
 	# Contact damage tick (US2).
 	if _in_contact and _player_stats != null and is_instance_valid(_player_stats):
 		_damage_timer -= delta

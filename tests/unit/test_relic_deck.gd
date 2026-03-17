@@ -179,6 +179,95 @@ func test_get_hit_damage_mult_both_relics_stacked() -> void:
 		"both conditional relics active and both thresholds met → stacked mult")
 
 
+# --- compute_stat_addend ---
+
+const STUB_RELICS_CRIT: Dictionary = {
+	"relics": {
+		"common": {
+			"crit_a": {"name": "CritA", "effect_stat": "crit_chance",     "effect_mult": 0.10},
+			"crit_b": {"name": "CritB", "effect_stat": "crit_chance",     "effect_mult": 0.15},
+			"crit_c": {"name": "CritC", "effect_stat": "crit_multiplier", "effect_mult": 0.25},
+		},
+	}
+}
+
+
+func test_compute_stat_addend_no_relics_returns_zero() -> void:
+	assert_almost_eq(_impl.compute_stat_addend("crit_chance"), 0.0, 0.0001,
+		"no relics held → addend must be 0.0")
+
+
+func test_compute_stat_addend_single_crit_chance_relic() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_CRIT, STUB_CFG)
+	impl.pick_relic("crit_a")
+	assert_almost_eq(impl.compute_stat_addend("crit_chance"), 0.10, 0.0001,
+		"one crit_chance relic (0.10) → addend must be 0.10")
+
+
+func test_compute_stat_addend_two_crit_chance_relics_stacks() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_CRIT, STUB_CFG)
+	impl.pick_relic("crit_a")
+	impl.pick_relic("crit_b")
+	assert_almost_eq(impl.compute_stat_addend("crit_chance"), 0.25, 0.0001,
+		"two crit_chance relics (0.10 + 0.15) → addend must be 0.25")
+
+
+func test_compute_stat_addend_crit_multiplier_relic_no_crit_chance_contamination() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_CRIT, STUB_CFG)
+	impl.pick_relic("crit_c")
+	assert_almost_eq(impl.compute_stat_addend("crit_chance"), 0.0, 0.0001,
+		"holding a crit_multiplier relic must not affect crit_chance addend")
+
+
+func test_compute_stat_addend_crit_multiplier_relic() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_CRIT, STUB_CFG)
+	impl.pick_relic("crit_c")
+	assert_almost_eq(impl.compute_stat_addend("crit_multiplier"), 0.25, 0.0001,
+		"one crit_multiplier relic (0.25) → addend must be 0.25")
+
+
+# --- has_burn_relic ---
+
+func test_has_burn_relic_false_when_empty() -> void:
+	assert_false(_impl.has_burn_relic(),
+		"no relics held → has_burn_relic must return false")
+
+
+func test_has_burn_relic_true_after_pick() -> void:
+	_impl.active_relic_ids.append("burn")
+	assert_true(_impl.has_burn_relic(),
+		"burn in active_relic_ids → has_burn_relic must return true")
+
+
+func test_has_burn_relic_false_for_other_relic() -> void:
+	_impl.pick_relic("relic_a")
+	assert_false(_impl.has_burn_relic(),
+		"holding a different relic must not activate has_burn_relic")
+
+
+# --- has_chain_relic ---
+
+func test_has_chain_relic_false_when_empty() -> void:
+	assert_false(_impl.has_chain_relic(),
+		"no relics held → has_chain_relic must return false")
+
+
+func test_has_chain_relic_true_after_pick() -> void:
+	_impl.active_relic_ids.append("chaining_stone")
+	assert_true(_impl.has_chain_relic(),
+		"chaining_stone in active_relic_ids → has_chain_relic must return true")
+
+
+func test_has_chain_relic_false_for_other_relic() -> void:
+	_impl.pick_relic("relic_a")
+	assert_false(_impl.has_chain_relic(),
+		"holding a different relic must not activate has_chain_relic")
+
+
 # --- pick_relic side effects ---
 
 func test_pick_relic_adds_to_active_ids() -> void:

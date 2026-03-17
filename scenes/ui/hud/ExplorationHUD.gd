@@ -15,6 +15,8 @@ signal boss_teleport_pressed
 
 const CHARGE_ACTIVE_COLOR: Color = Color(0.9, 0.6, 0.1)
 const CHARGE_SPENT_COLOR: Color = Color(0.2, 0.2, 0.2)
+const SKILL_READY_MODULATE: Color = Color(1, 1, 1, 1)
+const SKILL_COOLDOWN_MODULATE: Color = Color(0.5, 0.5, 0.5, 1)
 
 @export var _boss_button: Button
 @export var _skill_button: Button
@@ -28,6 +30,7 @@ var _charge_pips: Array[ColorRect] = []
 func _ready() -> void:
 	GlobalSignals.gameplay_started.connect(_on_gameplay_started)
 	GlobalSignals.gameplay_ended.connect(_on_gameplay_ended)
+	GlobalSignals.hub_entered.connect(_on_hub_entered)
 	RunManager.run_started.connect(func(_m: String) -> void: _on_gameplay_started())
 	RunManager.run_ended.connect(func(_r: RunManager.EndReason) -> void: _on_gameplay_ended())
 	_boss_button.visible = false
@@ -41,10 +44,21 @@ func _ready() -> void:
 
 func _on_gameplay_started() -> void:
 	visible = true
+	_skill_button.visible = true
+	_hp_bar.visible = true
+	if _charge_pips_container != null:
+		_charge_pips_container.visible = true
 
 
 func _on_gameplay_ended() -> void:
 	visible = false
+
+
+func _on_hub_entered() -> void:
+	_skill_button.visible = false
+	_hp_bar.visible = false
+	if _charge_pips_container != null:
+		_charge_pips_container.visible = false
 
 
 static func is_boss_available(cleared_count: int, required: int) -> bool:
@@ -74,6 +88,7 @@ func setup_hp_bar(stats: StatsComponent) -> void:
 func setup_skill(skill: SkillComponent) -> void:
 	_build_charge_pips(skill._max_charges)
 	skill.charges_changed.connect(_on_charges_changed)
+	skill.cooldown_changed.connect(_on_cooldown_changed)
 	_on_charges_changed(skill._current_charges, skill._max_charges)
 
 
@@ -91,6 +106,10 @@ func _build_charge_pips(count: int) -> void:
 	_charge_pips_container.custom_minimum_size = Vector2(
 		count * PIP_SIZE + (count - 1) * _charge_pip_gap, PIP_SIZE
 	)
+
+
+func _on_cooldown_changed(remaining: float, _total: float) -> void:
+	_skill_button.modulate = SKILL_COOLDOWN_MODULATE if remaining > 0.0 else SKILL_READY_MODULATE
 
 
 func _on_charges_changed(current: int, _maximum: int) -> void:

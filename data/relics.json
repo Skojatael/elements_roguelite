@@ -44,8 +44,21 @@
 				"effect_stat": "max_health",
 				"effect_mult": 1.35,
 				"description": "+35% max health"
+			},
+			"chaining_stone": {
+				"name": "Chaining Stone",
+				"tags": ["projectile", "chain"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"description": "Magic Missile strikes a second enemy for 50% damage."
+			},
+			"burn": {
+				"name": "Living Ember",
+				"tags": ["projectile", "burn"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"description": "Magic Missile ignites enemies, dealing 20% attack damage over 2s. Additional hits extend the burn."
 			}
-			
 		},
 		"rare": {
 			"rage_crystal": {

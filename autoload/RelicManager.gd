@@ -70,9 +70,25 @@ func get_stat_mult(stat: String) -> float:
 	return _impl.compute_stat_mult(stat)
 
 
+## Returns the combined additive bonus for the given stat across all active relics.
+## Returns 0.0 if no relics modify that stat. Used for crit_chance and crit_multiplier.
+func get_stat_addend(stat: String) -> float:
+	return _impl.compute_stat_addend(stat)
+
+
 ## Returns the combined damage multiplier from conditional relics at hit time.
 func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> float:
 	return _impl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio)
+
+
+## Returns true if the chaining_stone relic is active this run.
+func has_chain_relic() -> bool:
+	return _impl.has_chain_relic()
+
+
+## Returns true if the burn relic is active this run.
+func has_burn_relic() -> bool:
+	return _impl.has_burn_relic()
 
 
 ## Draws 3 rare relics and emits relic_offer_ready. Returns true if offer was triggered.
