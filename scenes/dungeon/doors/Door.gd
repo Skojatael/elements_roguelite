@@ -4,6 +4,8 @@ extends Area2D
 @export var direction: String = ""
 @export var target_room_id: String = ""
 
+var locked: bool = false
+
 signal door_activated(direction: String, target_room_id: String)
 
 
@@ -12,5 +14,7 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
+	if locked:
+		return
 	if body.is_in_group("player"):
 		door_activated.emit(direction, target_room_id)

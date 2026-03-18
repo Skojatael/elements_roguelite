@@ -8,7 +8,6 @@ var standard_rooms_cleared: int = 0
 var _relics_by_id: Dictionary = {}
 var _all_by_tier: Dictionary = {}
 var _decks: Dictionary = {}
-var _tier_weights: Dictionary = {}
 
 
 ## Clears all run state. Called at run start and run end.
@@ -18,11 +17,10 @@ func reset() -> void:
 	_relics_by_id = {}
 	_all_by_tier = {}
 	_decks = {}
-	_tier_weights = {}
 
 
-## Parses relics JSON and config into per-tier decks and weight table.
-func build_pool(relics_raw: Dictionary, config_raw: Dictionary) -> void:
+## Parses relics JSON into per-tier decks.
+func build_pool(relics_raw: Dictionary, _config_raw: Dictionary) -> void:
 	_relics_by_id = {}
 	_all_by_tier = {}
 	for tier: Variant in relics_raw.get("relics", {}).keys():
@@ -35,20 +33,6 @@ func build_pool(relics_raw: Dictionary, config_raw: Dictionary) -> void:
 			var r: RelicData = RelicData.from_dict(entry)
 			_relics_by_id[r.id] = r
 			(_all_by_tier[tier_str] as Array).append(r)
-	# build weights — common/uncommon only (rare reserved for boss offers)
-	var raw_weights: Dictionary = config_raw.get("relic_tier_weights", {})
-	var weight_sum: float = 0.0
-	for tier: Variant in _all_by_tier.keys():
-		if str(tier) == "rare":
-			continue
-		if raw_weights.has(tier):
-			weight_sum += float(raw_weights[tier])
-	for tier: Variant in _all_by_tier.keys():
-		if str(tier) == "rare":
-			continue
-		var w: float = float(raw_weights.get(tier, 0.0))
-		_tier_weights[str(tier)] = w / weight_sum if weight_sum > 0.0 else 1.0 / (_all_by_tier.size() - 1)
-	# initialise decks
 	_decks = {}
 	for tier: Variant in _all_by_tier.keys():
 		var deck: Array[RelicData] = []
@@ -61,44 +45,39 @@ func build_pool(relics_raw: Dictionary, config_raw: Dictionary) -> void:
 	}))
 
 
-## Selects a tier by weight, draws from that tier's deck.
-## Reshuffles the tier's deck from _all_by_tier if it is empty.
-func _draw_one() -> RelicData:
-	var roll: float = randf()
-	var cumulative: float = 0.0
-	var selected_tier: String = ""
-	for tier: Variant in _tier_weights.keys():
-		cumulative += float(_tier_weights[tier])
-		if roll < cumulative:
-			selected_tier = str(tier)
-			break
-	if selected_tier.is_empty():
-		selected_tier = str((_tier_weights.keys() as Array).back())
-	if (_decks[selected_tier] as Array).is_empty():
+## Draws one relic from the specified tier's deck.
+## Reshuffles from _all_by_tier if the deck is empty.
+func _draw_one_from_tier(tier: String) -> RelicData:
+	if not _decks.has(tier) or not _all_by_tier.has(tier):
+		return null
+	if (_decks[tier] as Array).is_empty():
 		var refill: Array[RelicData] = []
-		refill.assign(_all_by_tier[selected_tier])
+		refill.assign(_all_by_tier[tier])
 		refill.shuffle()
-		_decks[selected_tier] = refill
-		print("[RelicManager] deck reshuffled — tier={tier}".format({"tier": selected_tier}))
-	return (_decks[selected_tier] as Array[RelicData]).pop_back()
+		_decks[tier] = refill
+		print("[RelicManager] deck reshuffled — tier={tier}".format({"tier": tier}))
+	return (_decks[tier] as Array[RelicData]).pop_back()
 
 
-## Returns Array[RelicData] of exactly 2 distinct entries.
-## Empty if no relics defined.
-## Draws left first, then if left's tier deck is exhausted refills it excluding
-## the left relic before drawing right — guaranteeing the two relics are different.
-func draw_offer() -> Array[RelicData]:
-	if _relics_by_id.is_empty():
+## Returns Array[RelicData] of exactly 2 distinct entries drawn from the given tier.
+## Empty if the tier has no relics.
+## Refills the deck excluding the first draw before the second draw, guaranteeing distinct relics.
+func draw_offer(tier: String) -> Array[RelicData]:
+	if not _all_by_tier.has(tier) or (_all_by_tier[tier] as Array).is_empty():
 		return []
-	var left: RelicData = _draw_one()
-	if (_decks[left.tier] as Array).is_empty():
+	var left: RelicData = _draw_one_from_tier(tier)
+	if left == null:
+		return []
+	if (_decks[tier] as Array).is_empty():
 		var refill: Array[RelicData] = []
-		for r: RelicData in (_all_by_tier[left.tier] as Array):
+		for r: RelicData in (_all_by_tier[tier] as Array):
 			if r.id != left.id:
 				refill.append(r)
 		refill.shuffle()
-		_decks[left.tier] = refill
-	var right: RelicData = _draw_one()
+		_decks[tier] = refill
+	var right: RelicData = _draw_one_from_tier(tier)
+	if right == null:
+		return [left]
 	return [left, right]
 
 

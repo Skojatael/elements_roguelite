@@ -78,8 +78,16 @@
 - **exports**: `room_type_id: String`, `scene: PackedScene`
 
 ### `scripts/data_models/RoomSpawnConfig.gd` (`class_name RoomSpawnConfig extends Resource`)
-- **fields**: `room_id: String`, `spawn_points: Array[SpawnPointData]`, `enemy_count_mult: float`, `essence_mult: float`
+- **fields**: `room_id: String`, `spawn_points: Array[SpawnPointData]`, `enemy_count_mult: float`, `essence_mult: float`, `wave_config: WaveConfig`
 - **factory**: `static func from_dict(room_id, data) -> RoomSpawnConfig`
+
+### `scripts/data_models/WaveConfig.gd` (`class_name WaveConfig extends Resource`)
+- **fields**: `waves: Array[int]`, `trigger_threshold: int`, `alive_cap: int`, `min_spawn_distance: float`
+- **factory**: `static func from_dict(data: Dictionary) -> Resource`
+
+### `scripts/data_models/DepthTierConfig.gd` (`class_name DepthTierConfig extends Resource`)
+- **fields**: `depth_min: int`, `depth_max: int`, `waves: Array`, `trigger_threshold: int`, `alive_cap: int`, `min_spawn_distance: float`
+- **factories**: `static func from_dict(data: Dictionary) -> Resource`, `static func find_for_depth(tiers: Array, depth: int) -> Resource`
 
 ### `scripts/data_models/RunState.gd` (`class_name RunState extends RefCounted`)
 - **fields**: `current_room_id: String`, `cleared_rooms: Dictionary`, `run_currency: float`, `run_mode: String`, `max_depth_reached: int`, `seed: int`, `player_state: PlayerState`
@@ -119,14 +127,17 @@
 
 ### `scripts/dungeon/RoomLoader.gd` (`class_name RoomLoader extends Node`)
 - **const**: `ENTRY_OFFSET = 150.0`
-- **methods**: `free_current_room()`, `_load_room(room_id)`, `_configure_doors(room_node, room_id)`
+- **methods**: `return_to_room(room_id: String)`, `free_current_room()`, `_load_room(room_id, entry_direction)`, `_configure_doors(room_node, room_id)`
 
 ### `scripts/dungeon/RoomManager.gd` — stub (no class_name, no logic)
 
 ### `scripts/dungeon/RoomSpawner.gd` (`class_name RoomSpawner extends Node`)
 - **exports**: `room_id: String`, `room_type_id: String`, `auto_register: bool`, `difficulty_mult: float`, `depth: int`
-- **signals**: `room_cleared(room_id: String)`, `room_entered(room_id: String)`, `enemy_defeated(enemy_id: String, position: Vector2)`
+- **signals**: `room_cleared(room_id: String)`, `room_entered(room_id: String)`, `enemy_defeated(enemy_type_id: String)`
 - **property**: `essence_mult: float`
+- **fields**: `_depth_tiers: Array` — loaded from `dungeon_config.json` depth_tiers; used in `_resolve_wave_config()`
+- **wave state**: `_wave_index: int`, `_total_killed: int`, `_total_enemies: int`
+- **methods**: `_resolve_wave_config()`, `_spawn_wave(wave_idx: int)`, `_spawn_enemies_legacy()`, `_lock_doors()`, `_unlock_doors()`
 
 ---
 
@@ -152,8 +163,8 @@
 
 ### `scenes/core/Main.gd`
 - **const**: `BOSS_ROOM_WORLD_POS = Vector2(0, -3000)`
-- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_movement: MovementComponent`, `_stats: StatsComponent`, `_skill_component: SkillComponent`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`
-- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
+- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_movement: MovementComponent`, `_stats: StatsComponent`, `_skill_component: SkillComponent`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`, `_boss_return_room_id: String`
+- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_continue_pressed()`, `_on_boss_cash_out_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
 
 ---
 
@@ -194,6 +205,7 @@
 ### `scenes/combat/enemies/Enemy.gd`
 - **const**: `DETECTION_RANGE_FALLBACK = 300.0`
 - **exports**: `enemy_type_id: String`
+- **fields**: `_spawn_delay: float` — per-instance countdown read from `dungeon_config.json → enemy_spawn.spawn_delay`; blocks movement and contact damage until it reaches 0
 - **signals**: `defeated`
 - **methods**: `initialize(data: EnemyData)`, `apply_difficulty(mult: float)`, `get_hp_ratio() -> float`, `take_damage(amount: float)`, `on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float)`
 
@@ -203,6 +215,7 @@
 
 ### `scenes/dungeon/doors/Door.gd` (`class_name Door`)
 - **exports**: `direction: String`, `target_room_id: String`
+- **fields**: `locked: bool` — when `true`, suppresses `door_activated`; set by `RoomSpawner` on enemy spawn / room clear
 - **signals**: `door_activated(direction: String, target_room_id: String)`
 
 ---

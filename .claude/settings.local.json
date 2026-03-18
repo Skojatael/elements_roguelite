@@ -24,7 +24,9 @@
       "Bash(\"C:/Users/small/Downloads/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64.exe\" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1 | tail -10)",
       "Bash(ls:*)",
       "Bash(find:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(\"C:\\\\Users\\\\small\\\\Downloads\\\\Godot_v4.6.1-stable_win64.exe\\\\Godot_v4.6.1-stable_win64.exe\" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1 | tail -15)",
+      "Bash(\"C:\\\\Users\\\\small\\\\Downloads\\\\Godot_v4.6.1-stable_win64.exe\\\\Godot_v4.6.1-stable_win64.exe\" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1 | grep -A3 \"FAILED\\\\|Failed\\\\|failed\")"
     ]
   }
 }

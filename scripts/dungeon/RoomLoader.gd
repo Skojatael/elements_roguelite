@@ -119,6 +119,12 @@ func _on_run_ended(_reason: RunManager.EndReason) -> void:
 		RunManager.current_room = null
 
 
+## Loads the given room by ID and places the player at its center.
+## Called by Main.gd to return the player after a boss fight.
+func return_to_room(room_id: String) -> void:
+	_load_room(room_id, "")
+
+
 ## Frees the current room scene and clears RunManager.current_room.
 ## Called by Main.gd before spawning the boss room.
 func free_current_room() -> void:

@@ -22,7 +22,7 @@
 	},
 	"mage_tower": {
 		"name": "Mage Tower",
-		"cost": 200,
+		"cost": 100,
 		"first_boss_killed": {
 			"popup_message": "You have defeated the boss. Boss Challenge Mode can now be unlocked in the Mage Tower."
 		},
@@ -34,7 +34,7 @@
 	},
 	"alchemy_lab": {
 		"name": "Alchemy Lab",
-		"cost": 500,
+		"cost": 200,
 		"upgrades": {
 			"essence_gain": {
 				"name": "Essence Gain",

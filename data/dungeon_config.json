@@ -3,6 +3,15 @@
 	"essence_depth_scale": 0.10,
 	"base_room_count": 9,
 	"expansion_room_count": 4,
+	"enemy_spawn": {
+		"spawn_delay": 1.0
+	},
+	"depth_tiers": [
+		{ "depth_min": 1, "depth_max": 1,  "waves": [3],       "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 },
+		{ "depth_min": 2, "depth_max": 2,  "waves": [4],       "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 },
+		{ "depth_min": 3, "depth_max": 4,  "waves": [4, 2],    "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 },
+		{ "depth_min": 5, "depth_max": -1, "waves": [4, 2, 1], "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 }
+	],
 	"combat_room_pool": ["CombatRoom01", "CombatRoom02"],
 	"spawn_configs": {
 		"StartRoom01": {
@@ -10,22 +19,26 @@
 		},
 		"CombatRoom01": {
 			"spawn_points": [
-				{ "enemy_id": "slime", "position": { "x": -100, "y": 0 }, "radius": 30 },
-				{ "enemy_id": "slime", "position": { "x": 100, "y": 0 }, "radius": 30 }
+				{ "enemy_id": "slime", "position": { "x": -350, "y": -250 }, "radius": 40 },
+				{ "enemy_id": "slime", "position": { "x":  350, "y": -250 }, "radius": 40 },
+				{ "enemy_id": "slime", "position": { "x": -350, "y":  250 }, "radius": 40 },
+				{ "enemy_id": "slime", "position": { "x":  350, "y":  250 }, "radius": 40 }
 			]
 		},
 		"CombatRoom02": {
 			"spawn_points": [
-				{ "enemy_id": "skeleton", "position": { "x": 0, "y": 0 }, "radius": 0 }
-				
+				{ "enemy_id": "skeleton", "position": { "x": -300, "y":    0 }, "radius": 30 },
+				{ "enemy_id": "skeleton", "position": { "x":  300, "y":    0 }, "radius": 30 },
+				{ "enemy_id": "skeleton", "position": { "x":    0, "y": -250 }, "radius": 30 },
+				{ "enemy_id": "skeleton", "position": { "x":    0, "y":  250 }, "radius": 30 }
 			]
 		},
 		"EliteRoom01": {
 			"enemy_count_mult": 1.5,
 			"essence_mult": 1.8,
 			"spawn_points": [
-				{ "enemy_id": "slime", "position": { "x": -80, "y": 0 }, "radius": 20 },
-				{ "enemy_id": "skeleton", "position": { "x": 80, "y": 0 }, "radius": 20 }
+				{ "enemy_id": "slime",    "position": { "x": -80, "y": 0 }, "radius": 20 },
+				{ "enemy_id": "skeleton", "position": { "x":  80, "y": 0 }, "radius": 20 }
 			]
 		},
 		"BossRoom01": {

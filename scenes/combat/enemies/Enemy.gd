@@ -15,6 +15,8 @@ signal defeated
 ## --- Contact damage (US2) ---
 @onready var _contact_area: Area2D = $ContactArea
 
+var _spawn_delay: float = 0.0
+
 var _burn: BurnEffect = null
 
 var _player_stats: StatsComponent = null
@@ -56,6 +58,9 @@ func _ready() -> void:
 		"Enemy: no entry found in enemies.json for id={id}".format({"id": enemy_type_id}))
 
 	initialize(EnemyData.from_dict(entry))
+
+	var enemy_spawn_cfg: Dictionary = ResourceManager.get_dungeon_config().get("enemy_spawn", {})
+	_spawn_delay = float(enemy_spawn_cfg.get("spawn_delay", 1.0))
 
 	# Wire death signal.
 	_stats.died.connect(_on_died)
@@ -112,6 +117,10 @@ func on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float) -
 
 
 func _physics_process(delta: float) -> void:
+	if _spawn_delay > 0.0:
+		_spawn_delay -= delta
+		return
+
 	# Burn damage tick.
 	if _burn != null and _burn.is_active():
 		var burn_dmg: float = _burn.process(delta)

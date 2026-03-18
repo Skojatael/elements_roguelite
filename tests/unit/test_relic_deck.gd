@@ -21,11 +21,7 @@ const STUB_RELICS: Dictionary = {
 	}
 }
 
-# Matches data/meta_config.json relic_tier_weights exactly.
-# rare is present but excluded from _tier_weights by build_pool — standard draws never yield rare.
-const STUB_CFG: Dictionary = {
-	"relic_tier_weights": {"common": 0.6, "uncommon": 0.3, "rare": 0.1}
-}
+const STUB_CFG: Dictionary = {}
 
 var _impl: RelicManagerImpl
 
@@ -36,9 +32,9 @@ func before_each() -> void:
 
 
 func test_no_duplicates_single_pass() -> void:
-	var a: RelicData = _impl._draw_one()
-	var b: RelicData = _impl._draw_one()
-	var c: RelicData = _impl._draw_one()
+	var a: RelicData = _impl._draw_one_from_tier("common")
+	var b: RelicData = _impl._draw_one_from_tier("common")
+	var c: RelicData = _impl._draw_one_from_tier("common")
 	assert_ne(a.id, b.id, "first and second draws must differ")
 	assert_ne(b.id, c.id, "second and third draws must differ")
 
@@ -46,16 +42,25 @@ func test_no_duplicates_single_pass() -> void:
 func test_draw_offer_pair_distinct() -> void:
 	for i: int in 10:
 		_impl.build_pool(STUB_RELICS, STUB_CFG)
-		var offer: Array[RelicData] = _impl.draw_offer()
+		var offer: Array[RelicData] = _impl.draw_offer("common")
 		assert_eq(offer.size(), 2, "draw_offer should return exactly 2 relics")
 		assert_ne(offer[0].id, offer[1].id, "offer pair must contain distinct relics (iteration {i})".format({"i": i}))
 
 
-func test_draw_offer_never_returns_rare() -> void:
+func test_draw_offer_common_returns_only_common() -> void:
 	for i: int in 20:
-		var offer: Array[RelicData] = _impl.draw_offer()
+		var offer: Array[RelicData] = _impl.draw_offer("common")
 		for relic: RelicData in offer:
-			assert_ne(relic.tier, "rare", "draw_offer must never return rare relics")
+			assert_eq(relic.tier, "common", "draw_offer(common) must return only common relics")
+
+
+func test_draw_offer_uncommon_returns_only_uncommon() -> void:
+	for i: int in 10:
+		_impl.build_pool(STUB_RELICS, STUB_CFG)
+		var offer: Array[RelicData] = _impl.draw_offer("uncommon")
+		assert_eq(offer.size(), 2, "draw_offer(uncommon) should return exactly 2 relics")
+		for relic: RelicData in offer:
+			assert_eq(relic.tier, "uncommon", "draw_offer(uncommon) must return only uncommon relics")
 
 
 func test_boss_offer_only_rare() -> void:
@@ -279,19 +284,14 @@ func test_pick_relic_adds_to_active_ids() -> void:
 
 
 func test_tier_exhaustion_reshuffles() -> void:
-	# Force all draws into common (3 relics: a, b, c) by setting its weight to 1.0.
-	var cfg_common_only: Dictionary = {
-		"relic_tier_weights": {"common": 1.0, "uncommon": 0.0, "rare": 0.0}
-	}
-	_impl.build_pool(STUB_RELICS, cfg_common_only)
 	# Exhaust the 3-card common deck.
-	var d1: RelicData = _impl._draw_one()
-	var d2: RelicData = _impl._draw_one()
-	var d3: RelicData = _impl._draw_one()
+	var d1: RelicData = _impl._draw_one_from_tier("common")
+	var d2: RelicData = _impl._draw_one_from_tier("common")
+	var d3: RelicData = _impl._draw_one_from_tier("common")
 	assert_ne(d1.id, d2.id, "exhaustion pass: draws 1 and 2 must differ")
 	assert_ne(d2.id, d3.id, "exhaustion pass: draws 2 and 3 must differ")
 	assert_ne(d1.id, d3.id, "exhaustion pass: draws 1 and 3 must differ")
 	# Fourth draw must trigger a reshuffle and still return a valid common relic.
-	var d4: RelicData = _impl._draw_one()
+	var d4: RelicData = _impl._draw_one_from_tier("common")
 	assert_eq(d4.tier, "common", "post-exhaustion draw must still come from common tier")
 	assert_true(d4.id in ["relic_a", "relic_b", "relic_c"], "post-exhaustion draw must be a known common relic")

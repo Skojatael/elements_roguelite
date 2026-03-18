@@ -45,13 +45,15 @@ func _on_room_cleared(room_id: String) -> void:
 	if RunManager.current_room != null:
 		room_type = (RunManager.current_room as RoomSpawner).room_type_id
 	if _impl.should_offer_for_room(room_type):
-		var options: Array[RelicData] = _impl.draw_offer()
+		var tier: String = "uncommon" if room_type.contains("Elite") else "common"
+		var options: Array[RelicData] = _impl.draw_offer(tier)
 		if options.is_empty():
 			print("[RelicManager] relic pool is empty — no offer")
 			return
-		print("[RelicManager] offer triggered — room_id='{id}' room_type='{type}'".format({
+		print("[RelicManager] offer triggered — room_id='{id}' room_type='{type}' tier='{tier}'".format({
 			"id": room_id,
 			"type": room_type,
+			"tier": tier,
 		}))
 		relic_offer_ready.emit(options)
 
@@ -105,9 +107,10 @@ func trigger_boss_offer() -> bool:
 	return true
 
 
-## Draws an offer from the pool and emits relic_offer_ready. No-op if pool is empty.
+## Draws a common offer and emits relic_offer_ready. No-op if pool is empty.
+## Used by DevPanel only.
 func trigger_offer() -> void:
-	var options: Array[RelicData] = _impl.draw_offer()
+	var options: Array[RelicData] = _impl.draw_offer("common")
 	if options.is_empty():
 		print("[RelicManager] trigger_offer — pool empty, no offer")
 		return

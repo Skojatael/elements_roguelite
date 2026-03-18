@@ -5,6 +5,7 @@ var room_id: String
 var spawn_points: Array[SpawnPointData]
 var enemy_count_mult: float = 1.0
 var essence_mult: float = 1.0
+var wave_config: WaveConfig = null
 
 
 static func from_dict(p_room_id: String, data: Dictionary) -> RoomSpawnConfig:

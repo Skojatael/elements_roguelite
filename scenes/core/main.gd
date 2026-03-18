@@ -33,6 +33,7 @@ var _boss_victory_overlay: BossVictoryOverlay = null
 var _boss_relic_pending: bool = false
 var _boss_kill_popup_layer: CanvasLayer = null
 var _first_boss_popup_pending: bool = false
+var _boss_return_room_id: String = ""
 
 
 func _ready() -> void:
@@ -72,6 +73,7 @@ func _process(_delta: float) -> void:
 func _on_run_started() -> void:
 	_boss_relic_pending = false
 	_first_boss_popup_pending = false
+	_boss_return_room_id = ""
 	if is_instance_valid(_boss_room_node):
 		_boss_room_node.queue_free()
 	_boss_room_node = null
@@ -111,6 +113,7 @@ func _on_player_died() -> void:
 
 
 func _on_run_ended(_reason: RunManager.EndReason) -> void:
+	_boss_return_room_id = ""
 	if is_instance_valid(_boss_room_node):
 		_boss_room_node.queue_free()
 	_boss_room_node = null
@@ -204,7 +207,7 @@ func _show_boss_victory_overlay() -> void:
 	add_child(_boss_victory_layer)
 	_boss_victory_overlay = _BOSS_VICTORY_OVERLAY_SCENE.instantiate() as BossVictoryOverlay
 	_boss_victory_layer.add_child(_boss_victory_overlay)
-	_boss_victory_overlay.setup(RunManager.run_mode == "endless")
+	_boss_victory_overlay.setup(RunManager.run_mode == "endless" and not _boss_return_room_id.is_empty())
 	_boss_victory_overlay.cash_out_pressed.connect(_on_boss_cash_out_pressed)
 	_boss_victory_overlay.continue_pressed.connect(_on_boss_continue_pressed)
 
@@ -230,7 +233,18 @@ func _on_boss_cash_out_pressed() -> void:
 
 
 func _on_boss_continue_pressed() -> void:
-	print("[Main] Continue Further — stub, no content yet")
+	if _boss_return_room_id.is_empty():
+		return
+	if is_instance_valid(_boss_room_node):
+		_boss_room_node.queue_free()
+	_boss_room_node = null
+	_boss_room_spawner = null
+	_boss_victory_layer.queue_free()
+	_boss_victory_layer = null
+	_boss_victory_overlay = null
+	GlobalSignals.gameplay_started.emit()
+	_room_loader.return_to_room(_boss_return_room_id)
+	_boss_return_room_id = ""
 
 
 func _on_dev_start_boss() -> void:
@@ -252,6 +266,8 @@ func _on_dev_get_relic() -> void:
 
 
 func _on_boss_teleport_pressed() -> void:
+	if RunManager.current_room != null:
+		_boss_return_room_id = (RunManager.current_room as RoomSpawner).room_id
 	_room_loader.free_current_room()
 	var rooms_cleared: int = RunManager.cleared_rooms.size()
 	var boss_mult: float = RunManager.difficulty_service.get_boss_multiplier(rooms_cleared)

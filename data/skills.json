@@ -5,7 +5,7 @@
 	  "speed": 600.0,
 	  "max_distance": 2200.0,
 	  "max_charges": 3,
-	  "cooldown": 1.0,
+	  "cooldown": 0.75,
 	  "chain_damage_mult": 0.5,
 	  "burn_damage_per_tick": 0.10,
 	  "burn_duration": 2.0,

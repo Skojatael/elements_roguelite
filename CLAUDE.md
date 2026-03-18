@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Repo map**: `repo_map.md` at the project root lists every `.gd` file with its class name, signals, exports, and public methods. Reference it whenever you need to locate a symbol or understand project structure before opening files.
 
+> **Feature numbering**: When creating a new spec directory under `specs/`, always `ls specs/` first and use the **highest existing number + 1**. Never infer the next number from CLAUDE.md feature mentions — the `specs/` directory is the source of truth.
+
 ## Project
 
 A Godot 4.6 mobile roguelite game (portrait, 1080×1920). Renderer: Mobile (D3D12 on Windows). Physics: Jolt.
