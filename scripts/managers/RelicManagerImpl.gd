@@ -35,14 +35,24 @@ func build_pool(relics_raw: Dictionary, _config_raw: Dictionary) -> void:
 			(_all_by_tier[tier_str] as Array).append(r)
 	_decks = {}
 	for tier: Variant in _all_by_tier.keys():
-		var deck: Array[RelicData] = []
-		deck.assign(_all_by_tier[str(tier)])
-		deck.shuffle()
-		_decks[str(tier)] = deck
+		_decks[str(tier)] = _build_expanded_deck(str(tier))
 	print("[RelicManager] pool built — relics={count} tiers={tiers}".format({
 		"count": _relics_by_id.size(),
 		"tiers": _all_by_tier.keys(),
 	}))
+
+
+## Builds a shuffled deck for the given tier, including each relic deck_count times.
+## exclude_id: if non-empty, that relic is excluded (used for second-draw de-dup).
+func _build_expanded_deck(tier: String, exclude_id: String = "") -> Array[RelicData]:
+	var result: Array[RelicData] = []
+	for r: RelicData in (_all_by_tier[tier] as Array[RelicData]):
+		if r.id == exclude_id:
+			continue
+		for _i: int in r.deck_count:
+			result.append(r)
+	result.shuffle()
+	return result
 
 
 ## Draws one relic from the specified tier's deck.
@@ -51,10 +61,7 @@ func _draw_one_from_tier(tier: String) -> RelicData:
 	if not _decks.has(tier) or not _all_by_tier.has(tier):
 		return null
 	if (_decks[tier] as Array).is_empty():
-		var refill: Array[RelicData] = []
-		refill.assign(_all_by_tier[tier])
-		refill.shuffle()
-		_decks[tier] = refill
+		_decks[tier] = _build_expanded_deck(tier)
 		print("[RelicManager] deck reshuffled — tier={tier}".format({"tier": tier}))
 	return (_decks[tier] as Array[RelicData]).pop_back()
 
@@ -69,12 +76,7 @@ func draw_offer(tier: String) -> Array[RelicData]:
 	if left == null:
 		return []
 	if (_decks[tier] as Array).is_empty():
-		var refill: Array[RelicData] = []
-		for r: RelicData in (_all_by_tier[tier] as Array):
-			if r.id != left.id:
-				refill.append(r)
-		refill.shuffle()
-		_decks[tier] = refill
+		_decks[tier] = _build_expanded_deck(tier, left.id)
 	var right: RelicData = _draw_one_from_tier(tier)
 	if right == null:
 		return [left]
@@ -113,15 +115,19 @@ func compute_stat_addend(stat: String) -> float:
 	return total
 
 
-## Returns the combined multiplicative effect_mult for all held relics with effect_stat == stat.
-## Returns 1.0 if no held relics match the stat.
+## Returns the combined relic factor for all held relics with effect_stat == stat.
+## Relics of the same source (relic) stack additively: factor = 1.0 + sum(effect_mult - 1.0).
+## Returns 1.0 (neutral) if no held relics match the stat.
 func compute_stat_mult(stat: String) -> float:
-	var mult: float = 1.0
+	var bonus_sum: float = 0.0
 	for relic_id: String in active_relic_ids:
 		var relic: Variant = _relics_by_id.get(relic_id)
-		if relic is RelicData and (relic as RelicData).effect_stat == stat:
-			mult *= (relic as RelicData).effect_mult
-	return mult
+		if not relic is RelicData:
+			continue
+		if (relic as RelicData).effect_stat != stat:
+			continue
+		bonus_sum += (relic as RelicData).effect_mult - 1.0
+	return 1.0 + bonus_sum
 
 
 ## Draws up to 3 rare relics not already held by the player.

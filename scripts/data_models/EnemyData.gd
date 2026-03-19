@@ -10,6 +10,7 @@ var detection_range: float
 var damage_cooldown: float
 var base_essence: float
 var rooms_required: int = 0
+var damage_reduction: float = 0.0
 
 
 static func from_dict(data: Dictionary) -> EnemyData:
@@ -31,4 +32,5 @@ static func from_dict(data: Dictionary) -> EnemyData:
 	d.damage_cooldown = float(data["damage_cooldown"])
 	d.base_essence = float(data.get("base_essence", 0.0))
 	d.rooms_required = int(data.get("rooms_required", 0))
+	d.damage_reduction = float(data.get("damage_reduction", 0.0))
 	return d

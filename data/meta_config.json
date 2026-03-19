@@ -13,7 +13,7 @@
 		"upgrades": {
 			"damage_upgrade": {
 				"name": "Damage Multiplier",
-				"base_cost": 50,
+				"base_cost": 120,
 				"cost_scale": 1.2,
 				"max_levels": 10,
 				"damage_per_level": 0.1
@@ -27,7 +27,7 @@
 			"popup_message": "You have defeated the boss. Boss Challenge Mode can now be unlocked in the Mage Tower."
 		},
 		"upgrades": {
-			"dungeon_expansion": { "name": "Dungeon Expansion", "cost": 200 },
+			"dungeon_expansion": { "name": "Dungeon Expansion", "cost": 250 },
 			"relic_system":      { "name": "Relic System",      "cost": 100 },
 			"boss_challenge":    { "name": "Boss Challenge Mode", "cost": 200, "gate_text": "Major essence required" }
 		}

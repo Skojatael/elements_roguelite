@@ -98,10 +98,10 @@ func test_compute_stat_mult_single_relic() -> void:
 
 
 func test_compute_stat_mult_two_relics_same_stat() -> void:
-	_impl.pick_relic("relic_a")
-	_impl.pick_relic("relic_d")
-	assert_almost_eq(_impl.compute_stat_mult("attack_damage"), 1.10 * 1.18, 0.0001,
-		"two attack_damage relics should multiply: 1.10 × 1.18")
+	_impl.pick_relic("relic_a")  # +0.10 attack_damage
+	_impl.pick_relic("relic_d")  # +0.18 attack_damage
+	assert_almost_eq(_impl.compute_stat_mult("attack_damage"), 1.0 + 0.10 + 0.18, 0.0001,
+		"two attack_damage relics stack additively: 1.0 + 0.10 + 0.18 = 1.28")
 
 
 func test_compute_stat_mult_cross_stat_isolation() -> void:
@@ -281,6 +281,77 @@ func test_pick_relic_adds_to_active_ids() -> void:
 		"picked relic must appear in active_relic_ids")
 	assert_false(_impl.active_relic_ids.has("relic_b"),
 		"unpicked relic must not be in active_relic_ids")
+
+
+# --- deck_count expansion ---
+
+const STUB_RELICS_COUNTS: Dictionary = {
+	"relics": {
+		"common": {
+			"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
+			"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 1},
+		},
+	}
+}
+
+const STUB_RELICS_ZERO: Dictionary = {
+	"relics": {
+		"common": {
+			"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
+			"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 0},
+		},
+	}
+}
+
+
+func test_deck_count_expansion_total_size() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_COUNTS, STUB_CFG)
+	# relic_a × 3 + relic_b × 1 = 4 entries
+	var built: Array[RelicData] = impl._build_expanded_deck("common")
+	assert_eq(built.size(), 4, "_build_expanded_deck must produce deck_count copies per relic")
+
+
+func test_deck_count_exclude_id_removes_all_copies() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_COUNTS, STUB_CFG)
+	var built: Array[RelicData] = impl._build_expanded_deck("common", "relic_a")
+	for r: RelicData in built:
+		assert_ne(r.id, "relic_a", "exclude_id must remove ALL copies of the excluded relic")
+	assert_eq(built.size(), 1, "only relic_b (count=1) should remain after excluding relic_a")
+
+
+func test_deck_count_zero_relic_never_drawn() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_ZERO, STUB_CFG)
+	var built: Array[RelicData] = impl._build_expanded_deck("common")
+	for r: RelicData in built:
+		assert_ne(r.id, "relic_b", "relic with deck_count=0 must not appear in the expanded deck")
+
+
+func test_deck_count_default_one_without_field() -> void:
+	# STUB_RELICS has no deck_count fields — all should default to 1
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS, STUB_CFG)
+	var built: Array[RelicData] = impl._build_expanded_deck("common")
+	assert_eq(built.size(), 3, "relics without deck_count default to 1 — common tier has 3 relics × 1 = 3 entries")
+
+
+func test_deck_count_higher_relic_drawn_more_often() -> void:
+	var impl: RelicManagerImpl = RelicManagerImpl.new()
+	impl.build_pool(STUB_RELICS_COUNTS, STUB_CFG)
+	var count_a: int = 0
+	var count_b: int = 0
+	# Draw 40 times with reshuffles to get a stable sample
+	for _i: int in 40:
+		var r: RelicData = impl._draw_one_from_tier("common")
+		if r.id == "relic_a":
+			count_a += 1
+		else:
+			count_b += 1
+	# relic_a (count=3) should appear ~3× more than relic_b (count=1)
+	# With 40 draws: expect ~30 for a, ~10 for b — allow wide tolerance
+	assert_true(count_a > count_b, "relic_a (deck_count=3) must appear more often than relic_b (deck_count=1) over 40 draws")
 
 
 func test_tier_exhaustion_reshuffles() -> void:

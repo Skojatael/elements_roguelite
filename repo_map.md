@@ -40,7 +40,7 @@
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
 - **const**: `OFFER_INTERVAL = 2`
 - **state**: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`
-- **methods**: `reset()`, `build_pool(relics_dict) -> Array[RelicData]`, `draw_offer(pool) -> Array[RelicData]`, `draw_boss_offer() -> Array[RelicData]`, `pick_relic(id, pool)`, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat) -> float`, `compute_stat_addend(stat) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`
+- **methods**: `reset()`, `build_pool(relics_dict, config_dict)`, `draw_offer(tier) -> Array[RelicData]`, `draw_boss_offer() -> Array[RelicData]`, `pick_relic(relic_id)`, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat) -> float` *(additive within relic source: 1.0 + Σ(effect_mult − 1.0))*, `compute_stat_addend(stat) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`
 
 ### `scripts/managers/ResourceManager.gd` (`class_name ResourceManagerImpl`)
 - **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_skills() -> Array`, `get_enemy_base_essence(id) -> float`, `get_enemy_rooms_required(id) -> int`, `enemy_id_exists(id) -> bool`
@@ -61,7 +61,7 @@
 ## Scripts — Data Models (`scripts/data_models/`)
 
 ### `scripts/data_models/EnemyData.gd` (`class_name EnemyData extends Resource`)
-- **fields**: `id`, `display_name`, `max_health`, `damage`, `move_speed`, `detection_range`, `damage_cooldown`, `base_essence`, `rooms_required: int`
+- **fields**: `id`, `display_name`, `max_health`, `damage`, `move_speed`, `detection_range`, `damage_cooldown`, `base_essence`, `rooms_required: int`, `damage_reduction: float`
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
@@ -71,7 +71,7 @@
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
 
 ### `scripts/data_models/RelicData.gd` (`class_name RelicData extends RefCounted`)
-- **fields**: `id`, `name`, `tier`, `tags: Array[String]`, `effect_stat`, `effect_mult: float`, `description`
+- **fields**: `id`, `name`, `tier`, `tags: Array[String]`, `effect_stat`, `effect_mult: float`, `description`, `deck_count: int`
 - **factory**: `static func from_dict(data) -> RelicData`
 
 ### `scripts/data_models/RoomData.gd` (`class_name RoomData extends Resource`)
@@ -190,9 +190,12 @@
 - **methods**: `_recompute_crit_stats()` — recalculates `_crit_chance` and `_crit_multiplier` from base values and active relic addends; called on `run_started`, `relic_applied`, `relics_cleared`; `_on_skill_button_pressed()` — guarded by cooldown + charge gates; spends 1 charge, finds closest enemy, applies crit roll, spawns homing Projectile with `_chain_damage_mult`, starts cooldown; `_on_melee_hit_landed()` — restores 1 charge (capped at max); `_reset_charges()` — sets current to max, clears cooldown, emits both signals; `_process(delta)` — counts down cooldown, emits cooldown_changed each frame while active
 
 ### `scenes/player/components/StatsComponent.gd`
-- **exports**: `max_health: float`
+- **exports**: `max_health: float`, `is_player: bool`
 - **signals**: `health_changed(new_health: float, max_health: float)`, `died`
-- **methods**: `take_damage(amount: float)`, `heal(amount: float)`, `reset()`
+- **properties**: `damage_reduction: float` (0.0 default; recomputed from relics on `relic_applied`/`relics_cleared` for player; set from `EnemyData` for enemies)
+- **methods**: `take_damage(amount: float)`, `take_damage_raw(amount: float)`, `heal(amount: float)`, `reset()`
+- **static methods**: `compute_reduced_damage(amount: float, reduction: float) -> float`, `regen_tick_amount(rate: float, max_health: float, delta: float) -> float`, `apply_regen_clamp(current: float, amount: float, max_health: float) -> float`
+- **notes**: `_process(delta)` ticks HP regen when `is_player`, `RunManager.is_run_active`, and `RelicManager.get_stat_addend("hp_regen") > 0`; `take_damage_raw()` bypasses DR (used for burn DoT)
 
 ---
 

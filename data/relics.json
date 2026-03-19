@@ -1,63 +1,79 @@
 {
 	"relics": {
 		"common": {
-			"sharp_edge": {
+			"common_damage": {
 				"name": "Whetstone",
 				"tags": ["combat"],
 				"effect_stat": "attack_damage",
-				"effect_mult": 1.15,
-				"description": "+15% attack damage"
+				"effect_mult": 1.10,
+				"description": "+10% attack damage",
+				"deck_count": 3
 			},
 			"swift_strike": {
-				"name": "Agility Cloak",
+				"name": "Agility Leaf",
 				"tags": ["combat"],
 				"effect_stat": "attack_speed",
-				"effect_mult": 1.12,
-				"description": "+12% attack speed"
+				"effect_mult": 1.10,
+				"description": "+10% attack speed",
+				"deck_count": 3
 			},
 			"iron_hide": {
-				"name": "Iron Hide",
+				"name": "Ironwood Branch",
 				"tags": ["survival"],
 				"effect_stat": "max_health",
-				"effect_mult": 1.25,
-				"description": "+25% max health"
+				"effect_mult": 1.15,
+				"description": "+15% max health",
+				"deck_count": 3
 			},
 			"feather": {
 				"name": "Fleetfoot Feather",
-				"tags": ["combat"],
+				"tags": ["utility"],
 				"effect_stat": "move_speed",
 				"effect_mult": 1.15,
-				"description": "+15% movement speed"
+				"description": "+15% movement speed",
+				"deck_count": 3
+			},
+			"common_regen": {
+				"name": "Regeneration Stone",
+				"tags": ["survival"],
+				"effect_stat": "hp_regen",
+				"effect_mult": 0.01,
+				"description": "+1% HP per second",
+				"deck_count": 1
+			},
+			"iron_veil": {
+				"name": "Iron Veil",
+				"tags": ["survival"],
+				"effect_stat": "damage_reduction",
+				"effect_mult": 0.10,
+				"description": "Take 10% less damage",
+				"deck_count": 2
 			}
 		},
 		"uncommon": {
-			"storm_band": {
-				"name": "Storm Band",
-				"tags": ["combat"],
-				"effect_stat": "attack_speed",
-				"effect_mult": 1.25,
-				"description": "+25% attack speed"
-			},
-			"bulwark_shard": {
-				"name": "Bulwark Shard",
-				"tags": ["survival"],
-				"effect_stat": "max_health",
-				"effect_mult": 1.35,
-				"description": "+35% max health"
-			},
 			"chaining_stone": {
-				"name": "Chaining Stone",
+				"name": "Lightning Stone",
 				"tags": ["projectile", "chain"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
-				"description": "Magic Missile strikes a second enemy for 50% damage."
+				"description": "Magic Missile strikes a second enemy for 50% damage.",
+				"deck_count": 1
 			},
 			"burn": {
 				"name": "Living Ember",
 				"tags": ["projectile", "burn"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
-				"description": "Magic Missile ignites enemies, dealing 20% attack damage over 2s. Additional hits extend the burn."
+				"description": "Magic Missile ignites enemies, dealing 20% attack damage over 2s. Additional hits extend the burn.",
+				"deck_count": 1
+			},
+			"crit_projectile": {
+				"name": "Sharpened Crystal",
+				"tags": ["projectile", "crit"],
+				"effect_stat": "crit_chance",
+				"effect_mult": 0.2,
+				"description": "Magic missile gains +10% crit chance",
+				"deck_count": 1
 			}
 		},
 		"rare": {
@@ -66,28 +82,32 @@
 				"tags": ["combat"],
 				"effect_stat": "attack_damage",
 				"effect_mult": 1.3,
-				"description": "+30% attack damage"
+				"description": "+30% attack damage",
+				"deck_count": 1
 			},
 			"vital_core": {
 				"name": "Vital Core",
 				"tags": ["survival"],
 				"effect_stat": "max_health",
 				"effect_mult": 1.5,
-				"description": "+50% max health"
+				"description": "+50% max health",
+				"deck_count": 1
 			},
 			"berserker_stone": {
 				"name": "Berserker Stone",
 				"tags": ["combat"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
-				"description": "+30% damage when below 50% HP"
+				"description": "+30% damage when below 50% HP",
+				"deck_count": 1
 			},
 			"executioners_mark": {
 				"name": "Executioner's Mark",
 				"tags": ["combat"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
-				"description": "+35% damage to enemies below 30% HP"
+				"description": "+35% damage to enemies below 30% HP",
+				"deck_count": 1
 			}
 		}
 	}

@@ -78,6 +78,7 @@ func initialize(data: EnemyData) -> void:
 	_data = data
 	_stats.max_health = data.max_health
 	_stats.current_health = data.max_health
+	_stats.damage_reduction = data.damage_reduction
 	_apply_detection_range(data.detection_range)
 
 
@@ -121,11 +122,11 @@ func _physics_process(delta: float) -> void:
 		_spawn_delay -= delta
 		return
 
-	# Burn damage tick.
+	# Burn damage tick — bypasses damage_reduction intentionally.
 	if _burn != null and _burn.is_active():
 		var burn_dmg: float = _burn.process(delta)
 		if burn_dmg > 0.0:
-			take_damage(burn_dmg)
+			_stats.take_damage_raw(burn_dmg)
 
 	# Contact damage tick (US2).
 	if _in_contact and _player_stats != null and is_instance_valid(_player_stats):
