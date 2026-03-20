@@ -11,6 +11,12 @@ var damage_cooldown: float
 var base_essence: float
 var rooms_required: int = 0
 var damage_reduction: float = 0.0
+var root_duration: float = 0.0
+var root_cooldown: float = 0.0
+var attack_range: float = 22.0
+var poison_duration: float = 0.0
+var poison_modifier: float = 0.0
+var color: Color = Color.WHITE
 
 
 static func from_dict(data: Dictionary) -> EnemyData:
@@ -33,4 +39,10 @@ static func from_dict(data: Dictionary) -> EnemyData:
 	d.base_essence = float(data.get("base_essence", 0.0))
 	d.rooms_required = int(data.get("rooms_required", 0))
 	d.damage_reduction = float(data.get("damage_reduction", 0.0))
+	d.root_duration = float(data.get("root_duration", 0.0))
+	d.root_cooldown = float(data.get("root_cooldown", 0.0))
+	d.attack_range = float(data.get("attack_range", 22.0))
+	d.poison_duration = float(data.get("poison_duration", 0.0))
+	d.poison_modifier = float(data.get("poison_modifier", 0.0))
+	d.color = Color(data.get("color", "#ff12ff"))
 	return d

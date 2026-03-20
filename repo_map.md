@@ -11,13 +11,13 @@
 
 ### `autoload/MetaManager.gd`
 - **signals**: `shards_changed(new_total: int)`, `gold_changed(new_floor: int)`
-- **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `is_missile_extra_charge_owned: bool`, `is_rarity_luck_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`, `shard_generator_rate: float`
-- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_missile_extra_charge() -> bool`, `purchase_rarity_luck() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float) -> bool`, `get_next_essence_gain_cost() -> int`, `purchase_essence_gain() -> bool`, `get_next_shard_generator_cost() -> int`, `purchase_shard_generator() -> bool`
+- **properties**: `meta_state: MetaState`, `total_gold: float`, `is_relic_offers_active: bool`, `is_first_boss_killed: bool`, `is_adventuring_gear_owned: bool`, `is_boss_run_unlocked: bool`, `is_magic_forge_unlocked: bool`, `is_mage_tower_unlocked: bool`, `is_alchemy_lab_unlocked: bool`, `is_gold_generator_owned: bool`, `is_missile_extra_charge_owned: bool`, `is_rarity_luck_owned: bool`, `is_book_of_skill_gate_reached: bool`, `is_book_of_skill_owned: bool`, `endless_boss_kill_count: int`, `damage_multiplier: float`, `essence_gain_multiplier: float`, `gold_storage_cap_hours: int`, `shard_generator_rate: float`
+- **methods**: `can_spend(cost) -> bool`, `spend(cost) -> bool`, `add_shards(amount)`, `get_next_upgrade_cost() -> int`, `purchase_damage_upgrade() -> bool`, `purchase_missile_extra_charge() -> bool`, `purchase_rarity_luck() -> bool`, `purchase_adventuring_gear() -> bool`, `purchase_boss_run() -> bool`, `purchase_magic_forge() -> bool`, `purchase_mage_tower() -> bool`, `purchase_mage_tower_relic_system() -> bool`, `purchase_alchemy_lab() -> bool`, `purchase_gold_generator() -> bool`, `purchase_gold_storage_cap() -> bool`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float) -> bool`, `get_next_essence_gain_cost() -> int`, `purchase_essence_gain() -> bool`, `get_next_shard_generator_cost() -> int`, `purchase_shard_generator() -> bool`, `record_book_of_skill_gate() -> bool`, `purchase_book_of_skill() -> bool`
 
 ### `autoload/RelicManager.gd`
 - **signals**: `relic_offer_ready(options: Array)`, `relic_applied(relic_id: String)`, `relics_cleared`
 - **properties**: `active_relic_ids: Array[String]`
-- **methods**: `pick_relic(id: String)`, `get_stat_mult(stat: String) -> float`, `get_stat_addend(stat: String) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio, target_is_burning: bool) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`, `get_chain_damage_bonus() -> float`, `on_melee_hit() -> bool`, `trigger_boss_offer() -> bool`, `trigger_offer(room_type_id: String)`
+- **methods**: `pick_relic(id: String)`, `get_stat_mult(stat: String) -> float`, `get_stat_addend(stat: String) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio, target_is_burning: bool) -> float`, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`, `get_chain_damage_bonus() -> float`, `on_melee_hit() -> bool`, `trigger_boss_offer() -> bool`, `trigger_offer(room_type_id: String)`, `has_root_relic() -> bool`, `get_root_on_hit_duration() -> float`, `try_apply_poison(target: Enemy) -> void`
 
 ### `autoload/ResourceManager.gd`
 - Thin wrapper over `ResourceManagerImpl`
@@ -35,12 +35,12 @@
 ## Scripts — Managers (`scripts/managers/`)
 
 ### `scripts/managers/MetaManager.gd` (`class_name MetaManagerImpl`)
-- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `purchase_missile_extra_charge(cost, save_manager) -> bool`, `purchase_rarity_luck(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float, save_manager: Node) -> bool`, `purchase_essence_gain(base_cost: int, cost_step: int, max_levels: int, save_manager: Node) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`, `get_shard_rate_per_hour(rates: Array) -> float`, `tick_shard_generator(delta: float, rates: Array) -> int`, `apply_offline_shards(now_unix: int, rates: Array, cap_seconds: int, save_manager: Node) -> int`, `purchase_shard_generator(cost: int, max_levels: int, save_manager: Node) -> bool`
+- **methods**: `load(save_manager)`, `add_shards(amount, save_manager)`, `can_spend(cost) -> bool`, `spend(cost, save_manager) -> bool`, `get_upgrade_cost(level, base_cost, scale) -> int`, `purchase_damage_upgrade(cost, save_manager) -> bool`, `purchase_missile_extra_charge(cost, save_manager) -> bool`, `purchase_rarity_luck(cost, save_manager) -> bool`, `get_damage_multiplier(damage_per_level) -> float`, `get_essence_gain_multiplier(essence_per_level) -> float`, `can_spend_gold(cost: float) -> bool`, `spend_gold(cost: float, save_manager: Node) -> bool`, `purchase_essence_gain(base_cost: int, cost_step: int, max_levels: int, save_manager: Node) -> bool`, `record_boss_kill(save_manager) -> bool`, `increment_endless_boss_kills(save_manager) -> void`, `purchase_boss_run(cost, save_manager) -> bool`, `purchase_adventuring_gear(cost, save_manager) -> bool`, `purchase_magic_forge(cost, save_manager) -> bool`, `purchase_mage_tower(cost, save_manager) -> bool`, `purchase_mage_tower_relic_system(cost, save_manager) -> bool`, `purchase_alchemy_lab(cost, save_manager) -> bool`, `purchase_gold_generator(cost, save_manager) -> bool`, `apply_offline_gold(now_unix: int, rate_per_hour: float, cap_seconds: int, save_manager: Node) -> void`, `tick_gold(delta: float, rate_per_hour: float) -> int`, `get_gold_storage_cap_seconds(base_hours: int, hours_per_level: int) -> int`, `purchase_gold_storage_cap(cost: int, max_levels: int, save_manager: Node) -> bool`, `get_shard_rate_per_hour(rates: Array) -> float`, `tick_shard_generator(delta: float, rates: Array) -> int`, `apply_offline_shards(now_unix: int, rates: Array, cap_seconds: int, save_manager: Node) -> int`, `purchase_shard_generator(cost: int, max_levels: int, save_manager: Node) -> bool`, `record_book_of_skill_gate(save_manager: Node) -> bool`, `purchase_book_of_skill(cost: int, save_manager: Node) -> bool`
 
 ### `scripts/managers/RelicManagerImpl.gd` (`class_name RelicManagerImpl`)
-- **const**: `OFFER_INTERVAL = 1`, `MELEE_CHARGE_RELIC_ID = "melee_missile_charge"`
+- **const**: `OFFER_INTERVAL = 1`, `MELEE_CHARGE_RELIC_ID = "melee_missile_charge"`, `POISON_RELIC_ID = "venomous_strike"`
 - **state**: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`, `_melee_hit_count: int` *(per-run counter for melee_missile_charge relic; reset each run)*, `_activated_mechanics: Array[String]` *(mechanic tags activated this run; reset each run)*, `_mechanic_tag_names: Array[String]` *(tags that have `_unlocked` counterparts in the pool; computed in build_pool)*
-- **methods**: `reset()`, `build_pool(relics_dict, config_dict)`, `draw_offer(tier: String, promotion_chance: float = 0.0) -> Array[RelicData]` *(promotion_chance: per-draw chance 0.0–1.0 to draw from next rarity tier; default 0.0 = no promotion)*, `draw_boss_offer() -> Array[RelicData]` *(bypasses draw_offer; rarity_luck does not apply)*, `pick_relic(relic_id)` *(activates mechanic tags from the picked relic)*, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat) -> float` *(additive within relic source: 1.0 + Σ(effect_mult − 1.0))*, `compute_stat_addend(stat) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio, target_is_burning: bool) -> float` *(generic loop over active relics; evaluates condition_type/threshold/mult from RelicData; supports "target_hp_below", "attacker_hp_below", "target_is_burning")*, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`, `get_chain_damage_bonus() -> float` *(sums condition_mult for active relics with condition_type == "chain_damage_bonus"; returns 0.0 if none held)*, `on_melee_hit() -> bool` *(increments _melee_hit_count when relic held; resets to 0 and returns true on every Nth hit where N = condition_threshold in JSON)*
+- **methods**: `reset()`, `build_pool(relics_dict, config_dict)`, `draw_offer(tier: String, promotion_chance: float = 0.0) -> Array[RelicData]` *(promotion_chance: per-draw chance 0.0–1.0 to draw from next rarity tier; default 0.0 = no promotion)*, `draw_boss_offer() -> Array[RelicData]` *(bypasses draw_offer; rarity_luck does not apply)*, `pick_relic(relic_id)` *(activates mechanic tags from the picked relic)*, `should_offer_for_room(room_type_id) -> bool`, `compute_stat_mult(stat) -> float` *(additive within relic source: 1.0 + Σ(effect_mult − 1.0))*, `compute_stat_addend(stat) -> float`, `get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio, target_is_burning: bool) -> float` *(generic loop over active relics; evaluates condition_type/threshold/mult from RelicData; supports "target_hp_below", "attacker_hp_below", "target_is_burning")*, `has_chain_relic() -> bool`, `has_burn_relic() -> bool`, `get_chain_damage_bonus() -> float` *(sums condition_mult for active relics with condition_type == "chain_damage_bonus"; returns 0.0 if none held)*, `on_melee_hit() -> bool` *(increments _melee_hit_count when relic held; resets to 0 and returns true on every Nth hit where N = condition_threshold in JSON)*, `has_root_relic() -> bool`, `get_root_on_hit_duration() -> float` *(rolls randf() against root_chance; returns root_duration on success, 0.0 on miss or relic absent)*, `has_poison_relic() -> bool`, `try_apply_poison(target: Enemy) -> void` *(rolls randf() against poison_chance; calls target.apply_poison() on success; no-op when relic absent)*
 
 ### `scripts/managers/ResourceManager.gd` (`class_name ResourceManagerImpl`)
 - **methods**: `get_dungeon_config() -> Dictionary`, `get_meta_config() -> Dictionary`, `get_relics() -> Dictionary`, `get_skills() -> Array`, `get_enemy_base_essence(id) -> float`, `get_enemy_rooms_required(id) -> int`, `enemy_id_exists(id) -> bool`
@@ -61,24 +61,24 @@
 ## Scripts — Data Models (`scripts/data_models/`)
 
 ### `scripts/data_models/EnemyData.gd` (`class_name EnemyData extends Resource`)
-- **fields**: `id`, `display_name`, `max_health`, `damage`, `move_speed`, `detection_range`, `damage_cooldown`, `base_essence`, `rooms_required: int`, `damage_reduction: float`
+- **fields**: `id`, `display_name`, `max_health`, `damage`, `move_speed`, `detection_range`, `damage_cooldown`, `base_essence`, `rooms_required: int`, `damage_reduction: float`, `root_duration: float`, `root_cooldown: float`, `poison_duration: float` (0.0 default; > 0 means enemy can apply poison on contact), `poison_modifier: float` (0.0 default; fraction damage reduction applied to poisoned target)
 - **factory**: `static func from_dict(data) -> EnemyData`
 
 ### `scripts/data_models/MetaState.gd` (`class_name MetaState extends RefCounted`)
-- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`, `gold_generator_owned: bool`, `gold_storage_cap_level: int`, `total_gold: float`, `gold_last_saved_timestamp: int`, `shard_generator_level: int`, `shard_accumulator: float`, `missile_extra_charge_owned: bool`, `rarity_luck_owned: bool`
+- **fields**: `total_shards: int`, `damage_upgrade_level: int`, `relic_offers_active: bool`, `first_boss_killed: bool`, `adventuring_gear_owned: bool`, `endless_boss_kill_count: int`, `boss_run_unlocked: bool`, `magic_forge_unlocked: bool`, `mage_tower_unlocked: bool`, `alchemy_lab_unlocked: bool`, `essence_gain_level: int`, `gold_generator_owned: bool`, `gold_storage_cap_level: int`, `total_gold: float`, `gold_last_saved_timestamp: int`, `shard_generator_level: int`, `shard_accumulator: float`, `missile_extra_charge_owned: bool`, `rarity_luck_owned: bool`, `book_of_skill_gate_reached: bool`, `book_of_skill_owned: bool`
 
 ### `scripts/data_models/PlayerState.gd` (`class_name PlayerState extends RefCounted`)
 - **fields**: `current_hp: float`, `items: Array`, `active_modifiers: Array[String]`, `skill_changes: Array`, `skill_cooldowns: Dictionary`
 
 ### `scripts/data_models/RelicData.gd` (`class_name RelicData extends RefCounted`)
-- **fields**: `id`, `name`, `tier`, `tags: Array[String]`, `effect_stat`, `effect_mult: float`, `condition_type: String`, `condition_threshold: float`, `condition_mult: float`, `description`, `deck_count: int`
+- **fields**: `id`, `name`, `tier`, `tags: Array[String]`, `effect_stat`, `effect_mult: float`, `condition_type: String`, `condition_threshold: float`, `condition_mult: float`, `description`, `deck_count: int`, `root_chance: float` (0.0 default; probability of rooting on melee hit), `root_duration: float` (0.0 default; seconds of root applied on successful roll), `poison_chance: float` (0.0 default; probability of poisoning enemy on melee hit), `poison_duration: float` (0.0 default; seconds of poison applied on proc), `poison_modifier: float` (0.0 default; fraction damage reduction on poisoned entity)
 - **factory**: `static func from_dict(data) -> RelicData`
 
 ### `scripts/data_models/RoomData.gd` (`class_name RoomData extends Resource`)
 - **exports**: `room_type_id: String`, `scene: PackedScene`
 
 ### `scripts/data_models/RoomSpawnConfig.gd` (`class_name RoomSpawnConfig extends Resource`)
-- **fields**: `room_id: String`, `spawn_points: Array[SpawnPointData]`, `enemy_count_mult: float`, `essence_mult: float`, `wave_config: WaveConfig`
+- **fields**: `room_id: String`, `spawn_points: Array[SpawnPointData]`, `enemy_count_mult: float`, `essence_mult: float`, `wave_config: WaveConfig`, `wave_spawn_points: Array` (array of `Array[SpawnPointData]` indexed by wave; populated by `RoomSpawner._load_depth_band_config()` for combat rooms)
 - **factory**: `static func from_dict(room_id, data) -> RoomSpawnConfig`
 
 ### `scripts/data_models/WaveConfig.gd` (`class_name WaveConfig extends Resource`)
@@ -101,8 +101,9 @@
 - **factory**: `static func create(parent, position) -> SpawnContext`
 
 ### `scripts/data_models/SpawnPointData.gd` (`class_name SpawnPointData extends Resource`)
-- **fields**: `enemy_id: String`, `position: Vector2`, `radius: float`
-- **factory**: `static func from_dict(data) -> SpawnPointData`
+- **fields**: `enemy_id: String`, `position: Vector2`, `radius: float`, `enemy_pool: Array` (array of `{enemy_id, weight}` dicts; single-entry for legacy fixed slots)
+- **factory**: `static func from_dict(data) -> SpawnPointData` — supports `"enemy_id"` key (legacy, wraps as 100% pool) and `"pool"` key (weighted array)
+- **methods**: `pick_enemy_id() -> String` — weighted random sample from `enemy_pool`; fast path for single-entry pool; warns and returns `""` for empty pool
 
 ### `scripts/data_models/BurnEffect.gd` (`class_name BurnEffect extends RefCounted`)
 - **fields**: `remaining_duration: float`, `tick_damage: float`, `_seconds_until_next_tick: float`
@@ -137,6 +138,8 @@
 - **property**: `essence_mult: float`
 - **fields**: `_depth_tiers: Array` — loaded from `dungeon_config.json` depth_tiers; used in `_resolve_wave_config()`
 - **wave state**: `_wave_index: int`, `_total_killed: int`, `_total_enemies: int`
+- **depth-band routing**: `_load_config()` routes combat rooms (those in `combat_room_pool`) to `_load_depth_band_config()`; non-combat rooms use `spawn_configs` as before
+- **methods**: `_load_depth_band_config(raw: Dictionary) -> RoomSpawnConfig` — finds matching depth band, builds `wave_spawn_points`, validates pool enemy IDs
 - **methods**: `_resolve_wave_config()`, `_spawn_wave(wave_idx: int)`, `_spawn_enemies_legacy()`, `_lock_doors()`, `_unlock_doors()`
 
 ---
@@ -153,6 +156,11 @@
 
 ## Scripts — Other (`scripts/`)
 
+### `scenes/player/components/PoisonComponent.gd` (`class_name PoisonComponent extends Node`)
+- **properties**: `is_poisoned: bool` (get: `_remaining_duration > 0.0`)
+- **methods**: `apply(duration: float, modifier: float) -> void` — stacks duration additively on re-apply; sets modifier only on fresh application; no-op when duration ≤ 0; `get_damage_mult() -> float` — returns `1.0 - _damage_modifier` while poisoned, else `1.0`
+- **notes**: self-ticking via `_physics_process`; permanent child node of `Player.tscn`; Enemy grabs it at runtime via `body.get_node_or_null("PoisonComponent")`
+
 ### `scripts/meta/PassiveIncomeSystem.gd` — stub
 ### `scripts/Utilities.gd` — stub
 ### `scripts/NumberFormatter.gd` — stub
@@ -163,8 +171,8 @@
 
 ### `scenes/core/Main.gd`
 - **const**: `BOSS_ROOM_WORLD_POS = Vector2(0, -3000)`
-- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_movement: MovementComponent`, `_stats: StatsComponent`, `_skill_component: SkillComponent`, `_dodge_component: DodgeComponent`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`, `_boss_return_room_id: String`
-- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_continue_pressed()`, `_on_boss_cash_out_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
+- **key node refs**: `_dungeon_gen: DungeonGenerator`, `_room_loader: RoomLoader`, `_player: Node`, `_movement: MovementComponent`, `_stats: StatsComponent`, `_skill_component: SkillComponent`, `_dodge_component: DodgeComponent`, `_exploration_hud: ExplorationHUD`, `_hub_room`, `_results_layer`, `_boss_room_spawner: RoomSpawner`, `_boss_victory_layer`, `_boss_relic_pending: bool`, `_boss_kill_popup_layer: CanvasLayer`, `_first_boss_popup_pending: bool`, `_book_of_skill_popup_pending: bool`, `_boss_return_room_id: String`
+- **methods**: `_on_run_started()`, `_on_run_ended(reason)`, `_on_boss_teleport_pressed()`, `_on_boss_continue_pressed()`, `_on_boss_cash_out_pressed()`, `_on_boss_room_cleared(room_id)`, `_show_boss_victory_overlay()`, `_show_boss_kill_popup()`, `_show_book_of_skill_popup()`, `_on_relic_offer_ready(options)`, `_on_relic_picked(relic_id)`, `_on_results_return()`
 
 ---
 
@@ -179,13 +187,17 @@
 ### `scenes/player/components/DodgeComponent.gd` (`class_name DodgeComponent extends Node`)
 - **signals**: `cooldown_changed(remaining: float, total: float)`
 - **const**: `DASH_DURATION_SEC = 0.1`
-- **exports**: `_movement: MovementComponent`, `_stats: StatsComponent`
-- **methods**: `activate() -> void` — guarded by `RunManager.is_run_active`, `_cooldown_remaining`, and `_is_dashing`; sets `_stats.is_invulnerable = true`, begins dash in `_movement.last_direction`; `_end_dash() -> void` — clears invulnerability, starts cooldown; reads config from `ResourceManager.get_skills()` in `_ready()`
+- **exports**: `_movement: MovementComponent`, `_stats: StatsComponent`, `_root: RootComponent`
+- **methods**: `activate() -> void` — guarded by `RunManager.is_run_active`, `_cooldown_remaining`, `_is_dashing`, and `_root.is_rooted`; sets `_stats.is_invulnerable = true`, begins dash in `_movement.last_direction`; `_end_dash() -> void` — clears invulnerability, starts cooldown; reads config from `ResourceManager.get_skills()` in `_ready()`
 
 ### `scenes/player/components/MovementComponent.gd`
-- **exports**: `move_speed: float`
+- **exports**: `move_speed: float`, `_root: RootComponent`
 - **properties**: `last_direction: Vector2` — cached each `_physics_process` frame when joystick input is non-zero; default `Vector2.DOWN`
 - **methods**: `set_joystick(joystick: JoystickControl)`
+
+### `scenes/player/components/RootComponent.gd` (`class_name RootComponent extends Node`)
+- **properties**: `is_rooted: bool` (computed; true when `_root_remaining > 0.0`)
+- **methods**: `apply_root(duration: float) -> void` — sets `_root_remaining = maxf(_root_remaining, duration)`; refresh-to-longest, no stacking
 
 ### `scenes/player/components/SkillComponent.gd` (`class_name SkillComponent extends Node`)
 - **signals**: `charges_changed(current: int, maximum: int)`, `cooldown_changed(remaining: float, total: float)`
@@ -213,10 +225,10 @@
 
 ### `scenes/combat/enemies/Enemy.gd`
 - **const**: `DETECTION_RANGE_FALLBACK = 300.0`
-- **exports**: `enemy_type_id: String`
-- **fields**: `_spawn_delay: float` — per-instance countdown read from `dungeon_config.json → enemy_spawn.spawn_delay`; blocks movement and contact damage until it reaches 0
+- **exports**: `enemy_type_id: String`, `_hp_bar: HPBar` — optional; assigned in Inspector after instancing HPBar.tscn inside Enemy.tscn; if null, no HP bar is shown
+- **fields**: `_spawn_delay: float` — per-instance countdown read from `dungeon_config.json → enemy_spawn.spawn_delay`; blocks movement and contact damage until it reaches 0; `_root_cooldown_remaining: float` — per-instance cooldown between successive roots applied to the player; `_root: RootComponent` — child node instantiated in `_ready()`; tracks root status applied to this enemy by the player; `_poison: PoisonComponent` — child node instantiated in `_ready()`; tracks poison status applied to this enemy by the player relic
 - **signals**: `defeated`
-- **methods**: `initialize(data: EnemyData)`, `apply_difficulty(mult: float)`, `get_hp_ratio() -> float`, `is_burning() -> bool`, `take_damage(amount: float)`, `on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float)`
+- **methods**: `initialize(data: EnemyData)`, `apply_difficulty(mult: float)` — scales max/current health and emits `health_changed` so connected HP bars update immediately, `get_hp_ratio() -> float`, `is_burning() -> bool`, `take_damage(amount: float)`, `on_burn_hit(tick_dmg: float, base_duration: float, extend_seconds: float)`, `apply_root(duration: float) -> void` — applies root to this enemy (refresh-to-longest); called by CombatComponent when root relic procs; `apply_poison(duration: float, modifier: float) -> void` — applies poison to this enemy (stacks duration); called by RelicManagerImpl.try_apply_poison via CombatComponent
 
 ---
 
@@ -262,6 +274,19 @@
 - **signals**: `close_pressed`
 - **exports**: `_essence_button: Button`, `_shard_gen_button: Button`, `_transmuter_button: Button`, `_storage_cap_button: Button`, `_close_button: Button`
 - **methods**: `_update_buttons()`, `_update_essence_button()`, `_update_shard_gen_button()`, `_update_transmuter_button()`, `_update_storage_cap_button()`, `_on_essence_pressed()`, `_on_shard_gen_pressed()`, `_on_transmuter_pressed()`, `_on_storage_cap_pressed()`
+
+### `scenes/hub/BookOfSkill.gd` (`class_name BookOfSkill extends Control`)
+- **exports**: `_not_created_visual: ColorRect`, `_created_visual: ColorRect`, `_label: Label`, `_button: Button`, `_buy_overlay_scene: PackedScene`, `_interior_scene: PackedScene`
+- **methods**: `_update_visuals()`, `_on_button_pressed()`, `_show_buy_overlay()`, `_on_buy_pressed()`, `_show_interior()`, `_close_overlay()`
+
+### `scenes/hub/BookOfSkillBuyOverlay.gd` (`class_name BookOfSkillBuyOverlay extends Control`)
+- **signals**: `buy_pressed`, `cancel_pressed`
+- **exports**: `_buy_button: Button`, `_cancel_button: Button`, `_cost_label: Label`
+- **methods**: `_update_button()`
+
+### `scenes/hub/BookOfSkillInterior.gd` (`class_name BookOfSkillInterior extends Control`)
+- **signals**: `close_pressed`
+- **exports**: `_close_button: Button`
 
 ### `scenes/hub/BossRunButton.gd` (`class_name BossRunButton extends Control`)
 - **signals**: `boss_run_pressed`

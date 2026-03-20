@@ -9,6 +9,8 @@ const DASH_DURATION_SEC: float = 0.1
 @export var _movement: MovementComponent
 ## Reference to StatsComponent — assigned in Inspector.
 @export var _stats: StatsComponent
+## Reference to RootComponent — assigned in Inspector.
+@export var _root: RootComponent
 
 ## Emitted each frame the cooldown changes and on activation.
 ## Shape matches SkillComponent.cooldown_changed for HUD compatibility.
@@ -48,6 +50,8 @@ func activate() -> void:
 		return
 	if _is_dashing:
 		return
+	if _root != null and _root.is_rooted:
+		return
 	_dash_direction = _movement.last_direction
 	_dash_remaining = _dash_distance
 	_is_dashing = true
@@ -59,6 +63,8 @@ func activate() -> void:
 func _end_dash() -> void:
 	_is_dashing = false
 	_stats.is_invulnerable = false
+	var body := get_parent() as CharacterBody2D
+	body.velocity = Vector2.ZERO
 	_cooldown_remaining = _cooldown
 	cooldown_changed.emit(_cooldown_remaining, _cooldown)
 
@@ -67,13 +73,19 @@ func _physics_process(delta: float) -> void:
 	_tick_cooldown(delta)
 	if not _is_dashing:
 		return
-	var step: float = _dash_speed * delta
+
+	var body := get_parent() as CharacterBody2D
+	var step := _dash_speed * delta
+	var motion := _dash_direction * step
+
+	var collision := body.move_and_collide(motion)
+	if collision:
+		_end_dash()
+		return
+
 	_dash_remaining -= step
-	get_parent().velocity = _dash_direction * _dash_speed
-	get_parent().move_and_slide()
 	if _dash_remaining <= 0.0:
 		_end_dash()
-
 
 func _tick_cooldown(delta: float) -> void:
 	if _cooldown_remaining <= 0.0:

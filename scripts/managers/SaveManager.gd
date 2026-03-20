@@ -25,6 +25,8 @@ func save_meta_state(state: MetaState) -> void:
 		"shard_accumulator": state.shard_accumulator,
 		"missile_extra_charge_owned": state.missile_extra_charge_owned,
 		"rarity_luck_owned": state.rarity_luck_owned,
+		"book_of_skill_gate_reached": state.book_of_skill_gate_reached,
+		"book_of_skill_owned": state.book_of_skill_owned,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -64,4 +66,6 @@ func load_meta_state() -> MetaState:
 		state.shard_accumulator = float((parsed as Dictionary).get("shard_accumulator", 0.0))
 		state.missile_extra_charge_owned = bool((parsed as Dictionary).get("missile_extra_charge_owned", false))
 		state.rarity_luck_owned = bool((parsed as Dictionary).get("rarity_luck_owned", false))
+		state.book_of_skill_gate_reached = bool((parsed as Dictionary).get("book_of_skill_gate_reached", false))
+		state.book_of_skill_owned = bool((parsed as Dictionary).get("book_of_skill_owned", false))
 	return state

@@ -125,6 +125,23 @@ func on_melee_hit() -> bool:
 	return _impl.on_melee_hit()
 
 
+## Returns true if the root_relic is currently held this run.
+func has_root_relic() -> bool:
+	return _impl.has_root_relic()
+
+
+## Rolls root-on-hit for the root_relic. Returns root duration (> 0.0) on success,
+## or 0.0 if the relic is not held or the probability check fails.
+func get_root_on_hit_duration() -> float:
+	return _impl.get_root_on_hit_duration()
+
+
+## Rolls a poison proc on a melee hit against target.
+## Delegates to impl; no-op when relic is absent or roll fails.
+func try_apply_poison(target: Enemy) -> void:
+	_impl.try_apply_poison(target)
+
+
 ## Draws a common offer and emits relic_offer_ready. No-op if pool is empty.
 ## Used by DevPanel only.
 func trigger_offer() -> void:

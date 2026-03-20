@@ -2,6 +2,7 @@ extends Node
 
 signal shards_changed(new_total: int)
 signal gold_changed(new_floor: int)
+signal book_of_skill_gate_reached
 
 var meta_state: MetaState:
 	get: return _impl.meta_state
@@ -40,6 +41,12 @@ var is_missile_extra_charge_owned: bool:
 
 var is_rarity_luck_owned: bool:
 	get: return _impl.meta_state.rarity_luck_owned
+
+var is_book_of_skill_gate_reached: bool:
+	get: return _impl.meta_state.book_of_skill_gate_reached
+
+var is_book_of_skill_owned: bool:
+	get: return _impl.meta_state.book_of_skill_owned
 
 var gold_storage_cap_hours: int:
 	get:
@@ -247,6 +254,18 @@ func purchase_missile_extra_charge() -> bool:
 	return success
 
 
+func record_book_of_skill_gate() -> bool:
+	return _impl.record_book_of_skill_gate(SaveManager)
+
+
+func purchase_book_of_skill() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("book_of_skill", {}).get("cost", 250)
+	var success: bool = _impl.purchase_book_of_skill(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
 func purchase_rarity_luck() -> bool:
 	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("rarity_luck_upgrade", {})
 	var cost: int = cfg.get("cost", 350)
@@ -265,15 +284,27 @@ func purchase_mage_tower_relic_system() -> bool:
 
 
 func _on_room_cleared(room_id: String) -> void:
-	if room_id != "boss_room":
+	if room_id == "boss_room":
+		if RunManager.run_mode != "endless":
+			return
+		var recorded: bool = _impl.record_boss_kill(SaveManager)
+		if recorded:
+			print("[MetaManager] first boss kill recorded")
+		_impl.increment_endless_boss_kills(SaveManager)
+		print("[MetaManager] endless boss kills: {n}".format({"n": _impl.meta_state.endless_boss_kill_count}))
 		return
-	if RunManager.run_mode != "endless":
+	if not is_relic_offers_active:
 		return
-	var recorded: bool = _impl.record_boss_kill(SaveManager)
-	if recorded:
-		print("[MetaManager] first boss kill recorded")
-	_impl.increment_endless_boss_kills(SaveManager)
-	print("[MetaManager] endless boss kills: {n}".format({"n": _impl.meta_state.endless_boss_kill_count}))
+	if is_book_of_skill_gate_reached:
+		return
+	var room_type: String = ""
+	if RunManager.current_room != null:
+		room_type = (RunManager.current_room as RoomSpawner).room_type_id
+	if not room_type.contains("Elite"):
+		return
+	_impl.record_book_of_skill_gate(SaveManager)
+	print("[MetaManager] book of skill gate reached — first elite clear after relic system unlock")
+	book_of_skill_gate_reached.emit()
 
 
 func _on_run_ended(reason: RunManager.EndReason) -> void:

@@ -12,6 +12,11 @@ var condition_threshold: float = 0.0
 var condition_mult: float = 1.0
 var description: String = ""
 var deck_count: int = 1
+var root_chance: float = 0.0
+var root_duration: float = 0.0
+var poison_chance: float = 0.0
+var poison_duration: float = 0.0
+var poison_modifier: float = 0.0
 
 
 static func from_dict(data: Dictionary) -> RelicData:
@@ -28,4 +33,9 @@ static func from_dict(data: Dictionary) -> RelicData:
 	r.condition_mult = float(data.get("condition_mult", 1.0))
 	r.description = str(data.get("description", ""))
 	r.deck_count = int(data.get("deck_count", 1))
+	r.root_chance = float(data.get("root_chance", 0.0))
+	r.root_duration = float(data.get("root_duration", 0.0))
+	r.poison_chance = float(data.get("poison_chance", 0.0))
+	r.poison_duration = float(data.get("poison_duration", 0.0))
+	r.poison_modifier = float(data.get("poison_modifier", 0.0))
 	return r

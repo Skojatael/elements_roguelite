@@ -41,6 +41,11 @@
 			"boss_challenge":    { "name": "Boss Challenge Mode", "cost": 200, "gate_text": "Major essence required" }
 		}
 	},
+	"book_of_skill": {
+		"name": "Book of Skill",
+		"cost": 100,
+		"popup_message": "You have explored the Ancient Forest a bit. An idea comes to you: what if you record your experiences? You should do that in a safe place, though."
+	},
 	"alchemy_lab": {
 		"name": "Alchemy Lab",
 		"cost": 200,

@@ -6,6 +6,7 @@ var spawn_points: Array[SpawnPointData]
 var enemy_count_mult: float = 1.0
 var essence_mult: float = 1.0
 var wave_config: WaveConfig = null
+var wave_spawn_points: Array  # Array of Array[SpawnPointData], indexed by wave
 
 
 static func from_dict(p_room_id: String, data: Dictionary) -> RoomSpawnConfig:

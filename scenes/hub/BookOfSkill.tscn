@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://cq6y61s3bbotw"]
+
+[ext_resource type="Script" uid="uid://cy0k0ykp10esd" path="res://scenes/hub/BookOfSkill.gd" id="1_yjx16"]
+[ext_resource type="PackedScene" uid="uid://cvcyknr500k06" path="res://scenes/hub/BookOfSkillBuyOverlay.tscn" id="2_qa70y"]
+[ext_resource type="PackedScene" uid="uid://cufsd4ghgomtl" path="res://scenes/hub/BookOfSkillInterior.tscn" id="3_qa70y"]
+
+[node name="BookOfSkill" type="Control" unique_id=756596552 node_paths=PackedStringArray("_not_created_visual", "_created_visual", "_label", "_button")]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_yjx16")
+_not_created_visual = NodePath("ColorRect")
+_created_visual = NodePath("ColorRect2")
+_label = NodePath("Label")
+_button = NodePath("Button")
+_buy_overlay_scene = ExtResource("2_qa70y")
+_interior_scene = ExtResource("3_qa70y")
+
+[node name="Button" type="Button" parent="." unique_id=1293092893]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+
+[node name="Label" type="Label" parent="." unique_id=1318328039]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1339852766]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=1661905571]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+color = Color(0.27387273, 0.27387273, 0.27387273, 1)

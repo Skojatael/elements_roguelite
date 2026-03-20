@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://bcdu4qtnt6qsd" path="res://scenes/hub/MageTower.tscn" id="7_hb6ud"]
 [ext_resource type="PackedScene" uid="uid://dpkd78jmyokrs" path="res://scenes/hub/ForgeUpgradeScreen.tscn" id="8_4kahi"]
 [ext_resource type="PackedScene" uid="uid://c6cfeer6uwut" path="res://scenes/hub/AlchemyLab.tscn" id="8_hb6ud"]
+[ext_resource type="PackedScene" uid="uid://cq6y61s3bbotw" path="res://scenes/hub/BookOfSkill.tscn" id="10_rqk7i"]
 
 [node name="HubRoom" type="Node2D" unique_id=1312423034 node_paths=PackedStringArray("teleport_door", "_boss_run_button")]
 script = ExtResource("1_ynf1v")
@@ -79,3 +80,7 @@ offset_right = 800.0
 [node name="AlchemyLab" parent="." unique_id=2127703683 instance=ExtResource("8_hb6ud")]
 offset_top = 300.0
 offset_bottom = 300.0
+
+[node name="BookOfSkill" parent="." unique_id=1649837161 instance=ExtResource("10_rqk7i")]
+offset_left = -515.0
+offset_right = -515.0

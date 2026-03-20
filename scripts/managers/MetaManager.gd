@@ -296,6 +296,27 @@ func purchase_missile_extra_charge(cost: int, save_manager: Node) -> bool:
 	return true
 
 
+## Sets book_of_skill_gate_reached if not already set and saves. Returns true if state changed.
+func record_book_of_skill_gate(save_manager: Node) -> bool:
+	if meta_state.book_of_skill_gate_reached:
+		return false
+	meta_state.book_of_skill_gate_reached = true
+	_save(save_manager)
+	return true
+
+
+## Purchases the Book of Skill if not already owned and affordable. Returns true on success.
+func purchase_book_of_skill(cost: int, save_manager: Node) -> bool:
+	if meta_state.book_of_skill_owned:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.book_of_skill_owned = true
+	_save(save_manager)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

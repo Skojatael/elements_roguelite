@@ -34,6 +34,7 @@ var _boss_victory_overlay: BossVictoryOverlay = null
 var _boss_relic_pending: bool = false
 var _boss_kill_popup_layer: CanvasLayer = null
 var _first_boss_popup_pending: bool = false
+var _book_of_skill_popup_pending: bool = false
 var _boss_return_room_id: String = ""
 
 
@@ -55,6 +56,7 @@ func _ready() -> void:
 	RunManager.run_started.connect(func(_m: String) -> void: _on_run_started())
 	RunManager.run_ended.connect(_on_run_ended)
 	RelicManager.relic_offer_ready.connect(_on_relic_offer_ready)
+	MetaManager.book_of_skill_gate_reached.connect(func() -> void: _book_of_skill_popup_pending = true)
 	_exploration_hud.boss_teleport_pressed.connect(_on_boss_teleport_pressed)
 	_hub_room = _HUB_ROOM_SCENE.instantiate()
 	add_child(_hub_room)
@@ -76,6 +78,7 @@ func _process(_delta: float) -> void:
 func _on_run_started() -> void:
 	_boss_relic_pending = false
 	_first_boss_popup_pending = false
+	_book_of_skill_popup_pending = false
 	_boss_return_room_id = ""
 	if is_instance_valid(_boss_room_node):
 		_boss_room_node.queue_free()
@@ -175,11 +178,15 @@ func _on_relic_picked(relic_id: String) -> void:
 	_relic_offer_layer.queue_free()
 	_relic_offer_layer = null
 	_relic_offer_screen = null
-	if not _boss_relic_pending:
-		_exploration_hud.visible = true
+	if _boss_relic_pending:
+		_boss_relic_pending = false
+		_show_boss_victory_overlay()
 		return
-	_boss_relic_pending = false
-	_show_boss_victory_overlay()
+	if _book_of_skill_popup_pending:
+		_book_of_skill_popup_pending = false
+		_show_book_of_skill_popup()
+		return
+	_exploration_hud.visible = true
 
 
 func _on_boss_room_cleared(_room_id: String) -> void:
@@ -231,6 +238,22 @@ func _on_boss_kill_popup_ok() -> void:
 	_show_boss_victory_overlay()
 
 
+func _show_book_of_skill_popup() -> void:
+	var message: String = ResourceManager.get_meta_config().get("book_of_skill", {}).get("popup_message", "")
+	_boss_kill_popup_layer = CanvasLayer.new()
+	add_child(_boss_kill_popup_layer)
+	var popup: BossKillPopup = _BOSS_KILL_POPUP_SCENE.instantiate() as BossKillPopup
+	_boss_kill_popup_layer.add_child(popup)
+	popup.setup(message)
+	popup.ok_pressed.connect(_on_book_of_skill_popup_ok)
+
+
+func _on_book_of_skill_popup_ok() -> void:
+	_boss_kill_popup_layer.queue_free()
+	_boss_kill_popup_layer = null
+	_exploration_hud.visible = true
+
+
 func _on_boss_cash_out_pressed() -> void:
 	RunManager.end_run(RunManager.EndReason.CASH_OUT)
 
@@ -251,12 +274,13 @@ func _on_boss_continue_pressed() -> void:
 
 
 func _on_dev_start_boss() -> void:
+	if RunManager.is_run_active:
+		return
 	if _boss_room_spawner != null:
 		return
 	if _boss_victory_layer != null:
 		return
-	if not RunManager.is_run_active:
-		RunManager.start_run("endless")
+	RunManager.start_run("endless")
 	_on_boss_teleport_pressed()
 
 

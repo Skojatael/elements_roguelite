@@ -9,7 +9,9 @@
 				"move_speed": 60.0,
 				"detection_range": 800.0,
 				"damage_cooldown": 0.5,
-				"base_essence": 10
+				"base_essence": 10,
+				"attack_range": 22,
+				"color": "#44dd44"
 			},
 			{
 				"id": "skeleton",
@@ -19,7 +21,67 @@
 				"move_speed": 80.0,
 				"detection_range": 800.0,
 				"damage_cooldown": 1.0,
-				"base_essence": 15
+				"base_essence": 15,
+				"attack_range": 22,
+				"color": "#dddddd"
+			},
+			{
+				"id": "forest_tank",
+				"display_name": "Bramble Beast",
+				"max_health": 80.0,
+				"damage": 10.0,
+				"move_speed": 60.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.4,
+				"base_essence": 10,
+				"attack_range": 20,
+				"domain": "forest",
+				"color": "#228833"
+			},
+			{
+				"id": "forest_healer",
+				"display_name": "Bramble Druid",
+				"max_health": 40.0,
+				"damage": 6.0,
+				"move_speed": 80.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.6,
+				"base_essence": 10,
+				"attack_range": 80,
+				"heal_radius": 80,
+				"heal_amount": 8,
+				"domain": "forest",
+				"color": "#88ff44"
+			},
+			{
+				"id": "forest_disruptor",
+				"display_name": "Rootbinder",
+				"max_health": 55.0,
+				"damage": 9.0,
+				"move_speed": 75.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.5,
+				"base_essence": 15,
+				"attack_range": 20,
+				"root_duration": 0.6,
+				"root_cooldown": 2.0,
+				"domain": "forest",
+				"color": "#886633"
+			},
+			{
+				"id": "forest_poisoner",
+				"display_name": "Spore Shaman",
+				"max_health": 50.0,
+				"damage": 8.0,
+				"move_speed": 75.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.4,
+				"base_essence": 15,
+				"attack_range": 20,
+				"poison_duration": 3.0,
+				"poison_modifier": 0.10,
+				"domain": "forest",
+				"color": "#aa44bb"
 			}
 		],
 		"boss": [
@@ -32,7 +94,9 @@
 				"detection_range": 800.0,
 				"damage_cooldown": 2.0,
 				"base_essence": 80,
-				"rooms_required": 6
+				"rooms_required": 6,
+				"attack_range": 22,
+				"color": "#ff2222"
 			}
 		]
 	}

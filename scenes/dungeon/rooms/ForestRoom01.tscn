@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bbuobjckurbbe"]
+
+[ext_resource type="PackedScene" uid="uid://b24rujptqd0af" path="res://scenes/dungeon/RoomBase.tscn" id="1_k33q6"]
+
+[node name="ForestRoom01" unique_id=1312423034 instance=ExtResource("1_k33q6")]
+
+[node name="RoomSpawner" parent="." index="1" unique_id=851974852]
+room_type_id = "ForestRoom01"

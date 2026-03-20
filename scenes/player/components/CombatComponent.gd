@@ -3,17 +3,15 @@ extends Node
 
 signal melee_hit_landed
 
-## Damage dealt to one enemy per attack hit.
-@export var attack_damage: float = 1.0
-
-## Seconds between automatic attack hits.
-@export var attack_interval: float = 0.5
 
 const _Utilities = preload("res://scripts/Utilities.gd")
 
 @onready var _attack_area: Area2D = $"../AttackArea"
 @onready var _stats_component: StatsComponent = $"../StatsComponent"
+@onready var _poison: PoisonComponent = $"../PoisonComponent"
 
+var attack_damage: float = 0.0
+var attack_interval: float = 0.0
 var _overlapping_enemies: Array = []
 var _attack_timer: float = 0.0
 var _base_attack_damage: float = 0.0
@@ -26,8 +24,8 @@ var _crit_multiplier: float = 0.5
 
 func _ready() -> void:
 	var combat: Dictionary = ResourceManager.get_player_config().get("combat", {})
-	_base_attack_damage = float(combat.get("attack_damage", attack_damage))
-	_base_attack_interval = float(combat.get("attack_interval", attack_interval))
+	_base_attack_damage = float(combat.get("attack_damage"))
+	_base_attack_interval = float(combat.get("attack_interval"))
 	assert(_base_attack_damage > 0.0,
 		"CombatComponent: attack_damage must be greater than 0")
 	assert(_base_attack_interval > 0.0,
@@ -73,8 +71,11 @@ func _physics_process(delta: float) -> void:
 			var target: Enemy = _overlapping_enemies[0] as Enemy
 			var attacker_ratio: float = _stats_component.current_health / _stats_component.max_health
 			var dmg: float = _Utilities.apply_crit(attack_damage \
-				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio, target.is_burning()), \
+				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio, target.is_burning()) \
+				* _poison.get_damage_mult(), \
 				_crit_chance, _crit_multiplier)
 			target.take_damage(dmg)
+			target.apply_root(RelicManager.get_root_on_hit_duration())
+			RelicManager.try_apply_poison(target)
 		melee_hit_landed.emit()
 		_attack_timer = attack_interval

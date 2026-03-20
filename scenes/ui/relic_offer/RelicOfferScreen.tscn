@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://3btn11avpp4t"]
 
 [ext_resource type="Script" uid="uid://c7gcfrtfphmjj" path="res://scenes/ui/relic_offer/RelicOfferScreen.gd" id="1_avbh0"]
+[ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_t6dsx"]
 [ext_resource type="PackedScene" uid="uid://d2gxfhmblpula" path="res://scenes/ui/relic_offer/RelicCard.tscn" id="2_t6dsx"]
 
 [node name="RelicOfferScreen" type="Control" unique_id=751150163 node_paths=PackedStringArray("_card_left", "_card_middle", "_card_right")]
@@ -10,10 +11,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_t6dsx")
 script = ExtResource("1_avbh0")
-_card_left = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardLeft")
-_card_middle = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardMiddle")
-_card_right = NodePath("VBoxContainer/CenterContainer/HBoxContainer/RelicCardRight")
+_card_left = NodePath("VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer/RelicCardLeft")
+_card_middle = NodePath("VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer/RelicCardMiddle")
+_card_right = NodePath("VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer/RelicCardRight")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=967481560]
 layout_mode = 1
@@ -43,16 +45,24 @@ vertical_alignment = 1
 [node name="CenterContainer" type="CenterContainer" parent="VBoxContainer" unique_id=368851343]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/CenterContainer" unique_id=1677868623]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/CenterContainer" unique_id=2082287107]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/CenterContainer/MarginContainer" unique_id=346101607]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/CenterContainer/MarginContainer/PanelContainer" unique_id=1677868623]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="RelicCardLeft" parent="VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer" unique_id=1418483122 instance=ExtResource("2_t6dsx")]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 
-[node name="RelicCardLeft" parent="VBoxContainer/CenterContainer/HBoxContainer" unique_id=1418483122 instance=ExtResource("2_t6dsx")]
-custom_minimum_size = Vector2(200, 200)
+[node name="RelicCardRight" parent="VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer" unique_id=1871099358 instance=ExtResource("2_t6dsx")]
 layout_mode = 2
 
-[node name="RelicCardRight" parent="VBoxContainer/CenterContainer/HBoxContainer" unique_id=1871099358 instance=ExtResource("2_t6dsx")]
-layout_mode = 2
-
-[node name="RelicCardMiddle" parent="VBoxContainer/CenterContainer/HBoxContainer" unique_id=11285737 instance=ExtResource("2_t6dsx")]
+[node name="RelicCardMiddle" parent="VBoxContainer/CenterContainer/MarginContainer/PanelContainer/HBoxContainer" unique_id=11285737 instance=ExtResource("2_t6dsx")]
 layout_mode = 2

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://xkvyvcj7w4d2" path="res://scenes/combat/enemies/Enemy.gd" id="1_sa5m8"]
 [ext_resource type="Script" uid="uid://b6ssgkxgc63dq" path="res://scenes/player/components/StatsComponent.gd" id="2_sb7jt"]
+[ext_resource type="PackedScene" uid="uid://cx3jol2y8qnra" path="res://scenes/ui/hud/HPBar.tscn" id="3_gmmp3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_sb7jt"]
 radius = 20.0
@@ -12,12 +13,13 @@ radius = 200.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_dpqka"]
 radius = 24.0
 
-[node name="Enemy" type="CharacterBody2D" unique_id=47882193]
+[node name="Enemy" type="CharacterBody2D" unique_id=47882193 node_paths=PackedStringArray("_hp_bar")]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 6
 collision_priority = 10.0
 script = ExtResource("1_sa5m8")
-enemy_type_id = "skeleton"
+enemy_type_id = ""
+_hp_bar = NodePath("HpBar")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1774991746]
 offset_left = -20.0
@@ -45,3 +47,9 @@ shape = SubResource("CircleShape2D_dpqka")
 [node name="StatsComponent" type="Node" parent="." unique_id=39479410]
 script = ExtResource("2_sb7jt")
 metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
+
+[node name="HpBar" parent="." unique_id=665215584 instance=ExtResource("3_gmmp3")]
+offset_left = -75.0
+offset_top = 30.0
+offset_right = -75.0
+offset_bottom = 30.0

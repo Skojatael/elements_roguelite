@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://cufsd4ghgomtl"]
+
+[ext_resource type="Script" uid="uid://dbg75k6gcq7cw" path="res://scenes/hub/BookOfSkillInterior.gd" id="1_06bkq"]
+
+[node name="BookOfSkillInterior" type="Control" unique_id=210405073 node_paths=PackedStringArray("_close_button")]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_06bkq")
+_close_button = NodePath("Close")
+
+[node name="Close" type="Button" parent="." unique_id=432221557]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0

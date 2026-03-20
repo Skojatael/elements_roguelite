@@ -2,32 +2,36 @@ extends GutTest
 
 const DodgeComponent = preload("res://scenes/player/components/DodgeComponent.gd")
 
-# Minimal stub for StatsComponent — no autoloads needed.
-class StubStats:
-	var is_invulnerable: bool = false
+# Stubs extend real classes so static typing is satisfied.
+# _ready() is overridden to prevent autoload calls.
 
-# Minimal stub for MovementComponent.
-class StubMovement:
-	var last_direction: Vector2 = Vector2.DOWN
+class StubStats extends StatsComponent:
+	func _ready() -> void:
+		pass
 
-# Minimal stub for the parent CharacterBody2D.
-class StubParent:
-	var velocity: Vector2 = Vector2.ZERO
-	var move_and_slide_called: bool = false
-	func move_and_slide() -> void:
-		move_and_slide_called = true
+class StubMovement extends MovementComponent:
+	func _ready() -> void:
+		pass
 
 var _dodge: DodgeComponent
 var _stats: StubStats
 var _movement: StubMovement
-var _parent: StubParent
+var _body: CharacterBody2D
 
 
 func before_each() -> void:
+	# Parent body gives _end_dash() a valid get_parent() target.
+	_body = CharacterBody2D.new()
+	add_child(_body)
+
 	_dodge = DodgeComponent.new()
+	_body.add_child(_dodge)
+
 	_stats = StubStats.new()
 	_movement = StubMovement.new()
-	_parent = StubParent.new()
+	_body.add_child(_stats)
+	_body.add_child(_movement)
+
 	# Inject stubs directly — bypasses _ready() autoload calls.
 	_dodge._stats = _stats
 	_dodge._movement = _movement
@@ -37,11 +41,13 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	_dodge.free()
+	_body.queue_free()
+	RunManager.is_run_active = false
 
 
 # activate() while on cooldown must do nothing.
 func test_activate_ignored_during_cooldown() -> void:
+	RunManager.is_run_active = true
 	_dodge._cooldown_remaining = 0.5
 	_dodge._is_dashing = false
 	_stats.is_invulnerable = false
@@ -52,20 +58,21 @@ func test_activate_ignored_during_cooldown() -> void:
 	assert_false(_stats.is_invulnerable, "Invulnerability must not be set during cooldown")
 
 
-# activate() while already dashing must do nothing.
+# activate() while already dashing must do nothing (no double-dash).
 func test_activate_ignored_while_dashing() -> void:
+	RunManager.is_run_active = true
 	_dodge._cooldown_remaining = 0.0
 	_dodge._is_dashing = true
-	_stats.is_invulnerable = true  # already mid-dash
+	_stats.is_invulnerable = true
 
 	_dodge.activate()
 
-	# _dash_remaining should not be reset to a new value
 	assert_true(_dodge._is_dashing, "Should remain dashing")
 
 
 # activate() when ready: sets invulnerability and initialises dash state.
 func test_activate_sets_invulnerability() -> void:
+	RunManager.is_run_active = true
 	_dodge._cooldown_remaining = 0.0
 	_dodge._is_dashing = false
 
@@ -78,6 +85,7 @@ func test_activate_sets_invulnerability() -> void:
 
 # activate() uses last_direction from MovementComponent.
 func test_activate_uses_last_direction() -> void:
+	RunManager.is_run_active = true
 	_movement.last_direction = Vector2(1.0, 0.0)
 	_dodge._cooldown_remaining = 0.0
 	_dodge._is_dashing = false
@@ -87,40 +95,23 @@ func test_activate_uses_last_direction() -> void:
 	assert_eq(_dodge._dash_direction, Vector2(1.0, 0.0), "Dash direction must match last_direction")
 
 
-# _physics_process advances _dash_remaining and ends dash when distance covered.
-func test_physics_process_ends_dash_when_distance_covered() -> void:
-	_dodge._is_dashing = true
-	_dodge._dash_direction = Vector2(1.0, 0.0)
-	_dodge._dash_remaining = 10.0  # small remaining distance
-	_dodge._cooldown_remaining = 0.0
-	_stats.is_invulnerable = true
-
-	# Simulate a delta large enough to cover the remaining distance in one frame.
-	# We pass parent via a lambda — DodgeComponent._physics_process reads get_parent().
-	# Since we cannot call _physics_process without a scene tree, test the pure helpers instead.
-	var covered: float = _dodge._dash_speed * 0.016  # ~1 frame at 60fps
-	if covered >= 10.0:
-		_dodge._dash_remaining = 0.0
-		_dodge._end_dash()
-
-	assert_false(_dodge._is_dashing, "Dash must end when remaining reaches zero")
-	assert_false(_stats.is_invulnerable, "Invulnerability must clear on dash end")
-
-
-# _end_dash starts the cooldown timer.
-func test_end_dash_starts_cooldown() -> void:
+# _end_dash clears invulnerability and starts cooldown.
+func test_end_dash_clears_invulnerability_and_starts_cooldown() -> void:
 	_dodge._is_dashing = true
 	_stats.is_invulnerable = true
 	_dodge._cooldown_remaining = 0.0
 
 	_dodge._end_dash()
 
+	assert_false(_dodge._is_dashing, "Dash flag must clear on end")
+	assert_false(_stats.is_invulnerable, "Invulnerability must clear on dash end")
 	assert_eq(_dodge._cooldown_remaining, _dodge._cooldown,
 		"Full cooldown must be set after dash ends")
 
 
-# cooldown_changed signal emits remaining and total values.
+# cooldown_changed signal emits on activate.
 func test_cooldown_changed_signal_emits_on_activate() -> void:
+	RunManager.is_run_active = true
 	_dodge._cooldown_remaining = 0.0
 	_dodge._is_dashing = false
 
@@ -128,3 +119,14 @@ func test_cooldown_changed_signal_emits_on_activate() -> void:
 	_dodge.activate()
 
 	assert_signal_emitted(_dodge, "cooldown_changed")
+
+
+# activate() does nothing outside a run.
+func test_activate_ignored_outside_run() -> void:
+	RunManager.is_run_active = false
+	_dodge._cooldown_remaining = 0.0
+	_dodge._is_dashing = false
+
+	_dodge.activate()
+
+	assert_false(_dodge._is_dashing, "Dash must not start outside an active run")

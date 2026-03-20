@@ -20,3 +20,5 @@ var shard_generator_level: int = 0
 var shard_accumulator: float = 0.0
 var missile_extra_charge_owned: bool = false
 var rarity_luck_owned: bool = false
+var book_of_skill_gate_reached: bool = false
+var book_of_skill_owned: bool = false

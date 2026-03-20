@@ -40,7 +40,8 @@
       "Bash(cmd.exe /c \"dir /s /b C:\\\\Users\\\\small\\\\Downloads\\\\Godot*.exe 2>nul\")",
       "Bash(cmd.exe /c \"where godot 2>nul & dir /s /b C:\\\\Users\\\\small\\\\*Godot*.exe 2>nul | head -5\")",
       "Bash(cmd.exe /c \"C:\\\\Users\\\\small\\\\Downloads\\\\Godot_v4.6.1-stable_win64.exe\\\\Godot_v4.6.1-stable_win64.exe --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1\")",
-      "Bash(\"C:\\\\Users\\\\small\\\\Downloads\\\\Godot_v4.6.1-stable_win64.exe\\\\Godot_v4.6.1-stable_win64.exe\" --headless --path \"C:\\\\Users\\\\small\\\\Documents\\\\first\" -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1)"
+      "Bash(\"C:\\\\Users\\\\small\\\\Downloads\\\\Godot_v4.6.1-stable_win64.exe\\\\Godot_v4.6.1-stable_win64.exe\" --headless --path \"C:\\\\Users\\\\small\\\\Documents\\\\first\" -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1)",
+      "Bash(\"C:/Users/small/Downloads/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64.exe\" --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -ginclude_subdirs -gexit 2>&1 | tail -60)"
     ]
   }
 }

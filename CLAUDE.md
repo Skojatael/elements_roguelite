@@ -64,7 +64,7 @@ Implementation counterparts live in `scripts/managers/`.
 JSON configs in `data/` (`upgrades.json`, `skills.json`, `enemies.json`, `dungeon_config.json`).
 GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `EnemyData`, `SpawnPointData`, `RoomSpawnConfig`).
 
-`dungeon_config.json` contains a `combat_room_pool` array (CombatRoom* type IDs for random selection) and a `spawn_configs` section keyed by room type ID, defining per-room enemy spawn points (enemy ID, position, randomisation radius). `StartRoom01` has an empty `spawn_points` array in `spawn_configs`.
+`dungeon_config.json` contains a `combat_room_pool` array (CombatRoom* type IDs for random selection), a `spawn_configs` section keyed by room type ID (Elite and Boss rooms; combat room entries removed in 074), and a `depth_bands` array (added in 074). Each depth band has `min_depth`, `max_depth` (−1 = open-ended), and `waves` (array of wave definitions). Each wave is an array of enemy slot objects: `pool: [{enemy_id, weight}]`, `position`, `radius`. At spawn time each slot resolves to one enemy ID by weighted random sampling. `StartRoom01` has an empty `spawn_points` array in `spawn_configs`.
 
 ### Enemy spawning (003-enemy-spawning)
 

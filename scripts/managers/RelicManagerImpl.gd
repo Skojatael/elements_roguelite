@@ -3,6 +3,7 @@ extends RefCounted
 
 const OFFER_INTERVAL: int = 1
 const MELEE_CHARGE_RELIC_ID: String = "melee_missile_charge"
+const POISON_RELIC_ID: String = "venomous_strike"
 
 var active_relic_ids: Array[String] = []
 var standard_rooms_cleared: int = 0
@@ -290,6 +291,27 @@ func on_melee_hit() -> bool:
 	return true
 
 
+## Returns true if the root_relic is currently held.
+## Pure query — no side effects.
+func has_root_relic() -> bool:
+	return active_relic_ids.has("root_relic")
+
+
+## Rolls root-on-hit for the root_relic. Returns the root duration to apply (> 0.0)
+## if the relic is held and the probability check succeeds; returns 0.0 otherwise.
+## Encapsulates both the relic check and the randf() roll so callers stay ID-agnostic.
+func get_root_on_hit_duration() -> float:
+	if not has_root_relic():
+		return 0.0
+	var relic: Variant = _relics_by_id.get("root_relic")
+	if not relic is RelicData:
+		return 0.0
+	var r: RelicData = relic as RelicData
+	if randf() >= r.root_chance:
+		return 0.0
+	return r.root_duration
+
+
 ## Returns true if a relic offer should trigger for the given room type.
 ## Elite rooms (room_type_id contains "Elite"): always true, counter unchanged.
 ## Standard rooms: increments counter; returns true and resets counter when OFFER_INTERVAL is reached.
@@ -301,3 +323,23 @@ func should_offer_for_room(room_type_id: String) -> bool:
 		standard_rooms_cleared = 0
 		return true
 	return false
+
+
+## Returns true if the poison relic (venomous_strike) is currently held.
+func has_poison_relic() -> bool:
+	return active_relic_ids.has(POISON_RELIC_ID)
+
+
+## Rolls a poison proc on a melee hit. If the relic is held and the chance roll
+## succeeds, calls target.apply_poison() with the relic's configured values.
+## No-op when relic is absent or roll fails.
+func try_apply_poison(target: Enemy) -> void:
+	if not has_poison_relic():
+		return
+	var relic: Variant = _relics_by_id.get(POISON_RELIC_ID)
+	if not relic is RelicData:
+		return
+	var r: RelicData = relic as RelicData
+	if randf() >= r.poison_chance:
+		return
+	target.apply_poison(r.poison_duration, r.poison_modifier)

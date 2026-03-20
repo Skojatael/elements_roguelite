@@ -1,10 +1,12 @@
 [gd_scene format=3 uid="uid://id1otrhsveyr"]
 
 [ext_resource type="Script" uid="uid://bbdf1e7rpl2ql" path="res://scenes/player/components/MovementComponent.gd" id="1_wr5hl"]
+[ext_resource type="Script" uid="uid://cl0o57htkljvs" path="res://scenes/player/components/RootComponent.gd" id="2_c3xxp"]
 [ext_resource type="Script" uid="uid://f81o7gwiv4rg" path="res://scenes/player/components/CombatComponent.gd" id="2_tpg5x"]
 [ext_resource type="Script" uid="uid://drgsab2qq752i" path="res://scenes/player/components/SkillComponent.gd" id="3_c3xxp"]
 [ext_resource type="Script" uid="uid://b6ssgkxgc63dq" path="res://scenes/player/components/StatsComponent.gd" id="4_npwbq"]
 [ext_resource type="Script" uid="uid://bqdpxj22h41jb" path="res://scenes/player/components/DodgeComponent.gd" id="5_v42im"]
+[ext_resource type="Script" uid="uid://gbvbuguefego" path="res://scenes/player/components/PoisonComponent.gd" id="7_npwbq"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn6s4"]
 radius = 30.0
@@ -33,9 +35,13 @@ offset_right = 30.0
 offset_bottom = 30.0
 color = Color(0.9400933, 0.75405973, 0.2268714, 1)
 
-[node name="MovementComponent" type="Node" parent="." unique_id=210607446]
+[node name="MovementComponent" type="Node" parent="." unique_id=210607446 node_paths=PackedStringArray("_root")]
 script = ExtResource("1_wr5hl")
+_root = NodePath("../RootComponent")
 metadata/_custom_type_script = "uid://bbdf1e7rpl2ql"
+
+[node name="RootComponent" type="Node" parent="." unique_id=619251257]
+script = ExtResource("2_c3xxp")
 
 [node name="CombatComponent" type="Node" parent="." unique_id=1515178471]
 script = ExtResource("2_tpg5x")
@@ -51,7 +57,12 @@ max_health = 50.0
 is_player = true
 metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
 
-[node name="DodgeComponent" type="Node" parent="." unique_id=2089021027 node_paths=PackedStringArray("_movement", "_stats")]
+[node name="DodgeComponent" type="Node" parent="." unique_id=2089021027 node_paths=PackedStringArray("_movement", "_stats", "_root")]
 script = ExtResource("5_v42im")
 _movement = NodePath("../MovementComponent")
 _stats = NodePath("../StatsComponent")
+_root = NodePath("../RootComponent")
+
+[node name="PoisonComponent" type="Node" parent="." unique_id=627555545]
+script = ExtResource("7_npwbq")
+metadata/_custom_type_script = "uid://gbvbuguefego"

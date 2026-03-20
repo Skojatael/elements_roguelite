@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="RoomData" format=3 uid="uid://c3w5a0ok67wtr"]
 
-[ext_resource type="PackedScene" uid="uid://bbuobjckurbbe" path="res://scenes/dungeon/rooms/CombatRoom01.tscn" id="1_qf7y4"]
+[ext_resource type="PackedScene" uid="uid://bbuobjckurbbe" path="res://scenes/dungeon/rooms/ForestRoom01.tscn" id="1_46mkb"]
 [ext_resource type="Script" uid="uid://con4huobvudxc" path="res://scripts/data_models/RoomData.gd" id="2_utpal"]
 
 [resource]
 script = ExtResource("2_utpal")
-room_type_id = "CombatRoom01"
-scene = ExtResource("1_qf7y4")
+room_type_id = "ForestRoom01"
+scene = ExtResource("1_46mkb")
