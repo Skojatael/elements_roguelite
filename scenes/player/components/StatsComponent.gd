@@ -6,6 +6,7 @@ extends Node
 
 var current_health: float
 var damage_reduction: float = 0.0
+var is_invulnerable: bool = false
 var _base_max_health: float = 0.0
 var _damage_reduction_cap: float = 0.5
 
@@ -34,6 +35,8 @@ static func compute_reduced_damage(amount: float, reduction: float) -> float:
 
 
 func take_damage(amount: float) -> void:
+	if is_invulnerable:
+		return
 	var effective: float = compute_reduced_damage(amount, damage_reduction)
 	current_health = maxf(current_health - effective, 0.0)
 	health_changed.emit(current_health, max_health)
@@ -43,6 +46,8 @@ func take_damage(amount: float) -> void:
 
 ## Applies damage bypassing damage_reduction (used for burn DoT).
 func take_damage_raw(amount: float) -> void:
+	if is_invulnerable:
+		return
 	current_health = maxf(current_health - amount, 0.0)
 	health_changed.emit(current_health, max_health)
 	if current_health == 0.0:

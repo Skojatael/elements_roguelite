@@ -38,59 +38,47 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
-   - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
-   - Phase 1: Update agent context by running the agent script
+   - Phase 0: Resolve all NEEDS CLARIFICATION items
+   - Phase 1: Document schema changes and affected files
    - Re-evaluate Constitution Check post-design
 
-4. **Stop and report**: Command ends after Phase 2 planning. Report FEATURE_DIR, IMPL_PLAN path, and generated artifacts.
+4. **Stop and report**: Command ends after Phase 1. Report FEATURE_DIR, IMPL_PLAN path, and generated artifacts.
 
 ## Phases
 
-### Phase 0: Outline & Research
+### Phase 0: Decisions & Research
 
-1. **Extract unknowns from Technical Context** above:
-   - For each NEEDS CLARIFICATION → research task
-   - For each dependency → best practices task
-   - For each integration → patterns task
+1. **Check for NEEDS CLARIFICATION items** in Technical Context:
+   - If none exist → skip to Phase 1 immediately.
+   - If any exist → resolve each one now (read codebase, apply knowledge) and record decisions.
 
-2. **Generate and dispatch research agents**:
+2. **Record decisions** — choose the leanest format:
+   - **Simple feature (no real unknowns, ≤3 decisions)**: Add a `## Decisions` section directly in `plan.md`. Do NOT create a separate `research.md`.
+   - **Complex feature (≥4 non-trivial decisions, e.g. new framework, auth design)**: Write `research.md` with Decision / Rationale / Alternatives format.
 
-   ```text
-   For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context}"
-   For each technology choice:
-     Task: "Find best practices for {tech} in {domain}"
-   ```
+**Output**: All NEEDS CLARIFICATION resolved. Decisions recorded either inline in plan.md or in research.md.
 
-3. **Consolidate findings** in `research.md` using format:
-   - Decision: [what was chosen]
-   - Rationale: [why chosen]
-   - Alternatives considered: [what else evaluated]
+### Phase 1: Schema Changes & Affected Files
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved
+1. **Identify schema/data changes** — choose the leanest format:
+   - **Small change (≤3 fields/entities, no new relationships)**: Add a `## Schema Changes` section directly in `plan.md`. Do NOT create a separate `data-model.md`.
+   - **Complex data model (new entities with relationships, state machines, validation rules)**: Write `data-model.md`.
 
-### Phase 1: Design & Contracts
+2. **List every file that will be created or modified** in a `## Affected Files` section in `plan.md`. For each file, describe the change in one or two prose sentences. **Do NOT include code blocks or code snippets** — code is written once, during `/speckit.implement`.
 
-**Prerequisites:** `research.md` complete
+3. **Skip contracts/ and quickstart.md** for game features — these apply to REST API projects only.
 
-1. **Extract entities from feature spec** → `data-model.md`:
-   - Entity name, fields, relationships
-   - Validation rules from requirements
-   - State transitions if applicable
+4. **Agent context check**:
+   - Review `CLAUDE.md` to confirm it reflects any new architectural patterns introduced by this feature.
+   - If new patterns were added, append a brief note to the relevant section of `CLAUDE.md`.
 
-2. **Generate API contracts** from functional requirements:
-   - For each user action → endpoint
-   - Use standard REST/GraphQL patterns
-   - Output OpenAPI/GraphQL schema to `/contracts/`
+5. **Read repo_map.md** using Grep for the specific symbols/files you need — do not read the full file. Example: `Grep(pattern="RelicManagerImpl|MetaManager", path="repo_map.md")`.
 
-3. **Agent context check**:
-   - Review `CLAUDE.md` to confirm it reflects any new technology introduced by this feature's plan.
-   - If new tools, libraries, or architectural patterns were added, append a brief note under the relevant section of `CLAUDE.md`. Preserve all existing content.
-
-**Output**: data-model.md, /contracts/*, quickstart.md
+**Output**: plan.md with Decisions (or research.md), Schema Changes (or data-model.md), and Affected Files sections complete.
 
 ## Key rules
 
 - Use absolute paths
 - ERROR on gate failures or unresolved clarifications
+- **No code snippets in plan.md** — prose descriptions only. Code is written once during `/speckit.implement`.
+- **Prefer inline sections over separate files** for simple features (saves file-creation cost and re-read cost in implement).

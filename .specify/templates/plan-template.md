@@ -5,6 +5,11 @@
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
+> **Token efficiency rules** (enforced by `/speckit.plan`):
+> - Implementation steps use **prose only** — no code blocks. Code is written once during `/speckit.implement`.
+> - For simple features (≤3 decisions, ≤3 schema changes): inline `## Decisions` and `## Schema Changes` here instead of creating separate `research.md` / `data-model.md` files.
+> - Read `repo_map.md` via Grep for specific symbols — never read the full file.
+
 ## Summary
 
 [Extract from feature spec: primary requirement + technical approach from research]

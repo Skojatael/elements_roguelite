@@ -44,18 +44,23 @@ func _on_room_cleared(room_id: String) -> void:
 	var room_type: String = ""
 	if RunManager.current_room != null:
 		room_type = (RunManager.current_room as RoomSpawner).room_type_id
-	if _impl.should_offer_for_room(room_type):
-		var tier: String = "uncommon" if room_type.contains("Elite") else "common"
-		var options: Array[RelicData] = _impl.draw_offer(tier)
-		if options.is_empty():
-			print("[RelicManager] relic pool is empty — no offer")
-			return
-		print("[RelicManager] offer triggered — room_id='{id}' room_type='{type}' tier='{tier}'".format({
-			"id": room_id,
-			"type": room_type,
-			"tier": tier,
-		}))
-		relic_offer_ready.emit(options)
+	if not _impl.should_offer_for_room(room_type):
+		return
+	var tier: String = "uncommon" if room_type.contains("Elite") else "common"
+	var promotion_chance: float = 0.0
+	if MetaManager.is_rarity_luck_owned:
+		promotion_chance = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("rarity_luck_upgrade", {}).get("promotion_chance", 0.1)
+	var options: Array[RelicData] = _impl.draw_offer(tier, promotion_chance)
+	if options.is_empty():
+		print("[RelicManager] relic pool is empty — no offer")
+		return
+	print("[RelicManager] offer triggered — room_id='{id}' room_type='{type}' tier='{tier}' promotion={p}".format({
+		"id": room_id,
+		"type": room_type,
+		"tier": tier,
+		"p": promotion_chance,
+	}))
+	relic_offer_ready.emit(options)
 
 
 ## Adds relic_id to the active collection, updates PlayerState, emits relic_applied.
@@ -79,8 +84,9 @@ func get_stat_addend(stat: String) -> float:
 
 
 ## Returns the combined damage multiplier from conditional relics at hit time.
-func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float) -> float:
-	return _impl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio)
+## target_is_burning: true if the target enemy currently has an active burn effect.
+func get_hit_damage_mult(target_hp_ratio: float, attacker_hp_ratio: float, target_is_burning: bool) -> float:
+	return _impl.get_hit_damage_mult(target_hp_ratio, attacker_hp_ratio, target_is_burning)
 
 
 ## Returns true if the chaining_stone relic is active this run.
@@ -91,6 +97,12 @@ func has_chain_relic() -> bool:
 ## Returns true if the burn relic is active this run.
 func has_burn_relic() -> bool:
 	return _impl.has_burn_relic()
+
+
+## Returns the total additive bonus to chain_damage_mult from held relics.
+## Returns 0.0 if no chain-bonus relic is held.
+func get_chain_damage_bonus() -> float:
+	return _impl.get_chain_damage_bonus()
 
 
 ## Draws 3 rare relics and emits relic_offer_ready. Returns true if offer was triggered.
@@ -105,6 +117,12 @@ func trigger_boss_offer() -> bool:
 	print("[RelicManager] boss offer triggered — {count} rare relics".format({"count": options.size()}))
 	relic_offer_ready.emit(options)
 	return true
+
+
+## Returns true when the melee_missile_charge relic is held and the 3-hit
+## threshold is reached. Counter resets to 0 each cycle. Returns false otherwise.
+func on_melee_hit() -> bool:
+	return _impl.on_melee_hit()
 
 
 ## Draws a common offer and emits relic_offer_ready. No-op if pool is empty.

@@ -7,6 +7,9 @@ var tier: String = ""
 var tags: Array[String] = []
 var effect_stat: String = ""
 var effect_mult: float = 1.0
+var condition_type: String = ""
+var condition_threshold: float = 0.0
+var condition_mult: float = 1.0
 var description: String = ""
 var deck_count: int = 1
 
@@ -20,6 +23,9 @@ static func from_dict(data: Dictionary) -> RelicData:
 		r.tags.append(str(t))
 	r.effect_stat = str(data.get("effect_stat", ""))
 	r.effect_mult = float(data.get("effect_mult", 1.0))
+	r.condition_type = str(data.get("condition_type", ""))
+	r.condition_threshold = float(data.get("condition_threshold", 0.0))
+	r.condition_mult = float(data.get("condition_mult", 1.0))
 	r.description = str(data.get("description", ""))
 	r.deck_count = int(data.get("deck_count", 1))
 	return r

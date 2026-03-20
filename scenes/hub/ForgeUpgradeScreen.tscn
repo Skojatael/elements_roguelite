@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_ifs7x"]
 [ext_resource type="Script" uid="uid://c83gs4vihkpg3" path="res://scenes/hub/ForgeUpgradeScreen.gd" id="2_b614d"]
 
-[node name="ForgeUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_damage_button", "_close_button")]
+[node name="ForgeUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_damage_button", "_missile_charge_button", "_rarity_luck_button", "_close_button")]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -19,6 +19,8 @@ grow_vertical = 2
 theme = ExtResource("1_ifs7x")
 script = ExtResource("2_b614d")
 _damage_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Damage")
+_missile_charge_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Charge")
+_rarity_luck_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RarityRelic")
 _close_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Close")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=2095778666]
@@ -37,7 +39,13 @@ layout_mode = 2
 layout_mode = 2
 alignment = 1
 
+[node name="RarityRelic" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1892618028]
+layout_mode = 2
+
 [node name="Damage" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1228518805]
+layout_mode = 2
+
+[node name="Charge" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=378763628]
 layout_mode = 2
 
 [node name="Close" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2127859287]

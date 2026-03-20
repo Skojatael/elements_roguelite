@@ -12,6 +12,7 @@ const SKILL_ID: String = "magic_missile"
 
 var _speed: float = 0.0
 var _max_distance: float = 0.0
+var _base_max_charges: int = 0
 var _max_charges: int = 0
 var _current_charges: int = 0
 var _chain_damage_mult: float = 1.0
@@ -50,7 +51,7 @@ func _load_skill_data() -> void:
 			continue
 		_speed = float((entry as Dictionary).get("speed", 0.0))
 		_max_distance = float((entry as Dictionary).get("max_distance", 0.0))
-		_max_charges = int((entry as Dictionary).get("max_charges", 3))
+		_base_max_charges = int((entry as Dictionary).get("max_charges", 3))
 		_cooldown_duration = float((entry as Dictionary).get("cooldown", 1.0))
 		_chain_damage_mult = float((entry as Dictionary).get("chain_damage_mult", 1.0))
 		_burn_damage_per_tick = float((entry as Dictionary).get("burn_damage_per_tick", 0.0))
@@ -62,7 +63,8 @@ func _load_skill_data() -> void:
 		break
 	assert(_speed > 0.0, "SkillComponent: 'speed' missing in skills.json for " + SKILL_ID)
 	assert(_max_distance > 0.0, "SkillComponent: 'max_distance' missing in skills.json for " + SKILL_ID)
-	assert(_max_charges > 0, "SkillComponent: 'max_charges' must be > 0 in skills.json for " + SKILL_ID)
+	assert(_base_max_charges > 0, "SkillComponent: 'max_charges' must be > 0 in skills.json for " + SKILL_ID)
+	_max_charges = _base_max_charges
 	_current_charges = _max_charges
 
 
@@ -74,6 +76,11 @@ func _process(delta: float) -> void:
 
 
 func _on_melee_hit_landed() -> void:
+	if _current_charges < _max_charges:
+		_current_charges += 1
+		charges_changed.emit(_current_charges, _max_charges)
+	if not RelicManager.on_melee_hit():
+		return
 	if _current_charges >= _max_charges:
 		return
 	_current_charges += 1
@@ -81,6 +88,7 @@ func _on_melee_hit_landed() -> void:
 
 
 func _reset_charges() -> void:
+	_max_charges = _base_max_charges + (1 if MetaManager.is_missile_extra_charge_owned else 0)
 	_current_charges = _max_charges
 	charges_changed.emit(_current_charges, _max_charges)
 	_cooldown_remaining = 0.0

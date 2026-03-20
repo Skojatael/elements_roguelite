@@ -51,5 +51,7 @@ max_health = 50.0
 is_player = true
 metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
 
-[node name="DodgeComponent" type="Node" parent="." unique_id=2089021027]
+[node name="DodgeComponent" type="Node" parent="." unique_id=2089021027 node_paths=PackedStringArray("_movement", "_stats")]
 script = ExtResource("5_v42im")
+_movement = NodePath("../MovementComponent")
+_stats = NodePath("../StatsComponent")

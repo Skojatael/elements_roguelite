@@ -2,9 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Repo map**: `repo_map.md` at the project root lists every `.gd` file with its class name, signals, exports, and public methods. Reference it whenever you need to locate a symbol or understand project structure before opening files.
+> **Repo map**: `repo_map.md` at the project root lists every `.gd` file with its class name, signals, exports, and public methods. Reference it whenever you need to locate a symbol or understand project structure before opening files. **Use Grep to read only relevant entries — never read the full file.**
 
 > **Feature numbering**: When creating a new spec directory under `specs/`, always `ls specs/` first and use the **highest existing number + 1**. Never infer the next number from CLAUDE.md feature mentions — the `specs/` directory is the source of truth.
+
+> **Speckit token efficiency**: When running speckit commands, follow these rules to avoid unnecessary token use:
+> - **plan.md**: prose descriptions only — no code blocks. Code is written once during `/speckit.implement`.
+> - **Simple features** (≤3 decisions, ≤3 schema changes): inline `## Decisions` and `## Schema Changes` in `plan.md` instead of creating separate `research.md` / `data-model.md`.
+> - **implement**: reads `tasks.md` + `plan.md` only — skip research.md, data-model.md, contracts/ unless a task explicitly references them.
+> - **tasks.md checkboxes**: flip `[ ]` → `[x]` with targeted `Edit` calls per phase — never rewrite the full file.
 
 ## Project
 
@@ -265,7 +271,7 @@ Run-scoped modifier system. Relics are collected via a post-clear offer screen a
 
 **RelicData** (`scripts/data_models/RelicData.gd`) — `RefCounted` typed wrapper. Factory: `RelicData.from_dict(data)`.
 
-**RelicManagerImpl** (`scripts/managers/RelicManagerImpl.gd`) — `RefCounted`. Owns algorithmic logic: `should_offer_for_room(room_type_id)` (frequency), `draw_offer(pool)`, `pick_relic(id)`, `compute_stat_mult(stat, pool)`. State: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`. `OFFER_INTERVAL = 2`.
+**RelicManagerImpl** (`scripts/managers/RelicManagerImpl.gd`) — `RefCounted`. Owns algorithmic logic: `should_offer_for_room(room_type_id)` (frequency), `draw_offer(pool)`, `pick_relic(id)`, `compute_stat_mult(stat, pool)`. State: `active_relic_ids: Array[String]`, `standard_rooms_cleared: int`. `OFFER_INTERVAL = 1`.
 
 **RelicManager** (`autoload/RelicManager.gd`) — thin wrapper. Connects to `RunManager.run_started`, `run_ended`, `room_cleared`. On room_cleared: reads `RunManager.current_room.room_type_id`, delegates to impl, emits `relic_offer_ready(options: Array)`. Exposes `pick_relic(id)`, `get_stat_mult(stat)`, `active_relic_ids`. Signals: `relic_offer_ready`, `relic_applied(relic_id)`, `relics_cleared`.
 

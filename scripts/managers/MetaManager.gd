@@ -272,6 +272,30 @@ func purchase_shard_generator(cost: int, max_levels: int, save_manager: Node) ->
 	return true
 
 
+## Purchases the Rarity Luck upgrade if not already owned and affordable. Returns true on success.
+func purchase_rarity_luck(cost: int, save_manager: Node) -> bool:
+	if meta_state.rarity_luck_owned:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.rarity_luck_owned = true
+	_save(save_manager)
+	return true
+
+
+## Purchases the Arcane Reservoir (missile extra charge) if not already owned and affordable. Returns true on success.
+func purchase_missile_extra_charge(cost: int, save_manager: Node) -> bool:
+	if meta_state.missile_extra_charge_owned:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.missile_extra_charge_owned = true
+	_save(save_manager)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

@@ -6,6 +6,12 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fgitb"]
 size = Vector2(1920, 1080)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n2r3n"]
+size = Vector2(1920, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pnitb"]
+size = Vector2(80, 920.5)
+
 [node name="RoomBase" type="Node2D" unique_id=1312423034]
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=940193861]
@@ -35,3 +41,36 @@ position = Vector2(960, 0)
 
 [node name="DoorW" parent="." unique_id=1893906395 instance=ExtResource("2_n2r3n")]
 position = Vector2(-960, 0)
+
+[node name="TopWall" type="StaticBody2D" parent="." unique_id=1686719173]
+position = Vector2(0, -500)
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall" unique_id=1131029620]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_n2r3n")
+
+[node name="BottomWall" type="StaticBody2D" parent="." unique_id=878294559]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall" unique_id=54316667]
+position = Vector2(0, 500)
+shape = SubResource("RectangleShape2D_n2r3n")
+
+[node name="LeftWall" type="StaticBody2D" parent="." unique_id=1116676696]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall" unique_id=1345048639]
+position = Vector2(-920, 0)
+shape = SubResource("RectangleShape2D_pnitb")
+
+[node name="Rightwall" type="StaticBody2D" parent="." unique_id=1748310882]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rightwall" unique_id=1558767046]
+position = Vector2(920, 0)
+shape = SubResource("RectangleShape2D_pnitb")

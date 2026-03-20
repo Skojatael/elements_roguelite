@@ -20,6 +20,7 @@ const BOSS_PLAYER_SPAWN_OFFSET: Vector2 = Vector2(0.0, 400.0)
 @onready var _camera: Camera2D = $Camera2D
 @onready var _dungeon_gen: DungeonGenerator = $DungeonGenerator
 @onready var _room_loader: RoomLoader = $RoomLoader
+@onready var _dodge_component: DodgeComponent = $Player/DodgeComponent
 
 var _hub_room: HubRoom = null
 var _results_screen: ResultsScreen = null
@@ -48,6 +49,8 @@ func _ready() -> void:
 	_movement.set_joystick(_joystick)
 	(_exploration_hud as ExplorationHUD).setup_hp_bar(_stats)
 	(_exploration_hud as ExplorationHUD).setup_skill(_skill_component)
+	(_exploration_hud as ExplorationHUD).setup_dodge(_dodge_component)
+	(_exploration_hud as ExplorationHUD).dodge_button_pressed.connect(_dodge_component.activate)
 	_stats.died.connect(_on_player_died)
 	RunManager.run_started.connect(func(_m: String) -> void: _on_run_started())
 	RunManager.run_ended.connect(_on_run_ended)

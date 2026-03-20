@@ -4,11 +4,13 @@
 [ext_resource type="PackedScene" uid="uid://xq5xl8vwj6r1" path="res://scenes/ui/hud/Joystick.tscn" id="2_4b0pi"]
 [ext_resource type="PackedScene" uid="uid://ft4yse5mkvc5" path="res://scenes/ui/hud/SkillButton.tscn" id="3_4b0pi"]
 [ext_resource type="PackedScene" uid="uid://cx3jol2y8qnra" path="res://scenes/ui/hud/HPBar.tscn" id="4_winm4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/DodgeButton.tscn" id="5_jo58b"]
 
-[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444 node_paths=PackedStringArray("_boss_button", "_skill_button", "_hp_bar", "_charge_pips_container")]
+[node name="ExplorationHUD" type="CanvasLayer" unique_id=159516444 node_paths=PackedStringArray("_boss_button", "_skill_button", "_dodge_button", "_hp_bar", "_charge_pips_container")]
 script = ExtResource("1_xrock")
 _boss_button = NodePath("BossButton")
 _skill_button = NodePath("SkillButton")
+_dodge_button = NodePath("DodgeButton")
 _hp_bar = NodePath("HpBar")
 _charge_pips_container = NodePath("ChargeContainer")
 _charge_pip_gap = 10.0
@@ -46,3 +48,16 @@ offset_left = 20.0
 offset_top = 65.0
 offset_right = 170.0
 offset_bottom = 105.0
+
+[node name="DodgeButton" parent="." unique_id=823956011 instance=ExtResource("5_jo58b")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -406.0
+offset_top = -375.0
+offset_right = -326.0
+offset_bottom = -295.0
+grow_horizontal = 0
+grow_vertical = 0

@@ -10,6 +10,11 @@
 	  "burn_damage_per_tick": 0.10,
 	  "burn_duration": 2.0,
 	  "burn_extend_seconds": 2.0
+	},
+	{
+	  "id": "dodge",
+	  "cooldown": 2,
+	  "dash_distance": 150.0
 	}
   ]
 }

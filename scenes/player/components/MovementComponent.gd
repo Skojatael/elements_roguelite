@@ -4,6 +4,7 @@ extends Node
 ## Maximum movement speed in pixels per second.
 @export var move_speed: float = 200.0
 
+var last_direction: Vector2 = Vector2.DOWN
 var _joystick: Node = null
 var _base_move_speed: float = 0.0
 
@@ -27,6 +28,8 @@ func _recompute_stats() -> void:
 func _physics_process(_delta: float) -> void:
 	if _joystick == null:
 		return
+	if _joystick.input_vector != Vector2.ZERO:
+		last_direction = _joystick.input_vector.normalized()
 	var vel: Vector2 = _joystick.input_vector * move_speed
 	get_parent().velocity = vel
 	get_parent().move_and_slide()

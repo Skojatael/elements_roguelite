@@ -34,7 +34,7 @@
 				"deck_count": 3
 			},
 			"common_regen": {
-				"name": "Regeneration Stone",
+				"name": "Regeneration Fruit",
 				"tags": ["survival"],
 				"effect_stat": "hp_regen",
 				"effect_mult": 0.01,
@@ -48,9 +48,58 @@
 				"effect_mult": 0.10,
 				"description": "Take 10% less damage",
 				"deck_count": 2
+			},
+			"burn_dot_damage": {
+				"name": "Bottled Oil",
+				"tags": ["burn_unlocked", "projectile"],
+				"effect_stat": "burn_damage",
+				"effect_mult": 0.20,
+				"description": "Burn deals 20% more damage over time",
+				"deck_count": 2
+			},
+			"chain_power_stone": {
+				"name": "Chain Amplifier",
+				"tags": ["chain_unlocked"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"condition_type": "chain_damage_bonus",
+				"condition_threshold": 0.0,
+				"condition_mult": 0.15,
+				"description": "Chain hits deal 65% of primary damage instead of 50%.",
+				"deck_count": 1
+			},
+			"melee_missile_charge": {
+				"name": "Arcane Knuckles",
+				"tags": ["projectile", "melee"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"condition_type": "",
+				"condition_threshold": 3.0,
+				"condition_mult": 1.0,
+				"description": "Every 3 melee hits restore 1 Magic Missile charge.",
+				"deck_count": 2
 			}
 		},
 		"uncommon": {
+			"burn_damage": {
+				"name": "Searing Seal",
+				"tags": ["burn_unlocked"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"condition_type": "target_is_burning",
+				"condition_threshold": 0.0,
+				"condition_mult": 1.50,
+				"description": "Burning enemies take 50% more damage while burning.",
+				"deck_count": 1
+			},
+			"chain_reach": {
+				"name": "Arc Shard",
+				"tags": ["chain_unlocked"],
+				"effect_stat": "",
+				"effect_mult": 1.0,
+				"description": "Chain strikes can reach a third target for 25% damage.",
+				"deck_count": 1
+			},
 			"chaining_stone": {
 				"name": "Lightning Stone",
 				"tags": ["projectile", "chain"],
@@ -98,6 +147,9 @@
 				"tags": ["combat"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
+				"condition_type": "attacker_hp_below",
+				"condition_threshold": 0.50,
+				"condition_mult": 1.30,
 				"description": "+30% damage when below 50% HP",
 				"deck_count": 1
 			},
@@ -106,6 +158,9 @@
 				"tags": ["combat"],
 				"effect_stat": "",
 				"effect_mult": 1.0,
+				"condition_type": "target_hp_below",
+				"condition_threshold": 0.30,
+				"condition_mult": 1.35,
 				"description": "+35% damage to enemies below 30% HP",
 				"deck_count": 1
 			}

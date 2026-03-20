@@ -104,6 +104,14 @@ func get_hp_ratio() -> float:
 	return _stats.current_health / _stats.max_health
 
 
+## Returns true if the enemy currently has an active burn effect.
+## Returns false if no burn has ever been applied or if the burn has expired.
+func is_burning() -> bool:
+	if _burn == null:
+		return false
+	return _burn.is_active()
+
+
 func take_damage(amount: float) -> void:
 	_stats.take_damage(amount)
 
@@ -136,12 +144,21 @@ func _physics_process(delta: float) -> void:
 			_damage_timer = _data.damage_cooldown
 
 	# Pursuit movement (US3).
-	if _state == EnemyState.PURSUING and is_instance_valid(_player_ref):
-		velocity = global_position.direction_to(_player_ref.global_position) * _data.move_speed
-		move_and_slide()
-	else:
+	if not (_state == EnemyState.PURSUING and is_instance_valid(_player_ref)):
 		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
+	var to_player := _player_ref.global_position - global_position
+	var dist := to_player.length()
+
+	if dist < 22.0:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
+	velocity = to_player.normalized() * _data.move_speed
+	move_and_slide()
 
 func _on_died() -> void:
 	defeated.emit()

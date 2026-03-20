@@ -35,6 +35,12 @@ var is_alchemy_lab_unlocked: bool:
 var is_gold_generator_owned: bool:
 	get: return _impl.meta_state.gold_generator_owned
 
+var is_missile_extra_charge_owned: bool:
+	get: return _impl.meta_state.missile_extra_charge_owned
+
+var is_rarity_luck_owned: bool:
+	get: return _impl.meta_state.rarity_luck_owned
+
 var gold_storage_cap_hours: int:
 	get:
 		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
@@ -227,6 +233,24 @@ func purchase_essence_gain() -> bool:
 func purchase_gold_generator() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_generator", {}).get("cost", 50)
 	var success: bool = _impl.purchase_gold_generator(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_missile_extra_charge() -> bool:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("missile_charge_upgrade", {})
+	var cost: int = cfg.get("cost", 150)
+	var success: bool = _impl.purchase_missile_extra_charge(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_rarity_luck() -> bool:
+	var cfg: Dictionary = ResourceManager.get_meta_config().get("magic_forge", {}).get("upgrades", {}).get("rarity_luck_upgrade", {})
+	var cost: int = cfg.get("cost", 350)
+	var success: bool = _impl.purchase_rarity_luck(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success

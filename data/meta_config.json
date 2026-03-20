@@ -17,6 +17,15 @@
 				"cost_scale": 1.2,
 				"max_levels": 10,
 				"damage_per_level": 0.1
+			},
+			"missile_charge_upgrade": {
+				"name": "Arcane Reservoir",
+				"cost": 150
+			},
+			"rarity_luck_upgrade": {
+				"name": "Rarity Luck",
+				"cost": 350,
+				"promotion_chance": 0.1
 			}
 		}
 	},

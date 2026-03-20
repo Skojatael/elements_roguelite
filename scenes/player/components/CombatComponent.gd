@@ -73,7 +73,7 @@ func _physics_process(delta: float) -> void:
 			var target: Enemy = _overlapping_enemies[0] as Enemy
 			var attacker_ratio: float = _stats_component.current_health / _stats_component.max_health
 			var dmg: float = _Utilities.apply_crit(attack_damage \
-				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio), \
+				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio, target.is_burning()), \
 				_crit_chance, _crit_multiplier)
 			target.take_damage(dmg)
 		melee_hit_landed.emit()

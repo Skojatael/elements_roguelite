@@ -57,7 +57,7 @@ func _on_body_entered(body: Node2D) -> void:
 	var primary: Enemy = body as Enemy
 	primary.take_damage(_damage)
 	if RelicManager.has_burn_relic():
-		primary.on_burn_hit(_damage * _burn_damage_per_tick, _burn_duration, _burn_extend_seconds)
+		primary.on_burn_hit(_damage * _burn_damage_per_tick * RelicManager.get_stat_mult("burn_damage"), _burn_duration, _burn_extend_seconds)
 	_try_chain(primary)
 	queue_free()
 
@@ -84,6 +84,6 @@ func _try_chain(primary_target: Enemy) -> void:
 		closest_dist = dist
 	if chain_target == null:
 		return
-	chain_target.take_damage(_damage * _chain_damage_mult)
+	chain_target.take_damage(_damage * (_chain_damage_mult + RelicManager.get_chain_damage_bonus()))
 	if RelicManager.has_burn_relic():
-		chain_target.on_burn_hit(_damage * _burn_damage_per_tick, _burn_duration, _burn_extend_seconds)
+		chain_target.on_burn_hit(_damage * _burn_damage_per_tick * RelicManager.get_stat_mult("burn_damage"), _burn_duration, _burn_extend_seconds)
