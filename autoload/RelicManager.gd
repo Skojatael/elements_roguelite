@@ -24,7 +24,7 @@ func _ready() -> void:
 
 func _on_run_started() -> void:
 	_impl.reset()
-	_impl.build_pool(ResourceManager.get_relics(), ResourceManager.get_meta_config())
+	_impl.build_pool(ResourceManager.get_relics(), ResourceManager.get_meta_config(), MetaManager.is_forest_domain_unlocked)
 	relics_cleared.emit()
 
 

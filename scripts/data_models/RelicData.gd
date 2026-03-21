@@ -4,6 +4,7 @@ extends RefCounted
 var id: String = ""
 var name: String = ""
 var tier: String = ""
+var domain: String = ""
 var tags: Array[String] = []
 var effect_stat: String = ""
 var effect_mult: float = 1.0
@@ -24,6 +25,7 @@ static func from_dict(data: Dictionary) -> RelicData:
 	r.id = str(data.get("id", ""))
 	r.name = str(data.get("name", ""))
 	r.tier = str(data.get("tier", "common"))
+	r.domain = str(data.get("domain", "neutral"))
 	for t: Variant in data.get("tags", []):
 		r.tags.append(str(t))
 	r.effect_stat = str(data.get("effect_stat", ""))

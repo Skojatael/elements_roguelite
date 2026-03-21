@@ -3,9 +3,10 @@ extends GutTest
 const RelicManagerImpl = preload("res://scripts/managers/RelicManagerImpl.gd")
 
 const FIXTURE_RELICS: Dictionary = {
-	"relics": {
-		"common": {
+	"domain": {
+		"neutral": {
 			"melee_missile_charge": {
+				"tier": "common",
 				"name": "Arcane Knuckles",
 				"tags": ["projectile", "melee"],
 				"effect_stat": "",

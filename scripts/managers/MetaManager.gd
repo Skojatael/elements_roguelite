@@ -317,6 +317,18 @@ func purchase_book_of_skill(cost: int, save_manager: Node) -> bool:
 	return true
 
 
+## Purchases the Forest Domain upgrade if not already owned and affordable. Returns true on success.
+func purchase_forest_domain(cost: int, save_manager: Node) -> bool:
+	if meta_state.forest_domain_unlocked:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.forest_domain_unlocked = true
+	_save(save_manager)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

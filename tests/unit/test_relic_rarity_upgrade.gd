@@ -6,28 +6,24 @@ var _impl: RelicManagerImpl
 
 # Inline stub pool with 2 common, 2 uncommon, 2 rare relics.
 const STUB_RELICS: Dictionary = {
-	"relics": {
-		"common": {
-			"c1": { "name": "C1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.1, "description": "", "deck_count": 2 },
-			"c2": { "name": "C2", "tags": [], "effect_stat": "attack_speed", "effect_mult": 1.1, "description": "", "deck_count": 2 },
-		},
-		"uncommon": {
-			"u1": { "name": "U1", "tags": [], "effect_stat": "max_health", "effect_mult": 1.2, "description": "", "deck_count": 2 },
-			"u2": { "name": "U2", "tags": [], "effect_stat": "move_speed", "effect_mult": 1.2, "description": "", "deck_count": 2 },
-		},
-		"rare": {
-			"r1": { "name": "R1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.3, "description": "", "deck_count": 1 },
-			"r2": { "name": "R2", "tags": [], "effect_stat": "attack_speed", "effect_mult": 1.3, "description": "", "deck_count": 1 },
+	"domain": {
+		"neutral": {
+			"c1": { "tier": "common",   "name": "C1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.1, "description": "", "deck_count": 2 },
+			"c2": { "tier": "common",   "name": "C2", "tags": [], "effect_stat": "attack_speed",  "effect_mult": 1.1, "description": "", "deck_count": 2 },
+			"u1": { "tier": "uncommon", "name": "U1", "tags": [], "effect_stat": "max_health",    "effect_mult": 1.2, "description": "", "deck_count": 2 },
+			"u2": { "tier": "uncommon", "name": "U2", "tags": [], "effect_stat": "move_speed",    "effect_mult": 1.2, "description": "", "deck_count": 2 },
+			"r1": { "tier": "rare",     "name": "R1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.3, "description": "", "deck_count": 1 },
+			"r2": { "tier": "rare",     "name": "R2", "tags": [], "effect_stat": "attack_speed",  "effect_mult": 1.3, "description": "", "deck_count": 1 },
 		},
 	}
 }
 
 # Pool with only common relics (no uncommon/rare tiers at all).
 const COMMON_ONLY_RELICS: Dictionary = {
-	"relics": {
-		"common": {
-			"c1": { "name": "C1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.1, "description": "", "deck_count": 2 },
-			"c2": { "name": "C2", "tags": [], "effect_stat": "attack_speed", "effect_mult": 1.1, "description": "", "deck_count": 2 },
+	"domain": {
+		"neutral": {
+			"c1": { "tier": "common", "name": "C1", "tags": [], "effect_stat": "attack_damage", "effect_mult": 1.1, "description": "", "deck_count": 2 },
+			"c2": { "tier": "common", "name": "C2", "tags": [], "effect_stat": "attack_speed",  "effect_mult": 1.1, "description": "", "deck_count": 2 },
 		},
 	}
 }

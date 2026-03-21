@@ -27,6 +27,7 @@ func save_meta_state(state: MetaState) -> void:
 		"rarity_luck_owned": state.rarity_luck_owned,
 		"book_of_skill_gate_reached": state.book_of_skill_gate_reached,
 		"book_of_skill_owned": state.book_of_skill_owned,
+		"forest_domain_unlocked": state.forest_domain_unlocked,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -68,4 +69,5 @@ func load_meta_state() -> MetaState:
 		state.rarity_luck_owned = bool((parsed as Dictionary).get("rarity_luck_owned", false))
 		state.book_of_skill_gate_reached = bool((parsed as Dictionary).get("book_of_skill_gate_reached", false))
 		state.book_of_skill_owned = bool((parsed as Dictionary).get("book_of_skill_owned", false))
+		state.forest_domain_unlocked = bool((parsed as Dictionary).get("forest_domain_unlocked", false))
 	return state

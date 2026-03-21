@@ -29,6 +29,8 @@ var _player_poison: PoisonComponent = null
 var _in_contact: bool = false
 var _damage_timer: float = 0.0
 var _root_cooldown_remaining: float = 0.0
+var _heal_cooldown_remaining: float = 0.0
+var _follow_target: Enemy = null
 
 ## --- Pursuit AI (US3) ---
 enum EnemyState { IDLE, PURSUING }
@@ -99,6 +101,7 @@ func initialize(data: EnemyData) -> void:
 	_apply_detection_range(data.detection_range)
 	_apply_attack_range(data.attack_range)
 	_visual.color = data.color
+	_heal_cooldown_remaining = data.heal_cooldown
 
 
 func _apply_attack_range(range_px: float) -> void:
@@ -139,6 +142,10 @@ func is_burning() -> bool:
 
 func take_damage(amount: float) -> void:
 	_stats.take_damage(amount)
+
+
+func receive_heal(amount: float) -> void:
+	_stats.heal(amount)
 
 
 ## Applies poison to this enemy. Stacks duration additively; modifier unchanged on re-apply.
@@ -193,6 +200,35 @@ func _physics_process(delta: float) -> void:
 			_try_apply_root()
 			_try_apply_poison()
 
+	# Regen tick.
+	if _data.regen_rate > 0.0:
+		_stats.heal(StatsComponent.regen_tick_amount(_data.regen_rate, _stats.max_health, delta))
+
+	# Ally-heal skill.
+	if _data.heal_amount > 0.0:
+		_heal_cooldown_remaining -= delta
+		if _heal_cooldown_remaining <= 0.0:
+			_do_heal_scan()
+			_heal_cooldown_remaining = _data.heal_cooldown
+
+	# Healer follow movement — orbit closest ally at heal_radius - 20 standoff.
+	if _data.id.ends_with("_healer"):
+		_follow_target = null
+		var closest_dist: float = INF
+		for child: Node in get_parent().get_children():
+			if not child is Enemy:
+				continue
+			if child == self:
+				continue
+			var d: float = global_position.distance_to((child as Enemy).global_position)
+			if d >= closest_dist:
+				continue
+			closest_dist = d
+			_follow_target = child as Enemy
+		if _follow_target != null:
+			_do_healer_follow_move()
+			return
+
 	# Pursuit movement (US3).
 	if not (_state == EnemyState.PURSUING and is_instance_valid(_player_ref)):
 		velocity = Vector2.ZERO
@@ -209,6 +245,25 @@ func _physics_process(delta: float) -> void:
 
 	velocity = to_player.normalized() * _data.move_speed
 	move_and_slide()
+
+func _do_healer_follow_move() -> void:
+	var standoff: float = maxf(0.0, _data.heal_radius - 20.0)
+	var to_target: Vector2 = _follow_target.global_position - global_position
+	if to_target.length() > standoff:
+		velocity = to_target.normalized() * _data.move_speed
+	else:
+		velocity = Vector2.ZERO
+	move_and_slide()
+
+
+func _do_heal_scan() -> void:
+	for child: Node in get_parent().get_children():
+		if not (child is Enemy) or child == self:
+			continue
+		if global_position.distance_to(child.global_position) > _data.heal_radius:
+			continue
+		child.receive_heal(_data.heal_amount)
+
 
 func _try_apply_root() -> void:
 	if _data.root_duration <= 0.0:

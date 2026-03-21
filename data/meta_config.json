@@ -44,7 +44,13 @@
 	"book_of_skill": {
 		"name": "Book of Skill",
 		"cost": 100,
-		"popup_message": "You have explored the Ancient Forest a bit. An idea comes to you: what if you record your experiences? You should do that in a safe place, though."
+		"popup_message": "You have explored the Ancient Forest a bit. An idea comes to you: what if you record your experiences? You should do that in a safe place, though.",
+		"upgrades": {
+			"forest_domain": {
+				"name": "Forest Domain",
+				"cost": 40
+			}
+		}
 	},
 	"alchemy_lab": {
 		"name": "Alchemy Lab",

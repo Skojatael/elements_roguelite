@@ -48,6 +48,9 @@ var is_book_of_skill_gate_reached: bool:
 var is_book_of_skill_owned: bool:
 	get: return _impl.meta_state.book_of_skill_owned
 
+var is_forest_domain_unlocked: bool:
+	get: return _impl.meta_state.forest_domain_unlocked
+
 var gold_storage_cap_hours: int:
 	get:
 		var cfg: Dictionary = ResourceManager.get_meta_config().get("alchemy_lab", {}).get("upgrades", {}).get("gold_storage_cap", {})
@@ -261,6 +264,14 @@ func record_book_of_skill_gate() -> bool:
 func purchase_book_of_skill() -> bool:
 	var cost: int = ResourceManager.get_meta_config().get("book_of_skill", {}).get("cost", 250)
 	var success: bool = _impl.purchase_book_of_skill(cost, SaveManager)
+	if success:
+		shards_changed.emit(meta_state.total_shards)
+	return success
+
+
+func purchase_forest_domain() -> bool:
+	var cost: int = ResourceManager.get_meta_config().get("book_of_skill", {}).get("upgrades", {}).get("forest_domain", {}).get("cost", 40)
+	var success: bool = _impl.purchase_forest_domain(cost, SaveManager)
 	if success:
 		shards_changed.emit(meta_state.total_shards)
 	return success

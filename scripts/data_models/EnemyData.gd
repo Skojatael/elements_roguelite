@@ -17,6 +17,10 @@ var attack_range: float = 22.0
 var poison_duration: float = 0.0
 var poison_modifier: float = 0.0
 var color: Color = Color.WHITE
+var regen_rate: float = 0.0
+var heal_amount: float = 0.0
+var heal_radius: float = 0.0
+var heal_cooldown: float = 5.0
 
 
 static func from_dict(data: Dictionary) -> EnemyData:
@@ -45,4 +49,8 @@ static func from_dict(data: Dictionary) -> EnemyData:
 	d.poison_duration = float(data.get("poison_duration", 0.0))
 	d.poison_modifier = float(data.get("poison_modifier", 0.0))
 	d.color = Color(data.get("color", "#ff12ff"))
+	d.regen_rate = float(data.get("regen_rate", 0.0))
+	d.heal_amount = float(data.get("heal_amount", 0.0))
+	d.heal_radius = float(data.get("heal_radius", 0.0))
+	d.heal_cooldown = float(data.get("heal_cooldown", 5.0))
 	return d

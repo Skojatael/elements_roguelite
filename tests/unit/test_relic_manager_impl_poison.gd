@@ -4,11 +4,12 @@ const RelicManagerImpl = preload("res://scripts/managers/RelicManagerImpl.gd")
 
 var _impl: RelicManagerImpl
 
-## Minimal relics JSON with only the venomous_strike relic.
+## Minimal relics JSON with only the venomous_strike relic (forest domain).
 const RELICS_STUB: Dictionary = {
-	"relics": {
-		"common": {
+	"domain": {
+		"forest": {
 			"venomous_strike": {
+				"tier": "common",
 				"name": "Venom Fang",
 				"tags": ["melee", "debuff"],
 				"effect_stat": "",
@@ -27,7 +28,7 @@ const RELICS_STUB: Dictionary = {
 
 func before_each() -> void:
 	_impl = RelicManagerImpl.new()
-	_impl.build_pool(RELICS_STUB, {})
+	_impl.build_pool(RELICS_STUB, {}, true)
 
 
 ## has_poison_relic() returns false when the relic has not been picked.
