@@ -11,6 +11,7 @@ var damage_cooldown: float
 var base_essence: float
 var rooms_required: int = 0
 var damage_reduction: float = 0.0
+var reflect_amount: float = 0.0
 var root_duration: float = 0.0
 var root_cooldown: float = 0.0
 var attack_range: float = 22.0
@@ -21,6 +22,36 @@ var regen_rate: float = 0.0
 var heal_amount: float = 0.0
 var heal_radius: float = 0.0
 var heal_cooldown: float = 5.0
+var buff_zone_radius: float = 0.0
+var buff_cooldown: float = 0.0
+var buff_zone_duration: float = 0.0
+var buff_regen_rate: float = 0.0
+var buff_attack_speed_bonus: float = 0.0
+var size: float = 1.0
+var charge_attack_damage: float = 0.0
+var charge_attack_cooldown: float = 0.0
+var charge_attack_length: float = 0.0
+var charge_telegraph_duration: float = 2.0
+var charge_speed_mult: float = 3.0
+var shield_hp: int = 0
+var shield_stun_duration: float = 3.0
+var scene_path: String = ""
+var thorns_on_hit: bool = false
+var thorns_damage: float = 0.0
+var thorns_speed: float = 400.0
+var thorns_range: float = 600.0
+var thorns_fire_cooldown: float = 0.5
+var thorns_directions: int = 4
+var thorns_duration: float = 3.0
+var thorns_cooldown_p2: float = 10.0
+var thorns_cooldown_p3: float = 6.0
+var recover_duration: float = 0.6
+var phase_transition_duration: float = 1.0
+var thorns_move_speed_mult: float = 0.5
+
+
+static func is_ranged_attacker(attack_range: float, threshold: float) -> bool:
+	return attack_range > threshold
 
 
 static func from_dict(data: Dictionary) -> EnemyData:
@@ -43,6 +74,7 @@ static func from_dict(data: Dictionary) -> EnemyData:
 	d.base_essence = float(data.get("base_essence", 0.0))
 	d.rooms_required = int(data.get("rooms_required", 0))
 	d.damage_reduction = float(data.get("damage_reduction", 0.0))
+	d.reflect_amount = float(data.get("reflect_amount", 0.0))
 	d.root_duration = float(data.get("root_duration", 0.0))
 	d.root_cooldown = float(data.get("root_cooldown", 0.0))
 	d.attack_range = float(data.get("attack_range", 22.0))
@@ -53,4 +85,30 @@ static func from_dict(data: Dictionary) -> EnemyData:
 	d.heal_amount = float(data.get("heal_amount", 0.0))
 	d.heal_radius = float(data.get("heal_radius", 0.0))
 	d.heal_cooldown = float(data.get("heal_cooldown", 5.0))
+	d.buff_zone_radius = float(data.get("buff_zone_radius", 0.0))
+	d.buff_cooldown = float(data.get("buff_cooldown", 0.0))
+	d.buff_zone_duration = float(data.get("buff_zone_duration", 0.0))
+	d.buff_regen_rate = float(data.get("buff_regen_rate", 0.0))
+	d.buff_attack_speed_bonus = float(data.get("buff_attack_speed_bonus", 0.0))
+	d.size = float(data.get("size", 1.0))
+	d.charge_attack_damage = float(data.get("charge_attack_damage", 0.0))
+	d.charge_attack_cooldown = float(data.get("charge_attack_cooldown", 0.0))
+	d.charge_attack_length = float(data.get("charge_attack_length", 0.0))
+	d.charge_telegraph_duration = float(data.get("charge_telegraph_duration", 2.0))
+	d.charge_speed_mult = float(data.get("charge_speed_mult", 3.0))
+	d.shield_hp = int(data.get("shield_hp", 0))
+	d.shield_stun_duration = float(data.get("shield_stun_duration", 3.0))
+	d.scene_path = str(data.get("scene_path", ""))
+	d.thorns_on_hit = bool(data.get("thorns_on_hit", false))
+	d.thorns_damage = float(data.get("thorns_damage", 0.0))
+	d.thorns_speed = float(data.get("thorns_speed", 400.0))
+	d.thorns_range = float(data.get("thorns_range", 600.0))
+	d.thorns_fire_cooldown = float(data.get("thorns_fire_cooldown", 0.5))
+	d.thorns_directions = int(data.get("thorns_directions", 4))
+	d.thorns_duration = float(data.get("thorns_duration", 3.0))
+	d.thorns_cooldown_p2 = float(data.get("thorns_cooldown_p2", 10.0))
+	d.thorns_cooldown_p3 = float(data.get("thorns_cooldown_p3", 6.0))
+	d.recover_duration = float(data.get("recover_duration", 0.6))
+	d.phase_transition_duration = float(data.get("phase_transition_duration", 1.0))
+	d.thorns_move_speed_mult = float(data.get("thorns_move_speed_mult", 0.5))
 	return d

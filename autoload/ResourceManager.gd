@@ -11,6 +11,10 @@ func get_dungeon_config() -> Dictionary:
 	return _impl.get_dungeon_config()
 
 
+func get_enemy_data(id: String) -> Dictionary:
+	return _impl.get_enemy_data(id)
+
+
 func enemy_id_exists(id: String) -> bool:
 	return _impl.enemy_id_exists(id)
 
@@ -37,3 +41,7 @@ func get_player_config() -> Dictionary:
 
 func get_skills() -> Array:
 	return _impl.get_skills()
+
+
+func get_combat_room_pool(domain: String) -> Array:
+	return _impl.get_combat_room_pool(domain)

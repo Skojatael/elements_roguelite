@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://b3y3keebfuofp" path="res://data/ui_theme.tres" id="1_56ci2"]
 [ext_resource type="Script" uid="uid://duq0y0f5gxjij" path="res://scenes/hub/MageTowerUpgradeScreen.gd" id="2_56ci2"]
 
-[node name="MageTowerUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_de_button", "_rs_button", "_bc_button", "_close_button")]
+[node name="MageTowerUpgradeScreen" type="Control" unique_id=433113828 node_paths=PackedStringArray("_de_button", "_rs_button", "_bc_button", "_ds_button", "_close_button")]
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -21,6 +21,7 @@ script = ExtResource("2_56ci2")
 _de_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Expansion")
 _rs_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Relics")
 _bc_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Boss chall")
+_ds_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Scaling")
 _close_button = NodePath("CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Close")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=2095778666]
@@ -46,6 +47,9 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="Boss chall" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1228518805]
+layout_mode = 2
+
+[node name="Scaling" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=250405764]
 layout_mode = 2
 
 [node name="Close" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2127859287]

@@ -100,9 +100,9 @@ func _on_run_started() -> void:
 		_results_screen = null
 
 
-func _on_hub_exited() -> void:
+func _on_hub_exited(domain: String) -> void:
 	_hub_room = null  # HubRoom calls queue_free() on itself; clear the reference
-	RunManager.start_run("endless")
+	RunManager.start_run("endless", domain)
 	GlobalSignals.gameplay_started.emit()
 
 
@@ -193,7 +193,7 @@ func _on_boss_room_cleared(_room_id: String) -> void:
 	_boss_room_spawner = null
 	_exploration_hud.visible = false
 	if RunManager.run_mode == "endless":
-		var base: float = ResourceManager.get_enemy_base_essence("boss")
+		var base: float = ResourceManager.get_enemy_base_essence("forest_boss_thorns")
 		var rooms_cleared: int = RunManager.cleared_rooms.size()
 		var reward: int = RunManager.rewards_service.get_boss_reward(base, rooms_cleared)
 		RunManager.add_currency(reward)

@@ -28,6 +28,7 @@ func reset() -> void:
 
 
 ## Parses relics JSON into per-tier decks.
+## JSON structure: domain -> tier -> relic_id -> entry (tier encoded by nesting, not a field).
 ## forest_domain_unlocked: pass MetaManager.is_forest_domain_unlocked; excludes forest relics when false.
 func build_pool(relics_raw: Dictionary, _config_raw: Dictionary, forest_domain_unlocked: bool = false) -> void:
 	_relics_by_id = {}
@@ -36,15 +37,18 @@ func build_pool(relics_raw: Dictionary, _config_raw: Dictionary, forest_domain_u
 		var domain_str: String = str(domain_key)
 		if domain_str == "forest" and not forest_domain_unlocked:
 			continue
-		for relic_id: Variant in relics_raw["domain"][domain_key].keys():
-			var entry: Dictionary = relics_raw["domain"][domain_key][relic_id].duplicate()
-			entry["id"] = str(relic_id)
-			entry["domain"] = domain_str
-			var r: RelicData = RelicData.from_dict(entry)
-			_relics_by_id[r.id] = r
-			if not _all_by_tier.has(r.tier):
-				_all_by_tier[r.tier] = []
-			(_all_by_tier[r.tier] as Array).append(r)
+		for tier_key: Variant in relics_raw["domain"][domain_key].keys():
+			var tier_str: String = str(tier_key)
+			for relic_id: Variant in relics_raw["domain"][domain_key][tier_key].keys():
+				var entry: Dictionary = relics_raw["domain"][domain_key][tier_key][relic_id].duplicate()
+				entry["id"] = str(relic_id)
+				entry["domain"] = domain_str
+				entry["tier"] = tier_str
+				var r: RelicData = RelicData.from_dict(entry)
+				_relics_by_id[r.id] = r
+				if not _all_by_tier.has(r.tier):
+					_all_by_tier[r.tier] = []
+				(_all_by_tier[r.tier] as Array).append(r)
 	_decks = {}
 	for tier: Variant in _all_by_tier.keys():
 		_decks[str(tier)] = _build_expanded_deck(str(tier))

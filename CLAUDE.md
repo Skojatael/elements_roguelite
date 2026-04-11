@@ -11,6 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > - **Simple features** (≤3 decisions, ≤3 schema changes): inline `## Decisions` and `## Schema Changes` in `plan.md` instead of creating separate `research.md` / `data-model.md`.
 > - **implement**: reads `tasks.md` + `plan.md` only — skip research.md, data-model.md, contracts/ unless a task explicitly references them.
 > - **tasks.md checkboxes**: flip `[ ]` → `[x]` with targeted `Edit` calls per phase — never rewrite the full file.
+> - **IDs and names from `data/` only**: never read sibling spec files to discover enemy IDs, relic IDs, or other data values — always `Grep data/<file>.json` directly.
+> - **Record insertion points in plan.md**: when a source file is read during `/speckit.plan`, note the exact line numbers of every planned insertion/modification under `## Affected Files`. During `/speckit.implement`, read only the relevant `offset+limit` range instead of re-reading the full file.
+> - **No duplicate reads within a session**: if a file has already been read in the current conversation, do not re-read it — reference the previously seen content.
+> - **Skip constitution read for standard features**: if the feature introduces no new autoloads, no new scene types, and no new cross-system patterns, note "no constitution violations" and skip reading `constitution.md` in full.
+> - **One test file reference**: read at most one existing test file to establish the pattern — do not read multiple test files to triangulate conventions.
 
 ## Project
 
@@ -84,13 +89,16 @@ GDScript data models in `scripts/data_models/` (`UpgradeData`, `SkillData`, `Ene
 | `run_id` | `String` | Temporary unique ID for this run (`str(Time.get_ticks_msec())`) |
 | `is_run_active` | `bool` | True between `start_run()` and `end_run()` |
 | `run_mode` | `String` | `"endless"` or `"boss"` |
+| `run_domain` | `String` | Active domain (`"forest"`, `"desert"`, `"frost"`); set via `start_run(mode, domain)`, cleared to `""` on `end_run()` |
 | `current_tier` | `int` | Difficulty tier (starts at 1; set externally by meta-progression) |
 | `run_start_time` | `float` | Engine time at run start (seconds) |
 | `run_currency` | `float` | Gold accumulated this run (floor 0) |
 | `current_room` | `Node` | Reference to active `RoomSpawner`; null between rooms |
 | `cleared_rooms` | `Dictionary` | Map of `room_id → true` for cleared rooms |
 
-**Key methods**: `start_run(mode)`, `end_run(reason)`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
+**Key methods**: `start_run(mode, domain="forest")`, `end_run(reason)`, `register_room(spawner)`, `add_currency(amount)`, `mark_room_cleared(room_id)`, `is_room_cleared(room_id)`.
+
+**Domain system (086-domain-system)**: `RunManager.run_domain: String` stores the active domain for the run, set via `start_run(mode, domain)`. `DungeonGenerator` reads it in `_generate()` and passes it to `_generate_with(config, gear_owned, depth_scaling, domain)`, which reads `config["combat_room_pools"][domain]` to select the room pool. `HubRoom` emits `hub_exited(domain: String)` when a `TeleportDoor` is pressed; `TeleportDoor` has `@export var domain: String = "forest"`. Desert/Frost doors are set to `disabled = true` in the Editor. `ResourceManagerImpl.get_combat_room_pool(domain)` is also available for other callers.
 
 **Signals**: `run_started(mode)` (emitted at end of `start_run()`), `run_ended(reason)` (on `end_run()`), `room_cleared(room_id)` (re-emitted from RoomSpawner).
 

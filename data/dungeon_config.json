@@ -4,7 +4,11 @@
 	"base_room_count": 9,
 	"expansion_room_count": 4,
 	"enemy_spawn": {
-		"spawn_delay": 1.0
+		"spawn_delay": 1.0,
+		"enemy_ranged_threshold": 40,
+		"projectile_speed": 400,
+		"projectile_max_range": 1200,
+		"base_size": 32
 	},
 	"depth_tiers": [
 		{ "depth_min": 1, "depth_max": 1,  "waves": [3],       "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 },
@@ -12,7 +16,7 @@
 		{ "depth_min": 3, "depth_max": 4,  "waves": [4, 2],    "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 },
 		{ "depth_min": 5, "depth_max": -1, "waves": [4, 2, 1], "trigger_threshold": 2, "alive_cap": 4, "min_spawn_distance": 200.0 }
 	],
-	"combat_room_pool": ["ForestRoom01"],
+	"combat_room_pools": { "forest": ["ForestRoom01"], "desert": [], "frost": [] },
 	"depth_bands": [
 		{
 			"min_depth": 1, "max_depth": 1,
@@ -69,21 +73,130 @@
 			]
 		}
 	],
+	"elite_depth_bands": [
+		{
+			"min_depth": 1, "max_depth": 2,
+			"variants": [
+				{
+					"weight": 100,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":    0, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":    0, "y":  250 }, "radius": 40 }
+					]
+				}
+			]
+		},
+		{
+			"min_depth": 3, "max_depth": 4,
+			"variants": [
+				{
+					"weight": 70,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":    0, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_healer",     "weight": 100 }],                                                              "position": { "x": -150, "y":  250 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":  150, "y":  250 }, "radius": 40 }
+					]
+				},
+				{
+					"weight": 30,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":    0, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x": -150, "y":  250 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":  150, "y":  250 }, "radius": 40 }
+					]
+				}
+			]
+		},
+		{
+			"min_depth": 5, "max_depth": 6,
+			"variants": [
+				{
+					"weight": 60,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_healer",     "weight": 100 }],                                                              "position": { "x": -150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_poisoner",   "weight": 100 }],                                                              "position": { "x":  150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				},
+				{
+					"weight": 30,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x": -150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_poisoner",   "weight": 100 }],                                                              "position": { "x":  150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				},
+				{
+					"weight": 10,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":    0, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_healer",     "weight": 100 }],                                                              "position": { "x": -150, "y":  280 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight": 100 }],                                                              "position": { "x":  150, "y":  280 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_reflector",  "weight": 100 }],                                                              "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				}
+			]
+		},
+		{
+			"min_depth": 7, "max_depth": -1,
+			"variants": [
+				{
+					"weight": 60,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_healer",     "weight": 100 }],                                                              "position": { "x": -150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_poisoner",   "weight": 100 }],                                                              "position": { "x":  150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				},
+				{
+					"weight": 30,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x": -150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_poisoner",   "weight": 100 }],                                                              "position": { "x":  150, "y":  200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight":  50 }, { "enemy_id": "forest_reflector", "weight": 50 }],            "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				},
+				{
+					"weight": 10,
+					"wave": [
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x": -350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_tank",       "weight": 100 }],                                                              "position": { "x":  350, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_disruptor",  "weight": 100 }],                                                              "position": { "x":    0, "y": -200 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_healer",     "weight": 100 }],                                                              "position": { "x": -150, "y":  280 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_buffer",     "weight": 100 }],                                                              "position": { "x":  150, "y":  280 }, "radius": 40 },
+						{ "pool": [{ "enemy_id": "forest_reflector",  "weight": 100 }],                                                              "position": { "x":    0, "y":  280 }, "radius": 40 }
+					]
+				}
+			]
+		}
+	],
 	"spawn_configs": {
 		"StartRoom01": {
 			"spawn_points": []
 		},
-		"EliteRoom01": {
+		"ForestEliteRoom01": {
 			"enemy_count_mult": 1.5,
-			"essence_mult": 1.8,
-			"spawn_points": [
-				{ "enemy_id": "slime",    "position": { "x": -80, "y": 0 }, "radius": 20 },
-				{ "enemy_id": "skeleton", "position": { "x":  80, "y": 0 }, "radius": 20 }
-			]
+			"essence_mult": 1.8
 		},
 		"BossRoom01": {
 			"spawn_points": [
-				{ "enemy_id": "boss", "position": { "x": 0, "y": 0 }, "radius": 0 }
+				{ "enemy_id": "forest_boss_thorns", "position": { "x": 0, "y": 0 }, "radius": 0 }
 			]
 		}
 	}

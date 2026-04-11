@@ -329,6 +329,18 @@ func purchase_forest_domain(cost: int, save_manager: Node) -> bool:
 	return true
 
 
+## Purchases the Depth Scaling upgrade if not already owned and affordable. Returns true on success.
+func purchase_depth_scaling(cost: int, save_manager: Node) -> bool:
+	if meta_state.depth_scaling_unlocked:
+		return false
+	if not can_spend(cost):
+		return false
+	meta_state.total_shards -= cost
+	meta_state.depth_scaling_unlocked = true
+	_save(save_manager)
+	return true
+
+
 ## Computes shards earned at end of an endless run.
 static func compute_endless_shards(essence: int, divisor: int) -> int:
 	return essence / divisor

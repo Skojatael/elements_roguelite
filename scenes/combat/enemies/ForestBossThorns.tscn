@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://rb4hq7orbyci"]
+
+[ext_resource type="Script" uid="uid://bihvcxfcqb12n" path="res://scenes/combat/enemies/ForestBossThorns.gd" id="1_rdya1"]
+[ext_resource type="Script" uid="uid://b6ssgkxgc63dq" path="res://scenes/player/components/StatsComponent.gd" id="2_xqe62"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_e4umr"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_uhmhx"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hgkqy"]
+
+[node name="ForestBossThorns" type="CharacterBody2D" unique_id=31251400 node_paths=PackedStringArray("_visual")]
+script = ExtResource("1_rdya1")
+_visual = NodePath("ColorRect")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=652443901]
+shape = SubResource("CircleShape2D_e4umr")
+
+[node name="StatsComponent" type="Node" parent="." unique_id=1955319892]
+script = ExtResource("2_xqe62")
+metadata/_custom_type_script = "uid://b6ssgkxgc63dq"
+
+[node name="ContactArea" type="Area2D" parent="." unique_id=1013296271]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactArea" unique_id=1993566706]
+shape = SubResource("CircleShape2D_uhmhx")
+
+[node name="DetectionArea" type="Area2D" parent="." unique_id=481326502]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=814670245]
+shape = SubResource("CircleShape2D_hgkqy")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1625156802]
+offset_right = 40.0
+offset_bottom = 40.0

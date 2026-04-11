@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://dw77863b80ynp"]
+
+[ext_resource type="Script" uid="uid://ytfhhfq01ckr" path="res://scenes/combat/enemies/EnemyProjectile.gd" id="1_x43wg"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_j83tc"]
+radius = 8.0
+
+[node name="EnemyProjectile" type="Node2D" unique_id=504893186 node_paths=PackedStringArray("_hit_area")]
+script = ExtResource("1_x43wg")
+_hit_area = NodePath("HitArea")
+
+[node name="HitArea" type="Area2D" parent="." unique_id=631733373]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea" unique_id=885747553]
+shape = SubResource("CircleShape2D_j83tc")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=68153812]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.81739646, 0.22162673, 0, 1)

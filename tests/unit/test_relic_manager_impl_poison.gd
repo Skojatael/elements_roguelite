@@ -8,18 +8,19 @@ var _impl: RelicManagerImpl
 const RELICS_STUB: Dictionary = {
 	"domain": {
 		"forest": {
-			"venomous_strike": {
-				"tier": "common",
-				"name": "Venom Fang",
-				"tags": ["melee", "debuff"],
-				"effect_stat": "",
-				"effect_mult": 1.0,
-				"condition_type": "",
-				"poison_chance": 0.25,
-				"poison_duration": 3.0,
-				"poison_modifier": 0.15,
-				"description": "Melee hits have a 25% chance to poison enemies, reducing their damage by 15% for 3s.",
-				"deck_count": 2
+			"common": {
+				"venomous_strike": {
+					"name": "Venom Fang",
+					"tags": ["melee", "debuff"],
+					"effect_stat": "",
+					"effect_mult": 1.0,
+					"condition_type": "",
+					"poison_chance": 0.25,
+					"poison_duration": 3.0,
+					"poison_modifier": 0.15,
+					"description": "Melee hits have a 25% chance to poison enemies, reducing their damage by 15% for 3s.",
+					"deck_count": 2
+				}
 			}
 		}
 	}

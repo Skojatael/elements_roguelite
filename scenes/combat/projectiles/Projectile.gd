@@ -12,6 +12,7 @@ var _burn_damage_per_tick: float = 0.0
 var _burn_duration: float = 2.0
 var _burn_extend_seconds: float = 2.0
 var _distance_traveled: float = 0.0
+var _attacker_stats: StatsComponent = null
 
 
 ## Initialise the projectile after instantiation.
@@ -24,7 +25,8 @@ func setup(
 	chain_damage_mult: float,
 	burn_damage_per_tick: float,
 	burn_duration: float,
-	burn_extend_seconds: float
+	burn_extend_seconds: float,
+	attacker_stats: StatsComponent = null
 ) -> void:
 	_target = target
 	_damage = damage
@@ -34,6 +36,7 @@ func setup(
 	_burn_damage_per_tick = burn_damage_per_tick
 	_burn_duration = burn_duration
 	_burn_extend_seconds = burn_extend_seconds
+	_attacker_stats = attacker_stats
 	_hit_area.body_entered.connect(_on_body_entered)
 
 
@@ -55,7 +58,7 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body is Enemy:
 		return
 	var primary: Enemy = body as Enemy
-	primary.take_damage(_damage)
+	primary.take_damage(_damage, _attacker_stats)
 	if RelicManager.has_burn_relic():
 		primary.on_burn_hit(_damage * _burn_damage_per_tick * RelicManager.get_stat_mult("burn_damage"), _burn_duration, _burn_extend_seconds)
 	_try_chain(primary)
@@ -84,6 +87,6 @@ func _try_chain(primary_target: Enemy) -> void:
 		closest_dist = dist
 	if chain_target == null:
 		return
-	chain_target.take_damage(_damage * (_chain_damage_mult + RelicManager.get_chain_damage_bonus()))
+	chain_target.take_damage(_damage * (_chain_damage_mult + RelicManager.get_chain_damage_bonus()), _attacker_stats)
 	if RelicManager.has_burn_relic():
 		chain_target.on_burn_hit(_damage * _burn_damage_per_tick * RelicManager.get_stat_mult("burn_damage"), _burn_duration, _burn_extend_seconds)

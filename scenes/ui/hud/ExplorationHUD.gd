@@ -6,7 +6,7 @@ extends CanvasLayer
 # Add: scenes/shared/GlobalSignals.gd  |  Name: GlobalSignals
 # Then attach this script to ExplorationHUD.tscn via the Editor.
 
-const BOSS_ENEMY_ID: String = "boss"
+const BOSS_ENEMY_ID: String = "forest_boss_thorns"
 const BOSS_ROOM_ID: String = "boss_room"
 
 ## Emitted when the player presses the Teleport to Boss button.

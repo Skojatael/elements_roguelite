@@ -6,6 +6,7 @@ extends Node
 
 var current_health: float
 var damage_reduction: float = 0.0
+var reflect_amount: float = 0.0
 var is_invulnerable: bool = false
 var _base_max_health: float = 0.0
 var _damage_reduction_cap: float = 0.5
@@ -34,7 +35,7 @@ static func compute_reduced_damage(amount: float, reduction: float) -> float:
 	return amount * (1.0 - reduction)
 
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, attacker: StatsComponent = null) -> void:
 	if is_invulnerable:
 		return
 	var effective: float = compute_reduced_damage(amount, damage_reduction)
@@ -42,6 +43,9 @@ func take_damage(amount: float) -> void:
 	health_changed.emit(current_health, max_health)
 	if current_health == 0.0:
 		died.emit()
+	if reflect_amount <= 0.0 or attacker == null:
+		return
+	attacker.take_damage(floori(effective * reflect_amount))
 
 
 ## Applies damage bypassing damage_reduction (used for burn DoT).
@@ -97,3 +101,4 @@ func _on_relic_applied(_relic_id: String) -> void:
 		current_health = clampf(new_max * ratio, 1.0, new_max)
 		health_changed.emit(current_health, max_health)
 	damage_reduction = minf(_damage_reduction_cap, RelicManager.get_stat_addend("damage_reduction"))
+	reflect_amount = RelicManager.get_stat_addend("reflect_amount")

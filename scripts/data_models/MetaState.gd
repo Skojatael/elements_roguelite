@@ -23,3 +23,4 @@ var rarity_luck_owned: bool = false
 var book_of_skill_gate_reached: bool = false
 var book_of_skill_owned: bool = false
 var forest_domain_unlocked: bool = false
+var depth_scaling_unlocked: bool = false

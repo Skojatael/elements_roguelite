@@ -3,6 +3,8 @@ extends Node
 
 const ENEMY_SCENE := preload("res://scenes/combat/enemies/Enemy.tscn")
 const MAX_ENEMIES := 10
+const MIN_DOOR_DISTANCE: float = 100.0
+const DOOR_POSITIONS: Array[Vector2] = [Vector2(0, -540), Vector2(0, 540), Vector2(960, 0), Vector2(-960, 0)]
 
 ## Unique instance identifier. Used for tracking (cleared_rooms, signals). Set by RoomFactory or Inspector.
 @export var room_id: String = ""
@@ -34,6 +36,7 @@ signal enemy_defeated(enemy_type_id: String)
 var _config: RoomSpawnConfig
 var _depth_tiers: Array = []
 var _is_depth_band_room: bool = false
+var _is_elite_band_room: bool = false
 var _raw_dungeon_config: Dictionary = {}
 var _living_count: int = 0
 var _spawned: bool = false
@@ -64,10 +67,21 @@ func _load_config() -> RoomSpawnConfig:
 	for entry: Variant in raw.get("depth_tiers", []):
 		_depth_tiers.append(DepthTierConfig.from_dict(entry as Dictionary))
 
-	var combat_pool: Array = raw.get("combat_room_pool", [])
+	var combat_pools: Variant = raw.get("combat_room_pools", {})
+	var combat_pool: Array = []
+	if combat_pools is Dictionary:
+		for domain_pool: Variant in (combat_pools as Dictionary).values():
+			if domain_pool is Array and (domain_pool as Array).has(room_type_id):
+				combat_pool.append(room_type_id)
+				break
 	if combat_pool.has(room_type_id):
 		# Depth is not set yet — defer band lookup to player entry.
 		_is_depth_band_room = true
+		return RoomSpawnConfig.new()
+
+	if room_type_id.contains("Elite"):
+		# Depth is not set yet — defer elite band lookup to player entry.
+		_is_elite_band_room = true
 		return RoomSpawnConfig.new()
 
 	var configs: Dictionary = raw.get("spawn_configs", {})
@@ -143,6 +157,88 @@ func _load_depth_band_config(raw: Dictionary) -> RoomSpawnConfig:
 	return cfg
 
 
+## Returns the selected variant dict from elite_depth_bands for the given depth,
+## or an empty dict if no band matches or no variants are defined.
+## Pure static — no autoloads, safe to call from unit tests.
+static func pick_elite_variant(bands: Array, p_depth: int) -> Dictionary:
+	var matched_band: Dictionary = {}
+	for band: Variant in bands:
+		var b: Dictionary = band as Dictionary
+		var min_d: int = int(b.get("min_depth", 0))
+		var max_d: int = int(b.get("max_depth", -1))
+		if p_depth < min_d:
+			continue
+		if max_d != -1 and p_depth > max_d:
+			continue
+		matched_band = b
+
+	if matched_band.is_empty():
+		return {}
+
+	var variants: Array = matched_band.get("variants", [])
+	if variants.is_empty():
+		return {}
+
+	var total_weight: int = 0
+	for v: Variant in variants:
+		total_weight += int((v as Dictionary).get("weight", 0))
+
+	var roll: int = randi() % maxi(total_weight, 1)
+	var cumulative: int = 0
+	for v: Variant in variants:
+		var vd: Dictionary = v as Dictionary
+		cumulative += int(vd.get("weight", 0))
+		if roll < cumulative:
+			return vd
+
+	return variants[variants.size() - 1] as Dictionary
+
+
+func _load_elite_depth_band_config(raw: Dictionary) -> RoomSpawnConfig:
+	var bands: Array = raw.get("elite_depth_bands", [])
+	var selected: Dictionary = RoomSpawner.pick_elite_variant(bands, depth)
+
+	if selected.is_empty():
+		push_warning("[RoomSpawner] no elite depth band matches depth={d} for room_type='{type}'".format({
+			"d": depth, "type": room_type_id,
+		}))
+		return RoomSpawnConfig.new()
+
+	var selected_wave: Array = selected.get("wave", [])
+	var cfg := RoomSpawnConfig.new()
+	cfg.room_id = room_type_id
+
+	var spawn_configs: Dictionary = raw.get("spawn_configs", {})
+	var room_cfg: Dictionary = spawn_configs.get(room_type_id, {})
+	cfg.essence_mult = float(room_cfg.get("essence_mult", 1.0))
+	cfg.enemy_count_mult = float(room_cfg.get("enemy_count_mult", 1.0))
+
+	var slots: Array[SpawnPointData] = []
+	for slot_data: Variant in selected_wave:
+		var sp := SpawnPointData.from_dict(slot_data as Dictionary)
+		if _pool_has_unknown_id(sp.enemy_pool):
+			push_error("[RoomSpawner] elite depth band: unknown enemy_id in room_type='{type}' depth={d}".format({
+				"type": room_type_id, "d": depth,
+			}))
+			return RoomSpawnConfig.new()
+		slots.append(sp)
+	cfg.wave_spawn_points.append(slots)
+
+	cfg.wave_config = WaveConfig.from_dict({
+		"waves": [slots.size()],
+		"trigger_threshold": 0,
+		"alive_cap": MAX_ENEMIES,
+		"min_spawn_distance": 200.0,
+	}) as WaveConfig
+
+	print("[RoomSpawner] elite depth band loaded — depth={d} slots={s} room_type='{type}'".format({
+		"d": depth,
+		"s": slots.size(),
+		"type": room_type_id,
+	}))
+	return cfg
+
+
 func _resolve_wave_config() -> void:
 	if room_type_id.contains("Boss") or room_type_id.contains("Elite"):
 		return
@@ -187,7 +283,9 @@ func _on_player_entered(body: Node2D) -> void:
 	print("[RoomSpawner] player entered room_id='{id}' room_type='{type}' depth={d}".format({"id": room_id, "type": room_type_id, "d": depth}))
 	room_entered.emit(room_id)
 	_spawned = true
-	if _is_depth_band_room:
+	if _is_elite_band_room:
+		_config = _load_elite_depth_band_config(_raw_dungeon_config)
+	elif _is_depth_band_room:
 		_config = _load_depth_band_config(_raw_dungeon_config)
 	_resolve_wave_config()
 	if _config.wave_config != null:
@@ -218,6 +316,35 @@ func _pool_has_unknown_id(pool: Array) -> bool:
 	return false
 
 
+## Returns the scene to instantiate for the given enemy_id.
+## Uses scene_path from EnemyData if set; falls back to ENEMY_SCENE for all standard enemies.
+func _get_scene_for_enemy(enemy_id: String) -> PackedScene:
+	var data: Dictionary = ResourceManager.get_enemy_data(enemy_id)
+	var path: String = str(data.get("scene_path", ""))
+	if not path.is_empty():
+		var scene := load(path) as PackedScene
+		if scene != null:
+			return scene
+		push_warning("[RoomSpawner] scene_path '{p}' failed to load for enemy_id='{id}' — using ENEMY_SCENE".format({"p": path, "id": enemy_id}))
+	return ENEMY_SCENE
+
+
+## Returns local_pos pushed outward so it is at least MIN_DOOR_DISTANCE from every door.
+## Pure static — no autoloads, safe to call from unit tests.
+static func _push_from_doors(local_pos: Vector2) -> Vector2:
+	var result: Vector2 = local_pos
+	for door_pos: Vector2 in DOOR_POSITIONS:
+		var diff: Vector2 = result - door_pos
+		var dist: float = diff.length()
+		if dist >= MIN_DOOR_DISTANCE:
+			continue
+		if dist < 0.001:
+			result = door_pos + Vector2(0.0, MIN_DOOR_DISTANCE)
+			continue
+		result = door_pos + diff.normalized() * MIN_DOOR_DISTANCE
+	return result
+
+
 func _spawn_band_wave(wave_idx: int) -> void:
 	var slots: Array = _config.wave_spawn_points[wave_idx]
 	var room_origin: Vector2 = get_parent().global_position
@@ -226,12 +353,12 @@ func _spawn_band_wave(wave_idx: int) -> void:
 		if resolved_id.is_empty():
 			push_warning("[RoomSpawner] pick_enemy_id() returned empty — skipping slot")
 			continue
-		var enemy: Enemy = ENEMY_SCENE.instantiate()
+		var enemy: Enemy = _get_scene_for_enemy(resolved_id).instantiate()
 		enemy.enemy_type_id = resolved_id
 		get_parent().add_child(enemy)
 		enemy.apply_difficulty(difficulty_mult)
 		var offset := Vector2(randf_range(-sp.radius, sp.radius), randf_range(-sp.radius, sp.radius))
-		enemy.global_position = room_origin + sp.position + offset
+		enemy.global_position = room_origin + RoomSpawner._push_from_doors(sp.position + offset)
 		enemy.defeated.connect(_on_enemy_defeated.bind(resolved_id))
 		_living_count += 1
 		print("[RoomSpawner] spawned '{id}' at {pos}".format({"id": resolved_id, "pos": enemy.global_position}))
@@ -274,7 +401,7 @@ func _spawn_wave(wave_idx: int) -> void:
 
 	for i: int in wave_size:
 		var sp: SpawnPointData = sorted_points[i % sorted_points.size()]
-		var enemy: Enemy = ENEMY_SCENE.instantiate()
+		var enemy: Enemy = _get_scene_for_enemy(sp.enemy_id).instantiate()
 		enemy.enemy_type_id = sp.enemy_id
 		get_parent().add_child(enemy)
 		enemy.apply_difficulty(difficulty_mult)
@@ -282,7 +409,7 @@ func _spawn_wave(wave_idx: int) -> void:
 			randf_range(-sp.radius, sp.radius),
 			randf_range(-sp.radius, sp.radius)
 		)
-		enemy.global_position = room_origin + sp.position + offset
+		enemy.global_position = room_origin + RoomSpawner._push_from_doors(sp.position + offset)
 		enemy.defeated.connect(_on_enemy_defeated.bind(sp.enemy_id))
 		_living_count += 1
 		print("[RoomSpawner] spawned '{id}' at {pos}".format({"id": sp.enemy_id, "pos": enemy.global_position}))
@@ -305,7 +432,7 @@ func _spawn_enemies_legacy() -> void:
 	}))
 	for i: int in _living_count:
 		var sp: SpawnPointData = _config.spawn_points[i % base_count]
-		var enemy: Enemy = ENEMY_SCENE.instantiate()
+		var enemy: Enemy = _get_scene_for_enemy(sp.enemy_id).instantiate()
 		enemy.enemy_type_id = sp.enemy_id
 		get_parent().add_child(enemy)
 		enemy.apply_difficulty(difficulty_mult)
@@ -313,7 +440,7 @@ func _spawn_enemies_legacy() -> void:
 			randf_range(-sp.radius, sp.radius),
 			randf_range(-sp.radius, sp.radius)
 		)
-		enemy.global_position = get_parent().global_position + sp.position + offset
+		enemy.global_position = get_parent().global_position + RoomSpawner._push_from_doors(sp.position + offset)
 		enemy.defeated.connect(_on_enemy_defeated.bind(sp.enemy_id))
 		print("[RoomSpawner] spawned '{id}' at {pos}".format({"id": sp.enemy_id, "pos": enemy.global_position}))
 

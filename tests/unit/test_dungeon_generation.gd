@@ -3,7 +3,7 @@ extends GutTest
 const DungeonGeneratorClass = preload("res://scripts/dungeon/DungeonGenerator.gd")
 
 const STUB_CONFIG: Dictionary = {
-	"combat_room_pool": ["CombatRoom01", "CombatRoom02"],
+	"combat_room_pools": {"forest": ["CombatRoom01", "CombatRoom02"]},
 	"base_room_count": 9,
 	"difficulty_scale": 0.12,
 	"expansion_room_count": 4,
@@ -118,14 +118,23 @@ func test_all_rooms_depth_equals_manhattan_distance() -> void:
 
 # --- Difficulty multiplier ---
 
-func test_difficulty_mult_matches_depth() -> void:
+func test_difficulty_mult_is_flat_when_depth_scaling_disabled() -> void:
 	var gen: DungeonGenerator = add_child_autofree(DungeonGeneratorClass.new())
-	gen._generate_with(STUB_CONFIG, false)
+	gen._generate_with(STUB_CONFIG, false, false)
+	for room_id: String in gen.rooms_by_id:
+		var data: Dictionary = gen.rooms_by_id[room_id]
+		assert_almost_eq(data["difficulty_mult"], 1.0, 0.0001,
+			"room {id} difficulty_mult must be 1.0 when depth scaling is disabled".format({"id": room_id}))
+
+
+func test_difficulty_mult_matches_depth_when_scaling_enabled() -> void:
+	var gen: DungeonGenerator = add_child_autofree(DungeonGeneratorClass.new())
+	gen._generate_with(STUB_CONFIG, false, true)
 	for room_id: String in gen.rooms_by_id:
 		var data: Dictionary = gen.rooms_by_id[room_id]
 		var expected: float = 1.0 + 0.12 * float(data["depth"])
 		assert_almost_eq(data["difficulty_mult"], expected, 0.0001,
-			"room {id} difficulty_mult must equal 1.0 + 0.12 * depth".format({"id": room_id}))
+			"room {id} difficulty_mult must equal 1.0 + 0.12 * depth when scaling enabled".format({"id": room_id}))
 
 
 # --- World position ---
@@ -167,10 +176,10 @@ func test_elite_rooms_exist_at_even_depths() -> void:
 			continue
 		var elite_count: int = 0
 		for room_id: String in rooms_by_depth[d]:
-			if gen.rooms_by_id[room_id]["room_type_id"] == "EliteRoom01":
+			if gen.rooms_by_id[room_id]["room_type_id"] == "ForestEliteRoom01":
 				elite_count += 1
 		assert_eq(elite_count, 1,
-			"exactly one EliteRoom01 must be promoted at depth {d}".format({"d": d}))
+			"exactly one ForestEliteRoom01 must be promoted at depth {d}".format({"d": d}))
 
 
 func test_no_elite_rooms_at_odd_depths() -> void:
@@ -179,8 +188,8 @@ func test_no_elite_rooms_at_odd_depths() -> void:
 	for room_id: String in gen.rooms_by_id:
 		var data: Dictionary = gen.rooms_by_id[room_id]
 		if data["depth"] % 2 != 0:
-			assert_ne(data["room_type_id"], "EliteRoom01",
-				"room at odd depth {d} must not be EliteRoom01".format({"d": data["depth"]}))
+			assert_ne(data["room_type_id"], "ForestEliteRoom01",
+				"room at odd depth {d} must not be ForestEliteRoom01".format({"d": data["depth"]}))
 
 
 # --- Expansion depth constraint ---

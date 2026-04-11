@@ -8,28 +8,30 @@ var _impl: RelicManagerImpl
 const RELICS_STUB: Dictionary = {
 	"domain": {
 		"neutral": {
-			"common_damage": {
-				"tier": "common",
-				"name": "Whetstone",
-				"tags": ["combat"],
-				"effect_stat": "attack_damage",
-				"effect_mult": 1.10,
-				"description": "+10% attack damage",
-				"deck_count": 1,
+			"common": {
+				"common_damage": {
+					"name": "Whetstone",
+					"tags": ["combat"],
+					"effect_stat": "attack_damage",
+					"effect_mult": 1.10,
+					"description": "+10% attack damage",
+					"deck_count": 1,
+				}
 			}
 		},
 		"forest": {
-			"root_relic": {
-				"tier": "uncommon",
-				"name": "Rootweave Band",
-				"tags": ["melee"],
-				"effect_stat": "",
-				"effect_mult": 1.0,
-				"condition_type": "root_on_melee_hit",
-				"root_chance": 1.0,
-				"root_duration": 0.6,
-				"description": "test",
-				"deck_count": 1,
+			"uncommon": {
+				"root_relic": {
+					"name": "Rootweave Band",
+					"tags": ["melee"],
+					"effect_stat": "",
+					"effect_mult": 1.0,
+					"condition_type": "root_on_melee_hit",
+					"root_chance": 1.0,
+					"root_duration": 0.6,
+					"description": "test",
+					"deck_count": 1,
+				}
 			}
 		}
 	}

@@ -132,7 +132,8 @@ func _on_skill_button_pressed() -> void:
 	room_node.add_child(projectile)
 	projectile.global_position = get_parent().global_position
 	projectile.setup(target, damage, _speed, _max_distance, _chain_damage_mult,
-			_burn_damage_per_tick, _burn_duration, _burn_extend_seconds)
+			_burn_damage_per_tick, _burn_duration, _burn_extend_seconds,
+			_combat_component._stats_component)
 	_current_charges -= 1
 	charges_changed.emit(_current_charges, _max_charges)
 	_cooldown_remaining = _cooldown_duration

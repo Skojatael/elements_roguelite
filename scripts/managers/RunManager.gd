@@ -16,6 +16,7 @@ signal room_cleared(room_id: String)
 var run_id: String = ""
 var is_run_active: bool = false
 var run_mode: String = ""
+var run_domain: String = ""
 var current_tier: int = 1
 var run_start_time: float = 0.0
 var run_currency: float = 0.0
@@ -51,12 +52,13 @@ func _ready() -> void:
 # --- Lifecycle ---
 
 ## Starts a new run. Safe to call while a run is already active — fully resets state.
-func start_run(mode: String) -> void:
+func start_run(mode: String, domain: String = "forest") -> void:
 	if mode not in ["endless", "boss"]:
 		push_warning("RunManager: invalid run_mode '{mode}' — expected 'endless' or 'boss'".format({"mode": mode}))
 	run_id = str(Time.get_ticks_msec())
 	is_run_active = true
 	run_mode = mode
+	run_domain = domain
 	current_tier = 1
 	run_start_time = Time.get_ticks_msec() / 1000.0
 	run_currency = 0.0
@@ -88,6 +90,7 @@ func end_run(reason: EndReason) -> void:
 		print("[RunManager] end_run called — no active run, ignoring")
 		return
 	is_run_active = false
+	run_domain = ""
 	var cashed_out: int
 	if reason == EndReason.DIED:
 		cashed_out = floori(run_currency * 0.85)  # floor ensures result is always a whole number
@@ -153,7 +156,8 @@ func _on_enemy_defeated(enemy_type_id: String) -> void:
 	var base_essence: float = ResourceManager.get_enemy_base_essence(enemy_type_id)
 	var essence_depth_scale: float = ResourceManager.get_dungeon_config().get("essence_depth_scale", 0.10)
 	var room_essence_mult: float = (current_room as RoomSpawner).essence_mult if current_room != null else 1.0
-	var essence: int = floori(base_essence * (1.0 + essence_depth_scale * float(current_room_depth - 1)) * room_essence_mult * MetaManager.essence_gain_multiplier)
+	var effective_depth: int = current_room_depth if MetaManager.is_depth_scaling_unlocked else 1
+	var essence: int = floori(base_essence * (1.0 + essence_depth_scale * float(effective_depth - 1)) * room_essence_mult * MetaManager.essence_gain_multiplier)
 	if essence > 0:
 		add_currency(float(essence))
 

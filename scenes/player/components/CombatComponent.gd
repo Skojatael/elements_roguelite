@@ -74,7 +74,7 @@ func _physics_process(delta: float) -> void:
 				* RelicManager.get_hit_damage_mult(target.get_hp_ratio(), attacker_ratio, target.is_burning()) \
 				* _poison.get_damage_mult(), \
 				_crit_chance, _crit_multiplier)
-			target.take_damage(dmg)
+			target.take_damage(dmg, _stats_component)
 			target.apply_root(RelicManager.get_root_on_hit_duration())
 			RelicManager.try_apply_poison(target)
 		melee_hit_landed.emit()

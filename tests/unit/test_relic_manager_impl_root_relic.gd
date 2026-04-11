@@ -8,17 +8,18 @@ var _impl: RelicManagerImpl
 const _RELICS_FULL_CHANCE: Dictionary = {
 	"domain": {
 		"forest": {
-			"root_relic": {
-				"tier": "uncommon",
-				"name": "Rootweave Band",
-				"tags": ["melee"],
-				"effect_stat": "",
-				"effect_mult": 1.0,
-				"condition_type": "root_on_melee_hit",
-				"root_chance": 1.0,
-				"root_duration": 0.6,
-				"description": "test",
-				"deck_count": 1,
+			"uncommon": {
+				"root_relic": {
+					"name": "Rootweave Band",
+					"tags": ["melee"],
+					"effect_stat": "",
+					"effect_mult": 1.0,
+					"condition_type": "root_on_melee_hit",
+					"root_chance": 1.0,
+					"root_duration": 0.6,
+					"description": "test",
+					"deck_count": 1,
+				}
 			}
 		}
 	}
@@ -28,17 +29,18 @@ const _RELICS_FULL_CHANCE: Dictionary = {
 const _RELICS_ZERO_CHANCE: Dictionary = {
 	"domain": {
 		"forest": {
-			"root_relic": {
-				"tier": "uncommon",
-				"name": "Rootweave Band",
-				"tags": ["melee"],
-				"effect_stat": "",
-				"effect_mult": 1.0,
-				"condition_type": "root_on_melee_hit",
-				"root_chance": 0.0,
-				"root_duration": 0.6,
-				"description": "test",
-				"deck_count": 1,
+			"uncommon": {
+				"root_relic": {
+					"name": "Rootweave Band",
+					"tags": ["melee"],
+					"effect_stat": "",
+					"effect_mult": 1.0,
+					"condition_type": "root_on_melee_hit",
+					"root_chance": 0.0,
+					"root_duration": 0.6,
+					"description": "test",
+					"deck_count": 1,
+				}
 			}
 		}
 	}

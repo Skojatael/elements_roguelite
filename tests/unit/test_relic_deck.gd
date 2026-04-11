@@ -5,14 +5,20 @@ const RelicManagerImpl = preload("res://scripts/managers/RelicManagerImpl.gd")
 const STUB_RELICS: Dictionary = {
 	"domain": {
 		"neutral": {
-			"relic_a": {"tier": "common",   "name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10},
-			"relic_b": {"tier": "common",   "name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05},
-			"relic_c": {"tier": "common",   "name": "C", "effect_stat": "move_speed",    "effect_mult": 1.08},
-			"relic_d": {"tier": "uncommon", "name": "D", "effect_stat": "attack_damage", "effect_mult": 1.18},
-			"relic_e": {"tier": "uncommon", "name": "E", "effect_stat": "max_health",    "effect_mult": 1.15},
-			"relic_f": {"tier": "uncommon", "name": "F", "effect_stat": "move_speed",    "effect_mult": 1.12},
-			"relic_x": {"tier": "rare",     "name": "X", "effect_stat": "attack_damage", "effect_mult": 1.25},
-			"relic_y": {"tier": "rare",     "name": "Y", "effect_stat": "max_health",    "effect_mult": 1.30},
+			"common": {
+				"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10},
+				"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05},
+				"relic_c": {"name": "C", "effect_stat": "move_speed",    "effect_mult": 1.08},
+			},
+			"uncommon": {
+				"relic_d": {"name": "D", "effect_stat": "attack_damage", "effect_mult": 1.18},
+				"relic_e": {"name": "E", "effect_stat": "max_health",    "effect_mult": 1.15},
+				"relic_f": {"name": "F", "effect_stat": "move_speed",    "effect_mult": 1.12},
+			},
+			"rare": {
+				"relic_x": {"name": "X", "effect_stat": "attack_damage", "effect_mult": 1.25},
+				"relic_y": {"name": "Y", "effect_stat": "max_health",    "effect_mult": 1.30},
+			},
 		},
 	}
 }
@@ -46,10 +52,12 @@ func test_draw_offer_pair_distinct() -> void:
 const STUB_RELICS_HIGH_COUNT: Dictionary = {
 	"domain": {
 		"neutral": {
-			"relic_a": {"tier": "common", "name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
-			"relic_b": {"tier": "common", "name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 3},
-			"relic_c": {"tier": "common", "name": "C", "effect_stat": "move_speed",    "effect_mult": 1.08, "deck_count": 3},
-		},
+			"common": {
+				"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
+				"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 3},
+				"relic_c": {"name": "C", "effect_stat": "move_speed",    "effect_mult": 1.08, "deck_count": 3},
+			},
+		}
 	}
 }
 
@@ -60,7 +68,7 @@ func test_draw_offer_single_unique_relic_returns_one() -> void:
 	# reshuffle without exclusion and could return the same relic again.
 	var impl: RelicManagerImpl = RelicManagerImpl.new()
 	impl.build_pool({
-		"domain": {"neutral": {"only_relic": {"tier": "common", "name": "Solo", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3}}}
+		"domain": {"neutral": {"common": {"only_relic": {"name": "Solo", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3}}}}
 	}, STUB_CFG)
 	var offer: Array[RelicData] = impl.draw_offer("common")
 	assert_eq(offer.size(), 1, "tier with one unique relic must return only 1 offer, not a duplicate pair")
@@ -201,26 +209,25 @@ func test_should_offer_elite_does_not_advance_counter() -> void:
 const STUB_RELICS_CONDITIONAL: Dictionary = {
 	"domain": {
 		"neutral": {
-			"executioners_mark": {
-				"tier": "rare",
-				"name": "Executioner's Mark", "tags": ["combat"],
-				"effect_stat": "", "effect_mult": 1.0,
-				"condition_type": "target_hp_below", "condition_threshold": 0.30, "condition_mult": 1.35,
-				"deck_count": 1
-			},
-			"berserker_stone": {
-				"tier": "rare",
-				"name": "Berserker Stone", "tags": ["combat"],
-				"effect_stat": "", "effect_mult": 1.0,
-				"condition_type": "attacker_hp_below", "condition_threshold": 0.50, "condition_mult": 1.30,
-				"deck_count": 1
-			},
-			"burn_damage": {
-				"tier": "rare",
-				"name": "Searing Seal", "tags": ["burn_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0,
-				"condition_type": "target_is_burning", "condition_threshold": 0.0, "condition_mult": 1.50,
-				"deck_count": 1
+			"rare": {
+				"executioners_mark": {
+					"name": "Executioner's Mark", "tags": ["combat"],
+					"effect_stat": "", "effect_mult": 1.0,
+					"condition_type": "target_hp_below", "condition_threshold": 0.30, "condition_mult": 1.35,
+					"deck_count": 1
+				},
+				"berserker_stone": {
+					"name": "Berserker Stone", "tags": ["combat"],
+					"effect_stat": "", "effect_mult": 1.0,
+					"condition_type": "attacker_hp_below", "condition_threshold": 0.50, "condition_mult": 1.30,
+					"deck_count": 1
+				},
+				"burn_damage": {
+					"name": "Searing Seal", "tags": ["burn_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0,
+					"condition_type": "target_is_burning", "condition_threshold": 0.0, "condition_mult": 1.50,
+					"deck_count": 1
+				},
 			},
 		},
 	}
@@ -317,9 +324,11 @@ func test_searing_seal_stacks_with_berserker_stone() -> void:
 const STUB_RELICS_CRIT: Dictionary = {
 	"domain": {
 		"neutral": {
-			"crit_a": {"tier": "common", "name": "CritA", "effect_stat": "crit_chance",     "effect_mult": 0.10},
-			"crit_b": {"tier": "common", "name": "CritB", "effect_stat": "crit_chance",     "effect_mult": 0.15},
-			"crit_c": {"tier": "common", "name": "CritC", "effect_stat": "crit_multiplier", "effect_mult": 0.25},
+			"common": {
+				"crit_a": {"name": "CritA", "effect_stat": "crit_chance",     "effect_mult": 0.10},
+				"crit_b": {"name": "CritB", "effect_stat": "crit_chance",     "effect_mult": 0.15},
+				"crit_c": {"name": "CritC", "effect_stat": "crit_multiplier", "effect_mult": 0.25},
+			},
 		},
 	}
 }
@@ -406,30 +415,27 @@ func test_has_chain_relic_false_for_other_relic() -> void:
 const STUB_RELICS_MECHANIC: Dictionary = {
 	"domain": {
 		"neutral": {
-			"burn": {
-				"tier": "uncommon",
-				"name": "Burn", "tags": ["burn"],
-				"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
-			},
-			"burn_damage": {
-				"tier": "uncommon",
-				"name": "Burn Dmg", "tags": ["burn_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
-			},
-			"chain": {
-				"tier": "uncommon",
-				"name": "Chain", "tags": ["chain"],
-				"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
-			},
-			"chain_reach": {
-				"tier": "uncommon",
-				"name": "Chain Reach", "tags": ["chain_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
-			},
-			"generic": {
-				"tier": "uncommon",
-				"name": "Generic", "tags": ["combat"],
-				"effect_stat": "attack_damage", "effect_mult": 1.1, "deck_count": 1
+			"uncommon": {
+				"burn": {
+					"name": "Burn", "tags": ["burn"],
+					"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
+				},
+				"burn_damage": {
+					"name": "Burn Dmg", "tags": ["burn_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
+				},
+				"chain": {
+					"name": "Chain", "tags": ["chain"],
+					"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
+				},
+				"chain_reach": {
+					"name": "Chain Reach", "tags": ["chain_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
+				},
+				"generic": {
+					"name": "Generic", "tags": ["combat"],
+					"effect_stat": "attack_damage", "effect_mult": 1.1, "deck_count": 1
+				},
 			},
 		},
 	}
@@ -438,15 +444,15 @@ const STUB_RELICS_MECHANIC: Dictionary = {
 const STUB_RELICS_RARE_UNLOCKED: Dictionary = {
 	"domain": {
 		"neutral": {
-			"burn_epic": {
-				"tier": "rare",
-				"name": "Burn Epic", "tags": ["burn_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
-			},
-			"rare_normal": {
-				"tier": "rare",
-				"name": "Rare Normal", "tags": ["combat"],
-				"effect_stat": "attack_damage", "effect_mult": 1.3, "deck_count": 1
+			"rare": {
+				"burn_epic": {
+					"name": "Burn Epic", "tags": ["burn_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0, "deck_count": 1
+				},
+				"rare_normal": {
+					"name": "Rare Normal", "tags": ["combat"],
+					"effect_stat": "attack_damage", "effect_mult": 1.3, "deck_count": 1
+				},
 			},
 		},
 	}
@@ -634,18 +640,22 @@ func test_pick_relic_adds_to_active_ids() -> void:
 const STUB_RELICS_COUNTS: Dictionary = {
 	"domain": {
 		"neutral": {
-			"relic_a": {"tier": "common", "name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
-			"relic_b": {"tier": "common", "name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 1},
-		},
+			"common": {
+				"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
+				"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 1},
+			},
+		}
 	}
 }
 
 const STUB_RELICS_ZERO: Dictionary = {
 	"domain": {
 		"neutral": {
-			"relic_a": {"tier": "common", "name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
-			"relic_b": {"tier": "common", "name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 0},
-		},
+			"common": {
+				"relic_a": {"name": "A", "effect_stat": "attack_damage", "effect_mult": 1.10, "deck_count": 3},
+				"relic_b": {"name": "B", "effect_stat": "attack_speed",  "effect_mult": 1.05, "deck_count": 0},
+			},
+		}
 	}
 }
 
@@ -719,25 +729,24 @@ func test_tier_exhaustion_reshuffles() -> void:
 const STUB_RELICS_CHAIN_BONUS: Dictionary = {
 	"domain": {
 		"neutral": {
-			"chain_power_stone": {
-				"tier": "common",
-				"name": "Chain Amplifier", "tags": ["chain_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0,
-				"condition_type": "chain_damage_bonus", "condition_threshold": 0.0, "condition_mult": 0.15,
-				"deck_count": 1
-			},
-			"chain_power_stone_2": {
-				"tier": "common",
-				"name": "Chain Amplifier II", "tags": ["chain_unlocked"],
-				"effect_stat": "", "effect_mult": 1.0,
-				"condition_type": "chain_damage_bonus", "condition_threshold": 0.0, "condition_mult": 0.15,
-				"deck_count": 1
-			},
-			"other_relic": {
-				"tier": "common",
-				"name": "Other", "tags": ["combat"],
-				"effect_stat": "attack_damage", "effect_mult": 1.1,
-				"deck_count": 1
+			"common": {
+				"chain_power_stone": {
+					"name": "Chain Amplifier", "tags": ["chain_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0,
+					"condition_type": "chain_damage_bonus", "condition_threshold": 0.0, "condition_mult": 0.15,
+					"deck_count": 1
+				},
+				"chain_power_stone_2": {
+					"name": "Chain Amplifier II", "tags": ["chain_unlocked"],
+					"effect_stat": "", "effect_mult": 1.0,
+					"condition_type": "chain_damage_bonus", "condition_threshold": 0.0, "condition_mult": 0.15,
+					"deck_count": 1
+				},
+				"other_relic": {
+					"name": "Other", "tags": ["combat"],
+					"effect_stat": "attack_damage", "effect_mult": 1.1,
+					"deck_count": 1
+				},
 			},
 		},
 	}

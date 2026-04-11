@@ -1,7 +1,7 @@
 class_name HubRoom
 extends Node2D
 
-signal hub_exited
+signal hub_exited(domain: String)
 signal hub_boss_run_pressed
 
 @export var teleport_door: TeleportDoor
@@ -13,8 +13,8 @@ func _ready() -> void:
 	_boss_run_button.boss_run_pressed.connect(_on_boss_run_pressed)
 
 
-func _on_teleport_activated() -> void:
-	hub_exited.emit()
+func _on_teleport_activated(domain: String) -> void:
+	hub_exited.emit(domain)
 	queue_free()
 
 

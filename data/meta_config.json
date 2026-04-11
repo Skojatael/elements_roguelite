@@ -1,7 +1,7 @@
 {
-	"shard_divisor": 3,
-	"gold_rate_per_hour": 100,
-	"boss_run_shard_award": 35,
+	"shard_divisor": 3.0,
+	"gold_rate_per_hour": 100.0,
+	"boss_run_shard_award": 35.0,
 	"relic_tier_weights": {
 		"common": 0.6,
 		"uncommon": 0.3,
@@ -9,78 +9,96 @@
 	},
 	"magic_forge": {
 		"name": "Magic Forge",
-		"cost": 120,
+		"cost": 120.0,
 		"upgrades": {
 			"damage_upgrade": {
 				"name": "Damage Multiplier",
-				"base_cost": 120,
+				"base_cost": 120.0,
 				"cost_scale": 1.2,
-				"max_levels": 10,
+				"max_levels": 10.0,
 				"damage_per_level": 0.1
 			},
 			"missile_charge_upgrade": {
 				"name": "Arcane Reservoir",
-				"cost": 150
+				"cost": 150.0
 			},
 			"rarity_luck_upgrade": {
 				"name": "Rarity Luck",
-				"cost": 350,
+				"cost": 350.0,
 				"promotion_chance": 0.1
 			}
 		}
 	},
 	"mage_tower": {
 		"name": "Mage Tower",
-		"cost": 100,
+		"cost": 100.0,
 		"first_boss_killed": {
 			"popup_message": "You have defeated the boss. Boss Challenge Mode can now be unlocked in the Mage Tower."
 		},
 		"upgrades": {
-			"dungeon_expansion": { "name": "Dungeon Expansion", "cost": 250 },
-			"relic_system":      { "name": "Relic System",      "cost": 100 },
-			"boss_challenge":    { "name": "Boss Challenge Mode", "cost": 200, "gate_text": "Major essence required" }
+			"dungeon_expansion": {
+				"name": "Dungeon Expansion",
+				"cost": 250.0
+			},
+			"relic_system": {
+				"name": "Relic System",
+				"cost": 100.0
+			},
+			"boss_challenge": {
+				"name": "Boss Challenge Mode",
+				"cost": 200.0,
+				"gate_text": "Major essence required"
+			},
+			"depth_scaling": {
+				"name": "Depth Scaling",
+				"cost": 300.0
+			}
 		}
 	},
 	"book_of_skill": {
 		"name": "Book of Skill",
-		"cost": 100,
+		"cost": 100.0,
 		"popup_message": "You have explored the Ancient Forest a bit. An idea comes to you: what if you record your experiences? You should do that in a safe place, though.",
 		"upgrades": {
 			"forest_domain": {
 				"name": "Forest Domain",
-				"cost": 40
+				"cost": 40.0
 			}
 		}
 	},
 	"alchemy_lab": {
 		"name": "Alchemy Lab",
-		"cost": 200,
+		"cost": 200.0,
 		"upgrades": {
 			"essence_gain": {
 				"name": "Essence Gain",
-				"base_cost": 50,
-				"cost_step": 50,
-				"max_levels": 5,
+				"base_cost": 50.0,
+				"cost_step": 50.0,
+				"max_levels": 5.0,
 				"essence_per_level": 0.05
 			},
 			"gold_generator": {
 				"name": "Transmuter",
-				"cost": 50
+				"cost": 50.0
 			},
 			"shard_generator": {
 				"name": "Essence Condenser",
-				"base_cost": 600,
+				"base_cost": 600.0,
 				"cost_scale": 2.0,
-				"max_levels": 3,
-				"rates_per_hour": [2, 3, 5]
+				"max_levels": 3.0,
+				"rates_per_hour": [
+					2.0,
+					3.0,
+					5.0
+				]
 			},
 			"gold_storage_cap": {
 				"name": "Gold Storage",
-				"base_hours": 4,
-				"hours_per_level": 4,
-				"base_cost": 100,
+				"base_hours": 4.0,
+				"hours_per_level": 4.0,
+				"base_cost": 100.0,
 				"cost_scale": 1.5,
-				"max_levels": 2
+				"max_levels": 2.0
 			}
 		}
 	}

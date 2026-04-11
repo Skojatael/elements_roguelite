@@ -5,17 +5,18 @@ const RelicManagerImpl = preload("res://scripts/managers/RelicManagerImpl.gd")
 const FIXTURE_RELICS: Dictionary = {
 	"domain": {
 		"neutral": {
-			"melee_missile_charge": {
-				"tier": "common",
-				"name": "Arcane Knuckles",
-				"tags": ["projectile", "melee"],
-				"effect_stat": "",
-				"effect_mult": 1.0,
-				"condition_type": "",
-				"condition_threshold": 3.0,
-				"condition_mult": 1.0,
-				"description": "Every 3 melee hits restore 1 Magic Missile charge.",
-				"deck_count": 2
+			"common": {
+				"melee_missile_charge": {
+					"name": "Arcane Knuckles",
+					"tags": ["projectile", "melee"],
+					"effect_stat": "",
+					"effect_mult": 1.0,
+					"condition_type": "",
+					"condition_threshold": 3.0,
+					"condition_mult": 1.0,
+					"description": "Every 3 melee hits restore 1 Magic Missile charge.",
+					"deck_count": 2
+				}
 			}
 		}
 	}

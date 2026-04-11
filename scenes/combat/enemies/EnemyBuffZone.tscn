@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dry5455cq4g0o"]
+
+[ext_resource type="Script" uid="uid://dymatpljyui5t" path="res://scenes/combat/enemies/EnemyBuffZone.gd" id="1_ixfp5"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hyxcr"]
+
+[node name="EnemyBuffZone" type="Area2D" unique_id=1228371955 node_paths=PackedStringArray("_collision_shape", "_visual")]
+script = ExtResource("1_ixfp5")
+_collision_shape = NodePath("CollisionShape2D")
+_visual = NodePath("ColorRect")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1180744308]
+shape = SubResource("CircleShape2D_hyxcr")
+debug_color = Color(0, 0.6, 0.023529412, 0.41960785)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=227086440]
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.105882354, 0.74509805, 0.30588236, 0.69803923)

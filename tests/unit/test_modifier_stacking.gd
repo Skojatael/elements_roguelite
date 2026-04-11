@@ -5,21 +5,25 @@ const RelicManagerImpl = preload("res://scripts/managers/RelicManagerImpl.gd")
 const STUB: Dictionary = {
 	"domain": {
 		"neutral": {
-			"dmg_a": {"tier": "common",   "name": "DmgA", "effect_stat": "attack_damage",   "effect_mult": 1.10},
-			"dmg_b": {"tier": "common",   "name": "DmgB", "effect_stat": "attack_damage",   "effect_mult": 1.10},
-			"dmg_c": {"tier": "common",   "name": "DmgC", "effect_stat": "attack_damage",   "effect_mult": 1.10},
-			"spd_a": {"tier": "common",   "name": "SpdA", "effect_stat": "attack_speed",    "effect_mult": 1.10},
-			"spd_b": {"tier": "common",   "name": "SpdB", "effect_stat": "attack_speed",    "effect_mult": 1.10},
-			"hp_a":  {"tier": "common",   "name": "HpA",  "effect_stat": "max_health",      "effect_mult": 1.15},
-			"hp_b":  {"tier": "common",   "name": "HpB",  "effect_stat": "max_health",      "effect_mult": 1.15},
-			"mv_a":  {"tier": "common",   "name": "MvA",  "effect_stat": "move_speed",      "effect_mult": 1.15},
-			"mv_b":  {"tier": "common",   "name": "MvB",  "effect_stat": "move_speed",      "effect_mult": 1.15},
-			"crit_a": {"tier": "uncommon", "name": "CritA", "effect_stat": "crit_chance",     "effect_mult": 0.20},
-			"crit_b": {"tier": "uncommon", "name": "CritB", "effect_stat": "crit_chance",     "effect_mult": 0.20},
-			"cm_a":   {"tier": "uncommon", "name": "CmA",   "effect_stat": "crit_multiplier", "effect_mult": 0.10},
-			"cm_b":   {"tier": "uncommon", "name": "CmB",   "effect_stat": "crit_multiplier", "effect_mult": 0.10},
-			"dr_a":   {"tier": "uncommon", "name": "DrA",   "effect_stat": "damage_reduction","effect_mult": 0.10},
-			"dr_b":   {"tier": "uncommon", "name": "DrB",   "effect_stat": "damage_reduction","effect_mult": 0.10},
+			"common": {
+				"dmg_a": {"name": "DmgA", "effect_stat": "attack_damage",   "effect_mult": 1.10},
+				"dmg_b": {"name": "DmgB", "effect_stat": "attack_damage",   "effect_mult": 1.10},
+				"dmg_c": {"name": "DmgC", "effect_stat": "attack_damage",   "effect_mult": 1.10},
+				"spd_a": {"name": "SpdA", "effect_stat": "attack_speed",    "effect_mult": 1.10},
+				"spd_b": {"name": "SpdB", "effect_stat": "attack_speed",    "effect_mult": 1.10},
+				"hp_a":  {"name": "HpA",  "effect_stat": "max_health",      "effect_mult": 1.15},
+				"hp_b":  {"name": "HpB",  "effect_stat": "max_health",      "effect_mult": 1.15},
+				"mv_a":  {"name": "MvA",  "effect_stat": "move_speed",      "effect_mult": 1.15},
+				"mv_b":  {"name": "MvB",  "effect_stat": "move_speed",      "effect_mult": 1.15},
+			},
+			"uncommon": {
+				"crit_a": {"name": "CritA", "effect_stat": "crit_chance",     "effect_mult": 0.20},
+				"crit_b": {"name": "CritB", "effect_stat": "crit_chance",     "effect_mult": 0.20},
+				"cm_a":   {"name": "CmA",   "effect_stat": "crit_multiplier", "effect_mult": 0.10},
+				"cm_b":   {"name": "CmB",   "effect_stat": "crit_multiplier", "effect_mult": 0.10},
+				"dr_a":   {"name": "DrA",   "effect_stat": "damage_reduction","effect_mult": 0.10},
+				"dr_b":   {"name": "DrB",   "effect_stat": "damage_reduction","effect_mult": 0.10},
+			},
 		},
 	}
 }

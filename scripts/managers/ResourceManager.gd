@@ -5,6 +5,7 @@ var _dungeon_config_cache: Dictionary = {}
 var _enemy_ids_cache: Array[String] = []
 var _enemy_essence_cache: Dictionary = {}
 var _enemy_rooms_required_cache: Dictionary = {}
+var _enemy_data_cache: Dictionary = {}
 var _meta_config_cache: Dictionary = {}
 var _relics_cache: Dictionary = {}
 var _skills_cache: Array = []
@@ -32,6 +33,14 @@ func get_dungeon_config() -> Dictionary:
 	_dungeon_config_cache = parsed as Dictionary
 	_dungeon_config_loaded = true
 	return _dungeon_config_cache
+
+
+## Returns the full data dictionary for the given enemy id, with the "id" field
+## injected. Returns an empty dictionary for unknown ids.
+func get_enemy_data(id: String) -> Dictionary:
+	if not _enemy_ids_loaded:
+		_load_enemy_data()
+	return _enemy_data_cache.get(id, {})
 
 
 ## Returns true if the given id exists in data/enemies.json.
@@ -128,23 +137,48 @@ func get_skills() -> Array:
 	return _skills_cache
 
 
+## Returns the combat room pool array for the given domain from dungeon_config.json.
+## Returns an empty array with a warning if the domain is unknown.
+func get_combat_room_pool(domain: String) -> Array:
+	var config: Dictionary = get_dungeon_config()
+	var pools: Variant = config.get("combat_room_pools", {})
+	if not pools is Dictionary:
+		push_warning("ResourceManager: combat_room_pools missing or wrong type in dungeon_config.json")
+		return []
+	var pool: Variant = (pools as Dictionary).get(domain, null)
+	if pool == null:
+		push_warning("ResourceManager: unknown domain '{d}' — no combat room pool found".format({"d": domain}))
+		return []
+	return pool as Array
+
+
 func _load_enemy_data() -> void:
 	var file := FileAccess.open("res://data/enemies.json", FileAccess.READ)
 	assert(file != null, "ResourceManager: failed to open res://data/enemies.json")
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	file.close()
 	assert(parsed is Dictionary, "ResourceManager: enemies.json root must be a Dictionary")
+	_load_enemy_data_from_dict(parsed as Dictionary)
 
-	var enemies_root: Variant = (parsed as Dictionary).get("enemies", {})
-	assert(enemies_root is Dictionary,
-		"ResourceManager: enemies.json 'enemies' field must be a Dictionary — got wrong type (old flat-array format?)")
-	for category: Variant in (enemies_root as Dictionary).values():
-		if not category is Array:
+
+## Parses the three-level (tier → domain → id) enemy structure into flat caches.
+## Called by _load_enemy_data() after file I/O; exposed separately for unit testing.
+func _load_enemy_data_from_dict(root: Dictionary) -> void:
+	for tier_value: Variant in root.values():
+		if not tier_value is Dictionary:
 			continue
-		for entry: Variant in category:
-			if not (entry is Dictionary and entry.has("id")):
+		for domain_value: Variant in (tier_value as Dictionary).values():
+			if not domain_value is Dictionary:
 				continue
-			_enemy_ids_cache.append(entry["id"])
-			_enemy_essence_cache[entry["id"]] = float(entry.get("base_essence", 0.0))
-			_enemy_rooms_required_cache[entry["id"]] = int(entry.get("rooms_required", 0))
+			for enemy_id: Variant in (domain_value as Dictionary):
+				var entry: Variant = (domain_value as Dictionary)[enemy_id]
+				if not entry is Dictionary:
+					continue
+				var id: String = enemy_id as String
+				var full: Dictionary = (entry as Dictionary).duplicate()
+				full["id"] = id
+				_enemy_ids_cache.append(id)
+				_enemy_essence_cache[id] = float(full.get("base_essence", 0.0))
+				_enemy_rooms_required_cache[id] = int(full.get("rooms_required", 0))
+				_enemy_data_cache[id] = full
 	_enemy_ids_loaded = true

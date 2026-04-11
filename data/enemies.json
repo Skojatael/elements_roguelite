@@ -1,32 +1,7 @@
 {
-	"enemies": {
-		"common": [
-			{
-				"id": "slime",
-				"display_name": "Slime",
-				"max_health": 42.0,
-				"damage": 8.0,
-				"move_speed": 60.0,
-				"detection_range": 800.0,
-				"damage_cooldown": 0.5,
-				"base_essence": 10,
-				"attack_range": 22,
-				"color": "#44dd44"
-			},
-			{
-				"id": "skeleton",
-				"display_name": "Skeleton",
-				"max_health": 70.0,
-				"damage": 12.0,
-				"move_speed": 80.0,
-				"detection_range": 800.0,
-				"damage_cooldown": 1.0,
-				"base_essence": 15,
-				"attack_range": 22,
-				"color": "#dddddd"
-			},
-			{
-				"id": "forest_tank",
+	"normal": {
+		"forest": {
+			"forest_tank": {
 				"display_name": "Bramble Beast",
 				"max_health": 80.0,
 				"damage": 10.0,
@@ -35,12 +10,12 @@
 				"damage_cooldown": 1.4,
 				"base_essence": 10,
 				"attack_range": 20,
-				"domain": "forest",
-				"color": "#228833"
+				"reflect_amount": 0.0,
+				"color": "#228833",
+				"size": 1.4
 			},
-			{
-				"id": "forest_healer",
-				"display_name": "Bramble Druid",
+			"forest_healer": {
+				"display_name": "Sapling Healer",
 				"max_health": 40.0,
 				"damage": 6.0,
 				"move_speed": 80.0,
@@ -50,11 +25,11 @@
 				"attack_range": 80,
 				"heal_radius": 80,
 				"heal_amount": 8,
-				"domain": "forest",
-				"color": "#88ff44"
+				"reflect_amount": 0.0,
+				"color": "#88ff44",
+				"size": 0.85
 			},
-			{
-				"id": "forest_disruptor",
+			"forest_disruptor": {
 				"display_name": "Rootbinder",
 				"max_health": 55.0,
 				"damage": 9.0,
@@ -65,11 +40,11 @@
 				"attack_range": 20,
 				"root_duration": 0.6,
 				"root_cooldown": 2.0,
-				"domain": "forest",
-				"color": "#886633"
+				"reflect_amount": 0.0,
+				"color": "#886633",
+				"size": 1.0
 			},
-			{
-				"id": "forest_poisoner",
+			"forest_poisoner": {
 				"display_name": "Spore Shaman",
 				"max_health": 50.0,
 				"damage": 8.0,
@@ -80,24 +55,89 @@
 				"attack_range": 20,
 				"poison_duration": 3.0,
 				"poison_modifier": 0.10,
-				"domain": "forest",
-				"color": "#aa44bb"
+				"reflect_amount": 0.0,
+				"color": "#aa44bb",
+				"size": 1.0
 			}
-		],
-		"boss": [
-			{
-				"id": "boss",
-				"display_name": "Boss",
-				"max_health": 200.0,
-				"damage": 20.0,
-				"move_speed": 60.0,
+		}
+	},
+	"elite": {
+		"forest": {
+			"forest_buffer": {
+				"display_name": "Bramble Weaver",
+				"max_health": 50.0,
+				"damage": 8.0,
+				"move_speed": 75.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.4,
+				"base_essence": 15,
+				"attack_range": 80,
+				"buff_zone_radius": 80,
+				"buff_cooldown": 3.0,
+				"buff_regen_rate": 1.0,
+				"buff_zone_duration": 4.0,
+				"buff_attack_speed_bonus": 0.1,
+				"reflect_amount": 0.0,
+				"color": "#ff00ff",
+				"size": 1.0
+			},
+			"forest_reflector": {
+				"display_name": "Thornback",
+				"max_health": 50.0,
+				"damage": 6.0,
+				"move_speed": 70.0,
+				"detection_range": 800.0,
+				"damage_cooldown": 1.6,
+				"base_essence": 15,
+				"attack_range": 20,
+				"reflect_amount": 0.0,
+				"thorns_on_hit": true,
+				"thorns_directions": 4,
+				"thorns_damage": 5.0,
+				"thorns_speed": 400.0,
+				"thorns_range": 600.0,
+				"thorns_fire_cooldown": 0.5,
+				"color": "#00ffff",
+				"size": 1.1
+			}
+		}
+	},
+	"boss": {
+		"forest": {
+			"forest_boss_thorns": {
+				"display_name": "Thornback Charger",
+				"max_health": 600.0,
+				"damage": 12.0,
+				"move_speed": 50.0,
 				"detection_range": 800.0,
 				"damage_cooldown": 2.0,
 				"base_essence": 80,
 				"rooms_required": 6,
 				"attack_range": 22,
-				"color": "#ff2222"
+				"reflect_amount": 0.0,
+				"color": "#ff2222",
+				"size": 10.0,
+				"charge_attack_damage": 10,
+				"charge_attack_cooldown": 10,
+				"charge_attack_length": 10,
+				"charge_telegraph_duration": 2.0,
+				"charge_speed_mult": 3.0,
+				"shield_hp": 200,
+				"shield_stun_duration": 3.0,
+				"scene_path": "res://scenes/combat/enemies/ForestBossThorns.tscn",
+				"thorns_on_hit": false,
+				"thorns_directions": 6,
+				"thorns_damage": 8.0,
+				"thorns_speed": 500.0,
+				"thorns_range": 800.0,
+				"thorns_fire_cooldown": 0.3,
+				"thorns_duration": 3.0,
+				"thorns_cooldown_p2": 10.0,
+				"thorns_cooldown_p3": 6.0,
+				"recover_duration": 0.6,
+				"phase_transition_duration": 1.0,
+				"thorns_move_speed_mult": 0.5
 			}
-		]
+		}
 	}
 }

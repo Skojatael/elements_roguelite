@@ -29,17 +29,20 @@ func _on_run_started(_mode: String) -> void:
 
 
 func _generate() -> void:
-	_generate_with(ResourceManager.get_dungeon_config(), MetaManager.is_adventuring_gear_owned)
+	_generate_with(ResourceManager.get_dungeon_config(), MetaManager.is_adventuring_gear_owned, MetaManager.is_depth_scaling_unlocked, RunManager.run_domain)
 
 
-func _generate_with(config: Dictionary, gear_owned: bool) -> void:
+func _generate_with(config: Dictionary, gear_owned: bool, depth_scaling: bool = false, domain: String = "forest") -> void:
 	rooms_by_id.clear()
 	neighbours_by_id.clear()
 	start_room_id = ""
 
-	var pool: Array = config.get("combat_room_pool", [])
+	var pools: Variant = config.get("combat_room_pools", {})
+	var pool: Array = []
+	if pools is Dictionary:
+		pool = (pools as Dictionary).get(domain, [])
 	if pool.is_empty():
-		push_error("DungeonGenerator: combat_room_pool missing or empty in dungeon_config.json")
+		push_error("DungeonGenerator: no combat room pool for domain '{d}' in dungeon_config.json".format({"d": domain}))
 		return
 	var difficulty_scale: float = config.get("difficulty_scale", 0.12)
 	var target_room_count: int = config.get("base_room_count", 9)
@@ -47,14 +50,14 @@ func _generate_with(config: Dictionary, gear_owned: bool) -> void:
 	var occupied: Dictionary = {}
 	var frontier: Array = []
 
-	_record_room(CENTER, "StartRoom01", occupied, frontier, difficulty_scale)
+	_record_room(CENTER, "StartRoom01", occupied, frontier, difficulty_scale, depth_scaling)
 	start_room_id = "room_{x}_{y}".format({"x": CENTER.x, "y": CENTER.y})
 
 	while occupied.size() < target_room_count and not frontier.is_empty():
 		var idx: int = randi() % frontier.size()
 		var cell: Vector2i = frontier[idx]
 		frontier.remove_at(idx)
-		_record_room(cell, pool.pick_random(), occupied, frontier, difficulty_scale)
+		_record_room(cell, pool.pick_random(), occupied, frontier, difficulty_scale, depth_scaling)
 
 	if occupied.size() < target_room_count:
 		push_warning("DungeonGenerator: frontier exhausted at {count}/{target} rooms".format({"count": occupied.size(), "target": target_room_count}))
@@ -62,7 +65,7 @@ func _generate_with(config: Dictionary, gear_owned: bool) -> void:
 	_build_neighbours(occupied)
 
 	if gear_owned:
-		_expand_dungeon(occupied, pool, difficulty_scale)
+		_expand_dungeon(occupied, pool, difficulty_scale, depth_scaling)
 		_build_neighbours(occupied)
 
 	_promote_elite_rooms()
@@ -72,10 +75,10 @@ func _generate_with(config: Dictionary, gear_owned: bool) -> void:
 	dungeon_layout_ready.emit()
 
 
-func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array, difficulty_scale: float) -> void:
+func _record_room(cell: Vector2i, type_id: String, occupied: Dictionary, frontier: Array, difficulty_scale: float, depth_scaling: bool = false) -> void:
 	var room_id: String = "room_{x}_{y}".format({"x": cell.x, "y": cell.y})
 	var depth: int = abs(cell.x - CENTER.x) + abs(cell.y - CENTER.y)
-	var difficulty_mult: float = 1.0 + difficulty_scale * float(depth)
+	var difficulty_mult: float = 1.0 + difficulty_scale * float(depth) if depth_scaling else 1.0
 	rooms_by_id[room_id] = {
 		"room_type_id": type_id,
 		"grid_pos": cell,
@@ -98,7 +101,7 @@ func _promote_elite_rooms() -> void:
 				candidates.append(room_id)
 		if not candidates.is_empty():
 			var chosen: String = candidates.pick_random()
-			rooms_by_id[chosen]["room_type_id"] = "EliteRoom01"
+			rooms_by_id[chosen]["room_type_id"] = "ForestEliteRoom01"
 			print("[DungeonGenerator] elite promoted room_id={id} at depth={d}".format({"id": chosen, "d": d}))
 		d += ELITE_STEP
 
@@ -128,7 +131,7 @@ func _get_valid_neighbours(cell: Vector2i, occupied: Dictionary) -> Array[Vector
 	return result
 
 
-func _expand_dungeon(occupied: Dictionary, pool: Array, difficulty_scale: float) -> void:
+func _expand_dungeon(occupied: Dictionary, pool: Array, difficulty_scale: float, depth_scaling: bool = false) -> void:
 	var expansion_count: int = ResourceManager.get_dungeon_config().get("expansion_room_count", 4)
 	var max_depth: int = 0
 	for room_data: Variant in rooms_by_id.values():
@@ -151,7 +154,7 @@ func _expand_dungeon(occupied: Dictionary, pool: Array, difficulty_scale: float)
 		var idx: int = randi() % expansion_frontier.size()
 		var cell: Vector2i = expansion_frontier[idx]
 		expansion_frontier.remove_at(idx)
-		_record_room(cell, pool.pick_random(), occupied, expansion_frontier, difficulty_scale)
+		_record_room(cell, pool.pick_random(), occupied, expansion_frontier, difficulty_scale, depth_scaling)
 		expansion_frontier = expansion_frontier.filter(
 			func(c: Vector2i) -> bool:
 				var d: int = abs(c.x - CENTER.x) + abs(c.y - CENTER.y)
